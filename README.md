@@ -1,2 +1,2 @@
 # dotfiles
-My primarily development tooling configuraiton files
+My primarily development tooling configuration files
