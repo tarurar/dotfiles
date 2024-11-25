@@ -211,6 +211,9 @@
     "csharp.inlayHints.enableInlayHintsForImplicitObjectCreation": false,
     "csharp.inlayHints.enableInlayHintsForLambdaParameterTypes": false,
     "csharp.inlayHints.enableInlayHintsForTypes": false,
+    "csharp.format.enable": true,
+    "csharp.showOmnisharpLogOnError": true,
+    "csharp.suppressHiddenDiagnostics": false,
     "debug.onTaskErrors": "showErrors",
     "search.searchOnType": false,
     "github.copilot.enable": {
