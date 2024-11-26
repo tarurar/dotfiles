@@ -44,7 +44,7 @@
     "window.autoDetectColorScheme": true,
     "workbench.activityBar.location": "hidden",
     "workbench.editor.tabActionCloseVisibility": false,
-    "workbench.hover.delay": 10000,
+    "workbench.hover.delay": 3000,
     "editor.scrollbar.vertical": "auto",
     "editor.scrollbar.horizontal": "hidden",
     "workbench.editor.labelFormat": "medium",
