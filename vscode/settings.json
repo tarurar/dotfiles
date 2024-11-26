@@ -61,7 +61,6 @@
     "workbench.sideBar.location": "right",
     "workbench.editor.empty.hint": "hidden",
     "workbench.layoutControl.enabled": false,
-    "workbench.iconTheme": "vs-minimal",
     "merge-conflict.autoNavigateNextConflict.enabled": false,
     // Use simple navigation:
     "editor.gotoLocation.multipleReferences": "peek",
@@ -149,10 +148,6 @@
     "workbench.colorTheme": "Default Light Modern",
     "workbench.iconTheme": "vs-minimal",
     "editor.semanticHighlighting.enabled": "configuredByTheme",
-    "workbench.colorCustomizations": {
-        "editorError.foreground": "#00000000",
-        "editorWarning.foreground": "#00000000",
-    },
     "editor.unicodeHighlight.nonBasicASCII": false,
     "markdown.extension.syntax.decorationFileSizeLimit": 5000,
     "[xml]": {
