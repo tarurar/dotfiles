@@ -161,7 +161,8 @@
         "file:///Users/atarutin/.vscode/extensions/atlassian.atlascode-3.0.10/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
     },
     "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.folding": true
     },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
