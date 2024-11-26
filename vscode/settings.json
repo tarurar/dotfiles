@@ -16,7 +16,7 @@
     "editor.renderLineHighlight": "none",
     "editor.hideCursorInOverviewRuler": false,
     "explorer.compactFolders": false,
-    "editor.occurrencesHighlight": "off",
+    "editor.occurrencesHighlight": "singleFile",
     "editor.overviewRulerBorder": false,
     "editor.bracketPairColorization.enabled": false,
     "editor.rulers": [
