@@ -112,7 +112,9 @@
         "**/obj": true,
         "**/log": true,
         "**/logs": true,
-        "**/lcov.info": true
+        "**/lcov.info": true,
+        "**/CoverageResults": true,
+        "**/TestResults": true
     },
     "workbench.editorAssociations": {
         "*.ipynb": "jupyter-notebook",
@@ -142,6 +144,7 @@
     "git.decorations.enabled": true,
     "git.openRepositoryInParentFolders": "never",
     "git.confirmSync": false,
+    "git.blame.statusBarItem.enabled": true,
     "scm.graph.pageSize": 25,
     // Tools, extensions, and languages:
     "problems.decorations.enabled": false,
@@ -212,11 +215,23 @@
     "csharp.showOmnisharpLogOnError": true,
     "csharp.suppressHiddenDiagnostics": false,
     "debug.onTaskErrors": "showErrors",
+    "debug.console.collapseIdenticalLines": false,
     "search.searchOnType": false,
-    "github.copilot.enable": {
-        "*": true,
-        "plaintext": false,
-        "markdown": true,
-        "scminput": false
-    }
+    // GitHub Copilot:
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "github.copilot.editor.enableAutoCompletions": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": "../copilot-instructions.md"
+        }
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": "../copilot-commit-message-instructions.md"
+        }
+    ]
 }
