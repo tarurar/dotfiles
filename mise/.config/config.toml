@@ -1,0 +1,62 @@
+[settings]
+experimental = true
+
+[tasks."llm:generate_bundle"]
+description = "Generate LLM bundle output using repomix"
+run = """
+#!/usr/bin/env bash
+repomix --style xml --output-show-line-numbers --output output.txt --ignore **/uv.lock,**/package-lock.json,**/.env,**/Cargo.lock,**/node_modules,**/target,**/dist,**/build,**/output.txt,**/yarn.lock,**/.editorconfig,**/.gitignore,**/.vscode,**/.idea,**/.DS_Store,**/CoverageResults,**/obj,**/bin
+"""
+
+[tasks."llm:generate_feature_diff"]
+description = "Generate LLM bundle output git diff"
+quiet = true
+dir = "{{ cwd }}"
+run = """
+#!/usr/bin/env bash
+git diff master > diff_output.txt
+"""
+
+[tasks."llm:clean_bundles"]
+description = "Clean LLM bundle output files created using repomix"
+run = """
+#!/usr/bin/env bash
+find . -name "output.txt" -print -delete
+find . -name "diff_output.txt" -print -delete
+"""
+
+[tasks."llm:generate_readme"]
+depends = "llm:generate_bundle"
+description = "Generate README.md file from repository content stored in output.txt using LLM model"
+run = """
+#!/usr/bin/env bash
+cat output.txt | llm -t readme-gen > README.md
+"""
+
+[tasks."llm:generate_codereview"]
+depends = "llm:generate_bundle"
+description = "Generate code review from repository content stored in output.txt using LLM model"
+run = """
+#!/usr/bin/env bash
+cat output.txt | llm -t code-review-gen > code_review.md
+"""
+
+[tasks."llm:generate_codereview_diff"]
+depends = "llm:generate_feature_diff"
+description = "Generate code review from repository content stored in diff_output.txt using LLM model"
+quiet = true
+dir = "{{ cwd }}"
+run = """
+#!/usr/bin/env bash
+cat diff_output.txt | llm -t code-review-diff-gen > code_review_diff.md
+"""
+
+[tasks."llm:generate_missing_tests"]
+depends = "llm:generate_bundle"
+description = "Generate missing tests from repository content stored in output.txt using LLM generation"
+quiet = true
+dir = "{{ cwd }}"
+run = """
+#!/usr/bin/env bash
+cat output.txt | llm -m claude-3.7-sonnet -t missing-tests-gen > missing_tests.md
+"""
