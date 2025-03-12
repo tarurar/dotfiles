@@ -6,6 +6,14 @@ This document outlines coding standards and conventions for .NET C# backend team
 
 ## C# Coding Standards
 
+### Style
+- Prefer functional programming constructs over imperative ones
+- Use expression-bodied members for single-line methods and properties
+- Every function/method should have a single responsibility and return a value
+- Every function/method should have a single abstraction level
+- Avoid assigments, prefer returning values
+- Use pattern matching instead of `if` statements when possible
+
 ### Naming Conventions
 
 - **PascalCase** for:
@@ -24,34 +32,6 @@ This document outlines coding standards and conventions for .NET C# backend team
 
 - **ALL_CAPS** for:
   - Constant values
-
-### Examples
-
-```csharp
-// Class and interface
-public interface IUserService
-{
-    Task<User> GetUserByIdAsync(int userId);
-}
-
-// Class implementation
-public class UserService : IUserService
-{
-    private readonly IUserRepository _userRepository;
-    private const string CACHE_KEY_PREFIX = "user_";
-    
-    public UserService(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-    
-    public async Task<User> GetUserByIdAsync(int userId)
-    {
-        var cacheKey = $"{CACHE_KEY_PREFIX}{userId}";
-        // Implementation
-    }
-}
-```
 
 ### File Organization
 
@@ -87,46 +67,12 @@ public class UserService : IUserService
 - Avoid mixing synchronous and asynchronous code
 - Use `ConfigureAwait(false)` for library code
 
-```csharp
-// Good
-public async Task<User> GetUserAsync(int id)
-{
-    return await _repository.GetById(id).ConfigureAwait(false);
-}
-
-// Avoid
-public User GetUser(int id)
-{
-    return _repository.GetByIdAsync(id).Result; // Potential deadlock
-}
-```
-
 ### Error Handling
 
 - Use exceptions for exceptional cases, not for control flow
 - Create custom exception types for domain-specific errors
 - Always include meaningful error messages
 - Use try/catch blocks judiciously
-
-```csharp
-public async Task<User> GetUserAsync(int id)
-{
-    try
-    {
-        var user = await _repository.GetByIdAsync(id);
-        if (user == null)
-        {
-            throw new UserNotFoundException($"User with ID {id} not found");
-        }
-        return user;
-    }
-    catch (DatabaseConnectionException ex)
-    {
-        _logger.LogError(ex, "Database connection failed while retrieving user {UserId}", id);
-        throw new ServiceUnavailableException("Service temporarily unavailable", ex);
-    }
-}
-```
 
 ### Dependency Injection
 
@@ -135,21 +81,6 @@ public async Task<User> GetUserAsync(int id)
 - Use property injection only for optional dependencies
 - Favor composition over inheritance
 
-```csharp
-// Good
-public class OrderService
-{
-    private readonly IOrderRepository _orderRepository;
-    private readonly ILogger<OrderService> _logger;
-    
-    public OrderService(IOrderRepository orderRepository, ILogger<OrderService> logger)
-    {
-        _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-}
-```
-
 ### Null Checking
 
 - Use null-conditional operator (`?.`) and null-coalescing operator (`??`) when appropriate
@@ -157,50 +88,11 @@ public class OrderService
 - Utilize C# 8.0+ nullable reference types
 - Validate parameters with guard clauses at the beginning of methods
 
-```csharp
-public void ProcessOrder(Order order)
-{
-    if (order is null)
-    {
-        throw new ArgumentNullException(nameof(order));
-    }
-    
-    var customerName = order.Customer?.Name ?? "Unknown";
-}
-```
-or 
-```csharp
-public void ProcessOrder(Order order)
-{
-    ArgumentNullException.ThrowIfNull(order, nameof(order));
-    
-    var customerName = order.Customer?.Name ?? "Unknown";
-}
-```
-
 ### LINQ Usage
 
 - Prefer method syntax over query syntax for consistency
 - Chain LINQ methods thoughtfully; break long chains into multiple statements
 - Avoid multiple enumerations of the same collection
-
-```csharp
-// Good
-var activeUsers = users
-    .Where(u => u.IsActive)
-    .OrderBy(u => u.LastName)
-    .Select(u => new UserDto(u.Id, u.FullName));
-
-// Avoid
-var results = users.Where(u => u.IsActive); // First enumeration
-if (results.Count() > 0) // Second enumeration
-{
-    foreach (var user in results) // Third enumeration
-    {
-        // Do something
-    }
-}
-```
 
 ## API Design
 
@@ -212,38 +104,6 @@ if (results.Count() > 0) // Second enumeration
 - Version your APIs (e.g., `/api/v1/users`)
 - Return consistent response formats
 
-### Controller Structure
-
-```csharp
-[ApiController]
-[Route("api/v1/[controller]")]
-public class UsersController : ControllerBase
-{
-    private readonly IUserService _userService;
-    private readonly ILogger<UsersController> _logger;
-    
-    public UsersController(IUserService userService, ILogger<UsersController> logger)
-    {
-        _userService = userService;
-        _logger = logger;
-    }
-    
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserByIdAsync(int id)
-    {
-        var user = await _userService.GetUserByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-        
-        return Ok(new UserResponse(user));
-    }
-}
-```
-
 ## Database Access
 
 ### Entity Framework Conventions
@@ -254,34 +114,6 @@ public class UsersController : ControllerBase
 - Use migrations for database schema changes
 - Implement repository pattern for testability
 
-```csharp
-public class ApplicationDbContext : DbContext
-{
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
-    
-    public DbSet<User> Users { get; set; }
-    public DbSet<Order> Orders { get; set; }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderConfiguration());
-    }
-}
-
-public class UserConfiguration : IEntityTypeConfiguration<User>
-{
-    public void Configure(EntityTypeBuilder<User> builder)
-    {
-        builder.HasKey(u => u.Id);
-        builder.Property(u => u.Email).IsRequired().HasMaxLength(255);
-        builder.HasIndex(u => u.Email).IsUnique();
-    }
-}
-```
-
 ## Testing
 
 ### Unit Testing
@@ -291,23 +123,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 - Mock dependencies using Moq
 - Test one behavior per test method
 - Use meaningful test names that describe behavior
-
-```csharp
-[Fact]
-public async Task GetUserByIdAsync_WhenUserExists_ReturnsUser()
-{
-    var userId = 1;
-    var expectedUser = new User { Id = userId, Name = "Test User" };
-    
-    _repositoryMock.Setup(r => r.GetByIdAsync(userId))
-        .ReturnsAsync(expectedUser);
-    
-    var result = await _userService.GetUserByIdAsync(userId);
-    
-    Assert.Equal(expectedUser.Id, result.Id);
-    Assert.Equal(expectedUser.Name, result.Name);
-}
-```
 
 ## Security
 
