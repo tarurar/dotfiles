@@ -1,0 +1,70 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "mise run dotnet:build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "silent",
+                "focus": false,
+                "showReuseMessage": false
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build:fast",
+            "command": "mise run dotnet:build:fast",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "focus": false,
+                "showReuseMessage": false
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build:strict",
+            "command": "mise run dotnet:build:strict",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "silent",
+                "focus": false,
+                "showReuseMessage": false
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "mise run dotnet:test",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "coverage",
+            "command": "mise run dotnet:coverage",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
