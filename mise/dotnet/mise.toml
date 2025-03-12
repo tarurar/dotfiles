@@ -31,8 +31,23 @@ dotnet build "$SOLUTION_FILE" \
     /property:IsLocalBuild=true \
 '''
 
+[tasks."dotnet:build:fast"]
+description = "Builds the .NET solution quickly just for development."
+quiet = true
+dir = "{{ cwd }}"
+run = '''
+set -e
+
+SOLUTION_FILE=$(mise run find-solution )
+
+dotnet build "$SOLUTION_FILE" \
+    /property:Configuration=Debug \
+    /property:IsLocalBuild=true \
+    --nologo
+'''
+
 [tasks."dotnet:build:strict"]
-description = "Builds the .NET solution. Warnings are treated as errors."
+description = "Builds the .NET solution from the scratch. Warnings are treated as errors."
 quiet = true
 dir = "{{ cwd }}"
 run = '''
