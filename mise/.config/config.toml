@@ -3,6 +3,8 @@ experimental = true
 
 [tasks."llm:generate_bundle"]
 description = "Generate LLM bundle output using repomix"
+quiet = true
+dir = "{{ cwd }}"
 run = """
 #!/usr/bin/env bash
 repomix --style xml --output-show-line-numbers --output output.txt --ignore **/uv.lock,**/package-lock.json,**/.env,**/Cargo.lock,**/node_modules,**/target,**/dist,**/build,**/output.txt,**/yarn.lock,**/.editorconfig,**/.gitignore,**/.vscode,**/.idea,**/.DS_Store,**/CoverageResults,**/obj,**/bin
@@ -19,6 +21,8 @@ git diff master > diff_output.txt
 
 [tasks."llm:clean_bundles"]
 description = "Clean LLM bundle output files created using repomix"
+quiet = true
+dir = "{{ cwd }}"
 run = """
 #!/usr/bin/env bash
 find . -name "output.txt" -print -delete
@@ -28,6 +32,8 @@ find . -name "diff_output.txt" -print -delete
 [tasks."llm:generate_readme"]
 depends = "llm:generate_bundle"
 description = "Generate README.md file from repository content stored in output.txt using LLM model"
+quiet = true
+dir = "{{ cwd }}"
 run = """
 #!/usr/bin/env bash
 cat output.txt | llm -t readme-gen > README.md
@@ -36,6 +42,8 @@ cat output.txt | llm -t readme-gen > README.md
 [tasks."llm:generate_codereview"]
 depends = "llm:generate_bundle"
 description = "Generate code review from repository content stored in output.txt using LLM model"
+quiet = true
+dir = "{{ cwd }}"
 run = """
 #!/usr/bin/env bash
 cat output.txt | llm -t code-review-gen > code_review.md
