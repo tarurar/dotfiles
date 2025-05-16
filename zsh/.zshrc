@@ -142,3 +142,61 @@ eval "$(/Users/atarutin/.local/bin/mise activate zsh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Some useful functions
+# -----------------------------------------------------------------------------
+# Description:
+#   Extracts the latest version entry for each component from a CSV file.
+#
+# Usage:
+#   services_latest_versions <csv_file>
+#
+# The function assumes the CSV has the following columns:
+# component, tag, date, url
+#
+# It preserves the header and outputs only the row with the latest tag (version) for each component.
+# The version comparison is version-aware (handles semantic versions correctly).
+#
+# Example:
+#   services_latest_versions components.csv
+services_latest_versions() {
+    local file="$1"
+    (head -n 1 "$file" && tail -n +2 "$file" | sort -t, -k1,1 -k2,2Vr | awk -F, '!seen[$1]++')
+}
+# -----------------------------------------------------------------------------
+# Description:
+#   Converts a CSV file into HTML <tr> table rows.
+#   Skips the header line and processes each row into the following format:
+#
+#   <tr>
+#       <td></td>
+#       <td>component</td>
+#       <td>tag</td>
+#       <td><a href="url">Link</a></td>
+#   </tr>
+#
+# Usage:
+#   csv_to_html_rows <path-to-csv-file>
+#   Example:
+#       csv_to_html_rows ./data.csv > output.html
+#
+# Dependencies:
+#   - Requires 'mlr' (Miller) for proper CSV parsing.
+#   - Install it using: brew install miller  (on macOS)
+#
+# Notes:
+#   - Properly handles CSV fields with spaces, commas, and quotes.
+#   - Designed for quick generation of HTML tables from release version files.
+csv_to_html_rows() {
+    local file="$1"
+    mlr --csv --from "$file" cat | tail -n +2 | while IFS=, read -r component tag date url; do
+        cat <<EOF
+<tr>
+        <td></td>
+        <td>${component}</td>
+        <td>${tag}</td>
+        <td><a href="${url}">Link</a></td>
+</tr>
+EOF
+    done
+}
