@@ -18,7 +18,7 @@ export DOTNET_TOOLS="$HOME/.dotnet/tools"
 # Rust tooling
 export RUST_HOME="$HOME/.cargo/bin"
 # Default editor
-export EDITOR="code --wait"
+export EDITOR="nano"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
