@@ -89,9 +89,7 @@ HIST_IGNORE_SPACE="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
     git
-    docker
     gitfast
-    dotnet
     jira
     z
     zsh-autosuggestions
@@ -132,8 +130,6 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-alias ls="eza --tree --level=2 --color=always --icons=always --no-time --no-user --no-permissions --long --no-filesize --all"
 
 export PATH='/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/curl/bin'
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_TOOLS
