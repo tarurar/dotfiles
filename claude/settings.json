@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet format:*)",
+      "Bash(mise run dotnet:build:fast:*)",
+      "Bash(dotnet build:*)",
+      "Bash(mise run dotnet:test:*)",
+      "Bash(dotnet test:*)",
+      "Bash(git add:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(gh pr list)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "mcp__mcp-atlassian__jira_get_issue"
+    ],
+    "deny": []
+  },
+  "model": "sonnet"
+}
