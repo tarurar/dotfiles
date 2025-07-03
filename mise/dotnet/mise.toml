@@ -28,7 +28,7 @@ dotnet build "$SOLUTION_FILE" \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
     /property:GenerateDocumentation=false \
-    /property:IsLocalBuild=true \
+    /property:IsLocalBuild=true
 '''
 
 [tasks."dotnet:build:fast"]
