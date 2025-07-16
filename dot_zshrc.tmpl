@@ -102,8 +102,8 @@ plugins=(
 )
 
 # Jira plugin configuration
-JIRA_URL="https://codedoc.atlassian.net/"
-JIRA_NAME="Andrei Tarutin"
+JIRA_URL="{{ env "JIRA_URL" }}"
+JIRA_NAME="{{ env "JIRA_NAME" }}"
 
 source $ZSH/oh-my-zsh.sh
 
