@@ -95,5 +95,6 @@
     "debug.onTaskErrors": "showErrors",
     "debug.console.collapseIdenticalLines": false,
     "search.searchOnType": false,
-    "window.commandCenter": false
+    "window.commandCenter": false,
+    "git.openRepositoryInParentFolders": "never"
 }
