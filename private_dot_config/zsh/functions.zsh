@@ -55,7 +55,6 @@ services_latest_versions() {
     (head -n 1 "$file" && tail -n +2 "$file" | sort -t, -k1,1 -k2,2Vr | awk -F, '!seen[$1]++')
 }
 
-
 # -----------------------------------------------------------------------------
 # Description:
 #   Converts a CSV file into HTML <tr> table rows.
