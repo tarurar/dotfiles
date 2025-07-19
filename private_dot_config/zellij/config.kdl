@@ -259,7 +259,7 @@ themes {
             emphasis_3 182 214 253
         }
         text_selected {
-            base 255 255 255        // White text for better contrast
+            base 66 66 66        // White text for better contrast
             background 30 102 245   // Blue background (your alacritty blue #1E66F5)
             emphasis_0 215 95 95
             emphasis_1 32 165 186
