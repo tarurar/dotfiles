@@ -17,6 +17,9 @@ decorations = "none"
 [font]
 normal.family = "MesloLGS NF"
 normal.style = "Regular"
+{{- if eq .chezmoi.os "darwin" }}
+size = 16
+{{- end}}
 
 [keyboard]
 bindings = [
