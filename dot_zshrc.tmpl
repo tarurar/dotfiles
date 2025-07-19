@@ -154,8 +154,12 @@ chpwd_functions+=(zellij_tab_name_update)
 # Run it once upon start
 zellij_tab_name_update
 
-# Mise activation 
+# Mise activation
+{{- if eq .chezmoi.os "darwin" }}
+eval "$($HOME/.local/bin/mise activate zsh)"
+{{- else}} 
 eval "$(/usr/bin/mise activate zsh)"
+{{- end }}
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
