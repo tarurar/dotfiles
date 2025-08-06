@@ -66,14 +66,14 @@
             },
             "problemMatcher": "$msCompile"
         },
-	{
+        {
             "label": "format",
             "command": "mise run dotnet:format",
             "type": "shell",
-	    "group": {
-	        "kind": "build",
-	        "isDefault": false
-	    },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
             "presentation": {
                 "reveal": "silent",
                 "focus": false,
