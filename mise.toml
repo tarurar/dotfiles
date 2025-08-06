@@ -95,3 +95,15 @@ SOLUTION_FILE=$(mise run find-solution)
 
 dotnet test "$SOLUTION_FILE"
 '''
+
+[tasks."dotnet:format"]
+description = "Formats the .NET solution code using dotnet format"
+quiet = true
+dir = "{{ cwd }}"
+run = '''
+set -e
+
+SOLUTION_FILE=$(mise run find-solution)
+
+dotnet format "$SOLUTION_FILE"
+'''
