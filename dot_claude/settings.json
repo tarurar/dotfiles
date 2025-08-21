@@ -25,7 +25,9 @@
       "mcp__serena__onboarding",
       "mcp__serena__activate_project",
       "mcp__serena__write_memory",
-      "mcp__serena__think_about_collected_information"
+      "mcp__serena__think_about_collected_information",
+      "mcp__serena__read_memory",
+      "mcp__microsoft_docs_mcp__microsoft_docs_fetch"
     ],
     "deny": []
   },
