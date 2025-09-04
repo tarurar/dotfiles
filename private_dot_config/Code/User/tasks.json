@@ -56,6 +56,16 @@
             },
             "problemMatcher": "$msCompile"
         },
+	{
+            "label": "test:full",
+            "command": "mise run dotnet:test:full",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": "$msCompile"
+        },
         {
             "label": "coverage",
             "command": "mise run dotnet:coverage",
