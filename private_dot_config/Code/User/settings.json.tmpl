@@ -97,7 +97,7 @@
     "search.searchOnType": false,
     "window.commandCenter": false,
     "git.openRepositoryInParentFolders": "never",
-{{- if .mssql.server }}
+{{- if and (hasKey . "mssql") .mssql.server }}
     "mssql.connectionGroups": [
         {
             "name": "ROOT",
