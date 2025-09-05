@@ -1,0 +1,2 @@
+# Chezmoi config file contains sensitive data and is machine-specific
+~/.config/chezmoi/chezmoi.toml

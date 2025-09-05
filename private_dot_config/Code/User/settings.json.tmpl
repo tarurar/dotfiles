@@ -96,5 +96,48 @@
     "debug.console.collapseIdenticalLines": false,
     "search.searchOnType": false,
     "window.commandCenter": false,
-    "git.openRepositoryInParentFolders": "never"
+    "git.openRepositoryInParentFolders": "never",
+{{- if .mssql.server }}
+    "mssql.connectionGroups": [
+        {
+            "name": "ROOT",
+            "id": "{{ .mssql.groupId }}"
+        }
+    ],
+    "mssql.connections": [
+        {
+            "authenticationType": "SqlLogin",
+            "connectTimeout": 30,
+            "applicationName": "vscode-mssql",
+            "applicationIntent": "ReadWrite",
+            "profileName": "{{ .mssql.profileName }}",
+            "server": "{{ .mssql.server }}",
+            "user": "{{ .mssql.username }}",
+            "password": "",
+            "savePassword": true,
+            "database": "",
+            "trustServerCertificate": true,
+            "groupId": "{{ .mssql.groupId }}",
+            "id": "{{ .mssql.id }}",
+            "commandTimeout": 30,
+            "encrypt": "Mandatory",
+            "profileSource": 0,
+            "emptyPasswordInput": false
+        }
+    ],
+{{- end }}
+    "diffEditor.ignoreTrimWhitespace": false,
+    "explorer.confirmDragAndDrop": false,
+    "coverage-gutters.coverageFileNames": [
+        "lcov.info",
+        "coverage.info",
+        "cov.xml",
+        "coverage.xml",
+        "cobertura.xml",
+        "jacoco.xml",
+        "coverage.cobertura.xml"
+    ],
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.showRulerCoverage": true,
+    "csharpier.enableDiagnostics": false
 }
