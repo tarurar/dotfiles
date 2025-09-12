@@ -31,7 +31,8 @@
       "mcp__microsoft_docs_mcp__microsoft_docs_search",
       "mcp__zen__analyze",
       "mcp__zen__thinkdeep",
-      "mcp__zen__listmodels"
+      "mcp__zen__listmodels",
+      "mcp__zen__chat"
     ],
     "deny": []
   },
