@@ -34,7 +34,8 @@
       "mcp__zen__listmodels",
       "mcp__zen__chat",
       "mcp__zen__consensus",
-      "mcp__zen__challenge"
+      "mcp__zen__challenge",
+      "mcp__zen__codereview"
     ],
     "deny": []
   },
