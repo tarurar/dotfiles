@@ -4,7 +4,11 @@ general.import = ["~/.config/alacritty/themes/themes/catppuccin_latte.toml"]
 TERM = "xterm-256color"
 
 [terminal]
+{{- if eq .chezmoi.os "darwin" }}
+shell.program = "/opt/homebrew/bin/zellij"
+{{- else}}
 shell.program = "/usr/local/bin/zellij"
+{{- end}}
 shell.args = ["attach", "--create", "main"]
 
 [window]
