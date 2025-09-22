@@ -4,8 +4,8 @@ general.import = ["~/.config/alacritty/themes/themes/catppuccin_latte.toml"]
 TERM = "xterm-256color"
 
 [terminal]
-shell.program = "zsh"
-shell.args = ["-l", "-c", "zellij attach -c"]
+shell.program = "/usr/local/bin/zellij"
+shell.args = ["attach", "--create", "main"]
 
 [window]
 padding.x = 5
