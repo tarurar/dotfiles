@@ -15,6 +15,10 @@ export DOTNET_TOOLS="$HOME/.dotnet/tools"
 export RUST_HOME="$HOME/.cargo/bin"
 # Custom npm modules path
 export NPM_MODULES_BIN="$HOME/.npm-global/bin"
+# Configure homebrew on macOS
+{{- if eq .chezmoi.os "darwin" }}
+export BREW_ROOT="/opt/homebrew/bin"
+{{- end }}
 # Configuring bat default theme
 export BAT_THEME="GitHub"
 
@@ -23,6 +27,9 @@ export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_TOOLS
 export PATH=$PATH:$RUST_HOME
 export PATH=$PATH:$NPM_MODULES_BIN
+{{- if eq .chezmoi.os "darwin" }}
+export PATH=$PATH:$BREW_ROOT
+{{- end }}
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
