@@ -1,4 +1,9 @@
- # Claude Command: Commit
+---
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*)
+description: Commit all the changes made
+---
+
+# Claude Command: Commit
 
   This command helps to create well-formatted commits with conventional commit messages.
 
