@@ -11,16 +11,20 @@ DOTNET_TC_QuickJitForLoops = "1"
 ASPNETCORE_ENVIRONMENT = "Development"
 DOTNET_WATCH_RESTART_ON_RUDE_EDIT = "1"
 
+[tasks."prepare-solution"]
+description = "Finds the solution file and exports it to SOLUTION_FILE env var"
+hide = true
+env = { SOLUTION_FILE = "$(mise run find-solution)" }
+
 [tasks."dotnet:build"]
+depends = ["prepare-solution"]
 description = "Builds the .NET solution. Warnings are NOT treated as errors."
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
 
-SOLUTION_FILE=$(mise run find-solution )
-
-dotnet build "$SOLUTION_FILE" \
+dotnet build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
