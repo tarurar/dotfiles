@@ -71,6 +71,8 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
+rm -rf **/CoverageResults/
+
 SOLUTION_FILE=$(mise run find-solution)
 
 dotnet test "$SOLUTION_FILE" \
