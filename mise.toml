@@ -75,9 +75,7 @@ set -e
 
 rm -rf **/CoverageResults/
 
-SOLUTION_FILE=$(mise run find-solution)
-
-dotnet test --no-build "$SOLUTION_FILE" \
+dotnet test --no-build "${SOLUTION_FILE}" \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
     /property:CollectCoverage=true \
@@ -95,9 +93,7 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
-SOLUTION_FILE=$(mise run find-solution)
-
-dotnet test --no-build "$SOLUTION_FILE" --filter "FullyQualifiedName!~Integration"
+dotnet test --no-build "${SOLUTION_FILE}" --filter "FullyQualifiedName!~Integration"
 '''
 
 [tasks."dotnet:test:full"]
@@ -108,19 +104,16 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
-SOLUTION_FILE=$(mise run find-solution)
-
-dotnet test --no-build "$SOLUTION_FILE"
+dotnet test --no-build "${SOLUTION_FILE}"
 '''
 
 [tasks."dotnet:format"]
+depends = ["prepare-solution"]
 description = "Formats the .NET solution code using dotnet format"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
 
-SOLUTION_FILE=$(mise run find-solution)
-
-dotnet format "$SOLUTION_FILE"
+dotnet format style analyzers "${SOLUTION_FILE}"
 '''
