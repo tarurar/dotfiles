@@ -106,14 +106,3 @@ set -e
 
 dotnet test --no-build "${SOLUTION_FILE}"
 '''
-
-[tasks."dotnet:format"]
-depends = ["prepare-solution"]
-description = "Formats the .NET solution code using dotnet format"
-quiet = true
-dir = "{{ cwd }}"
-run = '''
-set -e
-
-dotnet format analyzers "${SOLUTION_FILE}"
-'''
