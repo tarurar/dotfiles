@@ -115,5 +115,5 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
-dotnet format style analyzers "${SOLUTION_FILE}"
+dotnet format analyzers "${SOLUTION_FILE}"
 '''
