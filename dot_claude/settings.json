@@ -36,7 +36,8 @@
       "mcp__zen__consensus",
       "mcp__zen__challenge",
       "mcp__zen__codereview",
-      "mcp__zen__testgen"
+      "mcp__zen__testgen",
+      "mcp__zen__refactor"
     ],
     "deny": []
   },
