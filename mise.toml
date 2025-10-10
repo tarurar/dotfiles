@@ -109,18 +109,23 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     /property:CoverletOutput=../CoverageResults/ \
     /property:MergeWith=../CoverageResults/coverage.json \
     /property:CoverletOutputFormat=\"lcov,json\" \
-    -m:1
+    --parallel \
+    -- RunConfiguration.MaxCpuCount=0
 '''
 
 [tasks."dotnet:test"]
-depends = ["dotnet:build"]
+depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests (excludes integration tests)"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
 
-dotnet test --no-build "${SOLUTION_FILE}" --filter "FullyQualifiedName!~Integration"
+dotnet test --no-build "${SOLUTION_FILE}" \
+    --filter "FullyQualifiedName!~Integration" \
+    --parallel \
+    --blame-hang-timeout 60s \
+    -- RunConfiguration.MaxCpuCount=0
 '''
 
 [tasks."dotnet:test:full"]
