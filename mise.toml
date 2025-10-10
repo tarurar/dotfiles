@@ -19,6 +19,21 @@ description = "Finds the solution file and exports it to SOLUTION_FILE env var"
 hide = true
 env = { SOLUTION_FILE = "$(mise run find-solution)" }
 
+[tasks."dotnet:restore"]
+depends = ["prepare-solution"]
+description = "Restore NuGet packages with optimizations"
+quiet = true
+dir = "{{ cwd }}"
+run = '''
+set -e
+
+dotnet restore "${SOLUTION_FILE}" \
+    --use-lock-file \
+    --locked-mode \
+    -maxcpucount \
+    --nologo
+'''
+
 [tasks."dotnet:build"]
 depends = ["prepare-solution"]
 description = "Builds the .NET solution. Warnings are NOT treated as errors."
