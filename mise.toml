@@ -13,7 +13,7 @@ DOTNET_WATCH_RESTART_ON_RUDE_EDIT = "1"
 DOTNET_USE_POLLING_FILE_WATCHER = "0"  # Reduces file watcher overhead
 DOTNET_CLI_UI_LANGUAGE = "en"  # Skip locale detection
 MSBuildEnableWorkloadResolver = "false"  # Skip workload resolution if not needed
-
+ 
 [tasks."prepare-solution"]
 description = "Finds the solution file and exports it to SOLUTION_FILE env var"
 hide = true
@@ -47,7 +47,11 @@ dotnet build "${SOLUTION_FILE}" \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
     /property:GenerateDocumentation=false \
-    /property:IsLocalBuild=true
+    /property:IsLocalBuild=true \
+    -maxcpucount \
+    -nodeReuse:true \
+    /property:UseSharedCompilation=true \
+    /property:BuildInParallel=true
 '''
 
 [tasks."dotnet:build:fast"]
