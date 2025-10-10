@@ -11,8 +11,11 @@ DOTNET_TC_QuickJitForLoops = "1"
 ASPNETCORE_ENVIRONMENT = "Development"
 DOTNET_WATCH_RESTART_ON_RUDE_EDIT = "1"
 DOTNET_USE_POLLING_FILE_WATCHER = "0"  # Reduces file watcher overhead
+MSBuildNodeReuseTimeout = "900"
 DOTNET_CLI_UI_LANGUAGE = "en"  # Skip locale detection
 MSBuildEnableWorkloadResolver = "false"  # Skip workload resolution if not needed
+DOTNET_MaxDegreeOfParallelism = "24"
+XUNIT_MAXPARALLEL = "24"
  
 [tasks."prepare-solution"]
 description = "Finds the solution file and exports it to SOLUTION_FILE env var"
@@ -30,7 +33,7 @@ set -e
 dotnet restore "${SOLUTION_FILE}" \
     --use-lock-file \
     --locked-mode \
-    -maxcpucount \
+    -maxcpucount:12 \
     --nologo
 '''
 
@@ -48,7 +51,7 @@ dotnet build "${SOLUTION_FILE}" \
     /consoleloggerparameters:NoSummary \
     /property:GenerateDocumentation=false \
     /property:IsLocalBuild=true \
-    -maxcpucount \
+    -maxcpucount:12 \
     -nodeReuse:true \
     /property:UseSharedCompilation=true \
     /property:BuildInParallel=true
@@ -67,7 +70,7 @@ dotnet build "${SOLUTION_FILE}" \
     /property:IsLocalBuild=true \
     --nologo \
     --no-restore \
-    -maxcpucount \
+    -maxcpucount:12 \
     -nodeReuse:true \
     /property:UseSharedCompilation=true \
     /property:BuildInParallel=true
@@ -110,7 +113,7 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     /property:MergeWith=../CoverageResults/coverage.json \
     /property:CoverletOutputFormat=\"lcov,json\" \
     --parallel \
-    -- RunConfiguration.MaxCpuCount=0
+    -- RunConfiguration.MaxCpuCount=12
 '''
 
 [tasks."dotnet:test"]
@@ -125,7 +128,10 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     --filter "FullyQualifiedName!~Integration" \
     --parallel \
     --blame-hang-timeout 60s \
-    -- RunConfiguration.MaxCpuCount=0
+    -- RunConfiguration.MaxCpuCount=24 \
+       RunConfiguration.DisableAppDomain=true \
+       xUnit.MaxParallelThreads=24 \
+       NUnit.NumberOfTestWorkers=24
 '''
 
 [tasks."dotnet:test:full"]
