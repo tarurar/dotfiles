@@ -105,6 +105,11 @@ set -e
 
 rm -rf **/CoverageResults/
 
+EXCLUDE_PARAM=""
+if [ -n "${COVERAGE_EXCLUDE:-}" ] then;
+    EXCLUDE_PARAM="/property:Exclude=\"${COVERAGE_EXCLUDE}\""
+fi
+
 dotnet test --no-build "${SOLUTION_FILE}" \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
@@ -112,6 +117,7 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     /property:CoverletOutput=../CoverageResults/ \
     /property:MergeWith=../CoverageResults/coverage.json \
     /property:CoverletOutputFormat=\"lcov,json\" \
+    ${EXCLUDE_PARAM} \
     --parallel \
     -- RunConfiguration.MaxCpuCount=12
 '''
