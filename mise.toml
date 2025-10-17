@@ -106,7 +106,7 @@ set -e
 rm -rf **/CoverageResults/
 
 EXCLUDE_PARAM=""
-if [ -n "${COVERAGE_EXCLUDE:-}" ] then;
+if [ -n "${COVERAGE_EXCLUDE:-}" ]; then
     EXCLUDE_PARAM="/property:Exclude=\"${COVERAGE_EXCLUDE}\""
 fi
 
