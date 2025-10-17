@@ -117,9 +117,9 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     /property:CoverletOutput=../CoverageResults/ \
     /property:MergeWith=../CoverageResults/coverage.json \
     /property:CoverletOutputFormat=\"lcov,json\" \
-    ${EXCLUDE_PARAM} \
     --parallel \
-    -- RunConfiguration.MaxCpuCount=12
+    -- RunConfiguration.MaxCpuCount=12 \
+    ${EXCLUDE_PARAM}
 '''
 
 [tasks."dotnet:test"]
