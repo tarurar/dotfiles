@@ -131,7 +131,6 @@ set -e
 
 dotnet test --no-build "${SOLUTION_FILE}" \
     --filter "FullyQualifiedName!~Integration" \
-    --parallel \
     --blame-hang-timeout 60s \
     -- RunConfiguration.MaxCpuCount=24 \
        RunConfiguration.DisableAppDomain=true \
