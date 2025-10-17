@@ -14,6 +14,7 @@
       "Bash(gh pr list)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
+      "Bash(tree:*)",
       "mcp__mcp-atlassian__jira_get_issue",
       "mcp__serena__list_dir",
       "mcp__serena__get_symbols_overview",
