@@ -121,6 +121,78 @@ dotnet test --no-build "${SOLUTION_FILE}" \
     -- RunConfiguration.MaxCpuCount=12
 '''
 
+[tasks."dotnet:coverage2"]
+depends = ["dotnet:build"]
+description = "Runs tests with Coverlet and generates HTML/Text reports with ReportGenerator"
+quiet = true
+dir = "{{ cwd }}"
+run = '''
+set -e
+
+# Clean up old coverage results
+rm -rf CoverageResults/
+rm -rf tests/*/TestResults/
+
+# Set up exclude parameter if defined
+EXCLUDE_PARAM=""
+if [ -n "${COVERAGE_EXCLUDE:-}" ]; then
+    EXCLUDE_PARAM="/p:Exclude=\"${COVERAGE_EXCLUDE}\""
+fi
+
+# Find all test projects
+TEST_PROJECTS=$(find tests -name "*.Tests.csproj" -type f)
+
+echo "🔍 Running tests and collecting coverage with Coverlet..."
+echo ""
+
+# Run tests for each project and collect coverage
+for PROJECT in $TEST_PROJECTS; do
+    PROJECT_NAME=$(basename -s .csproj "$PROJECT")
+    echo "📊 Testing $PROJECT_NAME..."
+
+    dotnet test "$PROJECT" \
+        --no-build \
+        --logger "console;verbosity=minimal" \
+        /p:CollectCoverage=true \
+        /p:CoverletOutput="../../CoverageResults/${PROJECT_NAME}.cobertura.xml" \
+        /p:CoverletOutputFormat="cobertura" \
+        /p:SkipAutoProps=true \
+        ${EXCLUDE_PARAM} \
+        -- RunConfiguration.MaxCpuCount=12
+done
+
+echo ""
+echo "📈 Generating coverage reports..."
+
+# Find all source directories (excluding test directories)
+SOURCE_DIRS=$(find . -name "*.csproj" -not -path "./tests/*" -not -path "./CoverageResults/*" -exec dirname {} \; | sort -u | tr '\n' ';')
+
+# Generate HTML and Text reports using ReportGenerator
+reportgenerator \
+    -reports:"CoverageResults/*.cobertura.xml" \
+    -targetdir:"CoverageResults/html" \
+    -sourcedirs:"${SOURCE_DIRS}" \
+    -reporttypes:"Html;TextSummary" \
+    -verbosity:"Error" \
+    -assemblyfilters:"-xunit*;-*.Tests" \
+    -classfilters:"-*.Migrations.*"
+
+# Display the text summary in terminal
+echo ""
+echo "📊 Coverage Summary:"
+echo "===================="
+cat CoverageResults/html/Summary.txt
+
+# Get absolute path and print clickable URL
+REPORT_PATH=$(realpath CoverageResults/html/index.html)
+echo ""
+echo "✅ Coverage report generated successfully!"
+echo ""
+echo "📂 HTML Report: file://${REPORT_PATH}"
+echo ""
+echo "💡 Click the link above or run: xdg-open \"file://${REPORT_PATH}\""
+'''
+
 [tasks."dotnet:test"]
 depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests (excludes integration tests)"
