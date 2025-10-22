@@ -98,6 +98,7 @@ dotnet build "${SOLUTION_FILE}" \
 [tasks."dotnet:coverage"]
 depends = ["dotnet:build"]
 description = "Runs tests and collects code coverage"
+quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
