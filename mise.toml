@@ -140,7 +140,7 @@ if [ -n "${COVERAGE_EXCLUDE:-}" ]; then
 fi
 
 # Find all test projects
-TEST_PROJECTS=$(find tests -name "*.Tests.csproj" -type f)
+TEST_PROJECTS=$(find tests -name "*.csproj" -type f | grep -v "TestHelpers" | sort)
 
 echo "🔍 Running tests and collecting coverage with Coverlet..."
 echo ""
@@ -174,7 +174,7 @@ reportgenerator \
     -sourcedirs:"${SOURCE_DIRS}" \
     -reporttypes:"Html;TextSummary" \
     -verbosity:"Error" \
-    -assemblyfilters:"-xunit*;-*.Tests" \
+    -assemblyfilters:"-xunit*;-*.Tests;-*.IntegrationTests" \
     -classfilters:"-*.Migrations.*"
 
 # Display the text summary in terminal
