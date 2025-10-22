@@ -129,6 +129,20 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
+# ====================================================================
+# PREREQUISITES:
+# This task requires the ReportGenerator global tool to be installed.
+#
+# To install it, run:
+#   dotnet tool install -g dotnet-reportgenerator-globaltool
+#
+# To update to the latest version, run:
+#   dotnet tool update -g dotnet-reportgenerator-globaltool
+#
+# To verify it's installed, run:
+#   reportgenerator --version
+# ====================================================================
+
 # Clean up old coverage results
 rm -rf CoverageResults/
 rm -rf tests/*/TestResults/
