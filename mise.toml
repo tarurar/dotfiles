@@ -170,7 +170,6 @@ for PROJECT in $TEST_PROJECTS; do
         /p:CollectCoverage=true \
         /p:CoverletOutput="../../CoverageResults/${PROJECT_NAME}.cobertura.xml" \
         /p:CoverletOutputFormat="cobertura" \
-        /p:CoverletConsoleOutput=false \
         /p:SkipAutoProps=true \
         ${EXCLUDE_PARAM} \
         -- RunConfiguration.MaxCpuCount=12
