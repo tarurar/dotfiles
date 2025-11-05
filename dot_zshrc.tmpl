@@ -21,6 +21,8 @@ export BREW_ROOT="/opt/homebrew/bin"
 {{- end }}
 # Configuring bat default theme
 export BAT_THEME="GitHub"
+# Claude Code
+export CLAUDE_HOME="$HOME/.local/bin/claude"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -30,6 +32,7 @@ export PATH=$PATH:$NPM_MODULES_BIN
 {{- if eq .chezmoi.os "darwin" }}
 export PATH=$PATH:$BREW_ROOT
 {{- end }}
+export PATH=$PATH:$CLAUDE_HOME
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
