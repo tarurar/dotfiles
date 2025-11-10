@@ -87,3 +87,11 @@
 - Judiciously prefer fake implementations over mocked
 - Test one behavior per test method
 - Use meaningful test names that describe behavior
+
+## Tolling usage
+
+- Use mise to run all project-related tasks.
+- Use mise task dotnet:build to build the solution.
+- Use mise task dotnet:test to run unit tests (excluding integration tests).
+- Use mise task dotnet:test:full to run all tests, including integration tests.
+- Avoid excessive console output during builds and test runs, try to minimize it. Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
