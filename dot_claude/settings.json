@@ -47,5 +47,6 @@
     "type": "command",
     "command": "input=$(cat); current_dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); model_name=$(echo \"$input\" | jq -r '.model.display_name'); if [ -d \"$current_dir/.git\" ]; then git_branch=$(cd \"$current_dir\" && git branch --show-current 2>/dev/null); git_status=\"\"; if [ -n \"$git_branch\" ]; then git_dirty=$(cd \"$current_dir\" && git status --porcelain 2>/dev/null); if [ -n \"$git_dirty\" ]; then git_status=\" *\"; fi; git_info=\" on $git_branch$git_status\"; fi; else git_info=\"\"; fi; printf \"\\033[36m%s\\033[0m \\033[32m%s\\033[0m%s \\033[90m[%s]\\033[0m\" \"$(whoami)\" \"$(basename \"$current_dir\")\" \"$git_info\" \"$model_name\""
   },
-  "alwaysThinkingEnabled": false
+  "alwaysThinkingEnabled": false,
+  "model": "haiku"
 }
