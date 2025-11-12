@@ -88,7 +88,7 @@
 - Test one behavior per test method
 - Use meaningful test names that describe behavior
 
-## Tolling usage
+## Tooling usage
 
 - Use mise to run all project-related tasks.
 - Use mise task dotnet:build to build the solution.
