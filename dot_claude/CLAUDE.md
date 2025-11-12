@@ -90,8 +90,9 @@
 
 ## Tooling usage
 
-- Use mise to run all project-related tasks.
+- When running specific tests use dotnet test with filter option (e.g. dotnet test --filter FullyQuialifiedName~Pattern)
 - Use mise task dotnet:build to build the solution.
-- Use mise task dotnet:test to run unit tests (excluding integration tests).
-- Use mise task dotnet:test:full to run all tests, including integration tests.
-- Avoid excessive console output during builds and test runs, try to minimize it. Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
+- When you want to run all tests except integration use mise task dotnet:test.
+- When you want to run all tests use mise task dotnet:test:full.
+- Avoid excessive console output during builds and test runs, try to minimize it. 
+- Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
