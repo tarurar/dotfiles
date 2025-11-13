@@ -87,6 +87,7 @@
 - Judiciously prefer fake implementations over mocked
 - Test one behavior per test method
 - Use meaningful test names that describe behavior
+- General rule of thumb for tests: you should see the test fails. While the test's purpose is to pass, when creating new test you should ensure it works, e.g. you should modify temporarily system under test to let test fail. Then revert changes back to let test pass. This approach is robust and reliable.
 
 ## Tooling usage
 
