@@ -92,6 +92,7 @@
 ## Tooling usage
 
 - When running specific tests use dotnet test with filter option (e.g. dotnet test --filter FullyQuialifiedName~Pattern)
+- When running tests after changing its code do not use --no-build parameter as in this case new code will not be included and therefore not tested.
 - Use mise task dotnet:build to build the solution.
 - When you want to run all tests except integration use mise task dotnet:test.
 - When you want to run all tests use mise task dotnet:test:full.
