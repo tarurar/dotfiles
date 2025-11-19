@@ -15,14 +15,15 @@ export DOTNET_TOOLS="$HOME/.dotnet/tools"
 export RUST_HOME="$HOME/.cargo/bin"
 # Custom npm modules path
 export NPM_MODULES_BIN="$HOME/.npm-global/bin"
-# Configure homebrew on macOS
-{{- if eq .chezmoi.os "darwin" }}
+# Configure homebrew on macOS and Claude Code
+{{- if eq .chezmoi.os "darwin"}}
 export BREW_ROOT="/opt/homebrew/bin"
-{{- end }}
+export CLAUDE_HOME="$BREW_ROOT/claude"
+{{- else}}
+export CLAUDE_HOME="$HOME/.local/bin/claude"
+{{- end}}
 # Configuring bat default theme
 export BAT_THEME="GitHub"
-# Claude Code
-export CLAUDE_HOME="$HOME/.local/bin/claude"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -151,7 +152,6 @@ export EDITOR='nano'
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias claude="{{ .chezmoi.homeDir }}/.local/bin/claude"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -165,11 +165,11 @@ chpwd_functions+=(zellij_tab_name_update)
 zellij_tab_name_update
 
 # Mise activation
-{{- if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin"}}
 eval "$($HOME/.local/bin/mise activate zsh)"
 {{- else}} 
 eval "$(/usr/bin/mise activate zsh)"
-{{- end }}
+{{- end}}
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
