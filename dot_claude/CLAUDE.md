@@ -41,6 +41,10 @@
 - Include a space around operators
 - No trailing whitespace
 
+## CHANGELOG Standards
+
+See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
+
 ## Best Practices
 
 ### Asynchronous Programming
