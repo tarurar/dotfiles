@@ -1,0 +1,21 @@
+# This template generates ~/.config/chezmoi/chezmoi.toml
+
+[git]
+    autoCommit = true
+    autoPush = true
+
+[data]
+    [data.mssql]
+        server = "49.13.209.26"
+        username = "novasql" 
+        profileName = "Nova"
+        groupId = "3FAED4FE-D445-4172-A234-DD31DB9181AB"
+        id = "283C3AC9-2E9E-404E-A4D2-1F821C71DCE8"
+
+[diff]
+    command = "code"
+    args = ["--wait", "--diff"]
+
+[merge]
+    command = "code"
+    args = ["--new-window", "--wait", "--merge"]
