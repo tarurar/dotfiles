@@ -17,18 +17,6 @@
       "Bash(tree:*)",
       "Bash(cat:*)",
       "mcp__mcp-atlassian__jira_get_issue",
-      "mcp__serena__list_dir",
-      "mcp__serena__get_symbols_overview",
-      "mcp__serena__search_for_pattern",
-      "mcp__serena__find_file",
-      "mcp__serena__find_symbol",
-      "mcp__serena__find_referencing_symbols",
-      "mcp__serena__check_onboarding_performed",
-      "mcp__serena__onboarding",
-      "mcp__serena__activate_project",
-      "mcp__serena__write_memory",
-      "mcp__serena__think_about_collected_information",
-      "mcp__serena__read_memory",
       "mcp__microsoft_docs_mcp__microsoft_docs_fetch",
       "mcp__microsoft_docs_mcp__microsoft_docs_search",
       "mcp__zen__analyze",
@@ -49,13 +37,4 @@
     "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=\"\"; usage=$(echo \"$input\" | jq \".context_window.current_usage\"); if [ \"$usage\" != \"null\" ]; then cur=$(echo \"$usage\" | jq \".input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens\"); sz=$(echo \"$input\" | jq \".context_window.context_window_size\"); pct=$((cur * 100 / sz)); fi; out=\"\\e[36m${user}\\e[0m :: \\e[32m$(basename \"$dir\")\\e[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\e[35m${branch}${dirty}\\e[0m\"; fi; out=\"$out :: \\e[90m[${model}]\\e[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: \\e[33m${pct}%\\e[0m\"; fi; echo -e \"$out\"'"
   },
   "alwaysThinkingEnabled": true,
-  "mcpServers": {
-    "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "{{ env "CONTEXT7_API_KEY" }}"
-      }
-    }
-  }
 }
