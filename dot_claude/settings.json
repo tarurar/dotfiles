@@ -35,5 +35,11 @@
     "type": "command",
     "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=\"\"; usage=$(echo \"$input\" | jq \".context_window.current_usage\"); if [ \"$usage\" != \"null\" ]; then cur=$(echo \"$usage\" | jq \".input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens\"); sz=$(echo \"$input\" | jq \".context_window.context_window_size\"); pct=$((cur * 100 / sz)); fi; out=\"\\e[36m${user}\\e[0m :: \\e[32m$(basename \"$dir\")\\e[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\e[35m${branch}${dirty}\\e[0m\"; fi; out=\"$out :: \\e[90m[${model}]\\e[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: \\e[33m${pct}%\\e[0m\"; fi; echo -e \"$out\"'"
   },
+  "enabledPlugins": {
+    "csharp-lsp@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true
+  },
   "alwaysThinkingEnabled": true
 }
