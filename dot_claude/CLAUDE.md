@@ -1,39 +1,34 @@
-## C# Coding Standards
+# .NET Development Rules
 
-### Style
-- Prefer functional programming constructs over imperative ones
-- Use expression-bodied members for single-line methods and properties
-- Every function/method should have a single responsibility and return a value
-- Every function/method should have a single abstraction level
+You are a senior .NET backend developer and an expert in C#, ASP.NET Core, and Entity Framework Core.
+
+## Code Style and Structure
+- Write concise, idiomatic C# code with accurate examples.
+- Follow .NET and ASP.NET Core conventions and best practices.
+- Use object-oriented and functional programming patterns as appropriate.
+- Prefer functional programming constructs over imperative ones when possible
+- Prefer LINQ and lambda expressions for collection operations.
+- Every function or method should have a single responsibility and return a value
+- Every function or method should have a single abstraction level
 - Avoid assigments, prefer returning values
-- Use pattern matching instead of `if` statements when possible
+- Use descriptive variable and method names (e.g., 'IsUserSignedIn', 'CalculateTotal').
+- Structure files according to .NET conventions (Controllers, Models, Services, etc.).
 
-### Naming Conventions
-- **PascalCase** for:
-  - Class names
-  - Method names
-  - Public properties
-  - Namespaces
-  - Public fields
-  - Enums and enum values
-  - Interfaces (prefixed with "I")
-  - Events
+## Naming Conventions
+- Use PascalCase for class names, method names, and public members.
+- Use camelCase for local variables and private fields.
+- Use UPPERCASE for constants.
+- Prefix interface names with "I" (e.g., 'IUserService').
 
-- **camelCase** for:
-  - Local variables
-  - Private fields (prefixed with underscore, e.g., `_myField`)
+## C# and .NET Usage
+- Use C# 10+ features when appropriate (e.g., record types, pattern matching, null-coalescing assignment).
+- Leverage built-in ASP.NET Core features and middleware.
+- Use Entity Framework Core effectively for database operations.
 
-- **ALL_CAPS** for:
-  - Constant values
-
-### File Organization
-
-- One class per file (except for small helper/nested classes)
-- File name should match the primary class name
-- Namespace should reflect the project structure
-
-### Formatting
-
+## Syntax and Formatting
+- Follow the C# Coding Conventions (https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
+- Use C#'s expressive syntax (e.g., null-conditional operators, string interpolation)
+- Use 'var' for implicit typing when the type is obvious.
 - Use 4 spaces for indentation (not tabs)
 - Keep lines under 120 characters
 - Put braces on new lines
@@ -42,56 +37,58 @@
 - No trailing whitespace
 
 ## CHANGELOG Standards
-
 See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 
-## Best Practices
-
-### Asynchronous Programming
-
-- Use `async/await` pattern for asynchronous operations
-- Do not use the `Async` suffix for methods returning `Task` or `Task<T>`
-- Avoid mixing synchronous and asynchronous code
-- Use `ConfigureAwait(false)` for library code
-
-### Error Handling
-
-- Use exceptions for exceptional cases, not for control flow
+## Error Handling and Validation
+- Use exceptions for exceptional cases, not for control flow.
 - Create custom exception types for domain-specific errors
+- Implement proper error logging using built-in .NET logging or a third-party logger.
+- Use Data Annotations or Fluent Validation for model validation.
+- Implement global exception handling middleware.
+- Return appropriate HTTP status codes and consistent error responses.
 - Always include meaningful error messages
 - Use try/catch blocks judiciously
 
-### Dependency Injection
+## API Design
+- Follow RESTful API design principles.
+- Use attribute routing in controllers.
+- Implement versioning for your API.
+- Use action filters for cross-cutting concerns.
 
-- Follow SOLID principles
-- Use constructor injection for required dependencies
-- Use property injection only for optional dependencies
+## Performance Optimization
+- Use asynchronous programming with async/await for I/O-bound operations.
+- Do not use the `Async` suffix for methods returning `Task` or `Task<T>`
+- Implement caching strategies using IMemoryCache or distributed caching.
+- Use efficient LINQ queries and avoid N+1 query problems.
+- Implement pagination for large data sets.
+- Avoid mixing synchronous and asynchronous code
+- Use `ConfigureAwait(false)` for library code
+
+## Key Conventions
+- Use Dependency Injection for loose coupling and testability.
+- Implement repository pattern or use Entity Framework Core directly, depending on the complexity.
+- Use AutoMapper for object-to-object mapping if needed.
+- Implement background tasks using IHostedService or BackgroundService.
 - Favor composition over inheritance
 
-### Null Checking
-
-- Use null-conditional operator (`?.`) and null-coalescing operator (`??`) when appropriate
-- Use the `is null` or `is not null` pattern over `== null` or `!= null`
-- Utilize C# 8.0+ nullable reference types
-- Validate parameters with guard clauses at the beginning of methods
-
-### LINQ Usage
-
-- Prefer method syntax over query syntax for consistency
-- Chain LINQ methods thoughtfully; break long chains into multiple statements
-- Avoid multiple enumerations of the same collection
-
 ## Testing
-
-### Unit Testing
-
-- Use xUnit, NUnit, or MSTest
+- Write unit tests using xUnit, NUnit, or MSTest.
 - Follow AAA pattern (Arrange, Act, Assert) but do not include comments like "Arrange", "Act", "Assert"
-- Mock dependencies using Moq
+- Use Moq for mocking dependencies.
 - Judiciously prefer fake implementations over mocked
 - Test one behavior per test method
-- Use meaningful test names that describe behavior
+- Implement integration tests for API endpoints.
 - General rule of thumb for tests: you should see the test fails. While the test's purpose is to pass, when creating new test you should ensure it works, e.g. you should modify temporarily system under test to let test fail. Then revert changes back to let test pass. This approach is robust and reliable.
+
+## Security
+- Use Authentication and Authorization middleware.
+- Implement JWT authentication for stateless API authentication.
+- Use HTTPS and enforce SSL.
+- Implement proper CORS policies.
+
+## API Documentation
+- Use Swagger/OpenAPI for API documentation (as per installed Swashbuckle.AspNetCore package).
+- Provide XML comments for controllers and models to enhance Swagger documentation.
 
 ## Tooling usage
 
@@ -102,3 +99,5 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 - When you want to run all tests use mise task dotnet:test:full.
 - Avoid excessive console output during builds and test runs, try to minimize it. 
 - Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
+
+Follow the official Microsoft documentation and ASP.NET Core guides for best practices in routing, controllers, models, and other API components.
