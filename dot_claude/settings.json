@@ -27,7 +27,10 @@
       "mcp__zen__codereview",
       "mcp__zen__testgen",
       "mcp__zen__refactor",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "mcp__rovo__getJiraIssue",
+      "mcp__rovo__search",
+      "mcp__rovo__fetch"
     ],
     "deny": []
   },
