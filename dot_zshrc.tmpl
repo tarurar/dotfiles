@@ -22,6 +22,8 @@ export CLAUDE_HOME="$BREW_ROOT/claude"
 {{- else}}
 export CLAUDE_HOME="$HOME/.local/bin/claude"
 {{- end}}
+# Opencode CLI
+export OPENCODE_HOME="$HOME/.opencode/bin"
 # Configuring bat default theme
 export BAT_THEME="GitHub"
 
@@ -34,6 +36,7 @@ export PATH=$PATH:$NPM_MODULES_BIN
 export PATH=$PATH:$BREW_ROOT
 {{- end }}
 export PATH=$PATH:$CLAUDE_HOME
+export PATH=$PATH:$OPENCODE_HOME
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
