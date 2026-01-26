@@ -94,9 +94,9 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 
 - When running specific tests use dotnet test with filter option and minimum logging (e.g. dotnet test --filter FullyQuialifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly)
 - When running tests after changing its code do not use --no-build parameter as in this case new code will not be included and therefore not tested.
-- Use mise task dotnet:build to build the solution.
-- When you want to run all tests except integration use mise task dotnet:test.
-- When you want to run all tests use mise task dotnet:test:full.
+- Use mise run dotnet:build to build the solution.
+- When you want to run all tests except integration use mise run dotnet:test.
+- When you want to run all tests use mise run dotnet:test:full.
 - Avoid excessive console output during builds and test runs, try to minimize it. 
 - Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
 
