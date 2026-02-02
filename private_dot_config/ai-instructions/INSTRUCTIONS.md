@@ -101,3 +101,10 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 - Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
 
 Follow the official Microsoft documentation and ASP.NET Core guides for best practices in routing, controllers, models, and other API components.
+
+## Task Management in Claude Code
+ 
+- Use TaskCreate for multi-step work
+- Set dependencies with addBlockedBy for sequential phases
+- Update status to in_progress before starting each task
+- Mark completed only after verification
