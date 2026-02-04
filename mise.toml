@@ -189,12 +189,33 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
-dotnet test --no-build "${SOLUTION_FILE}" \
-    --filter "FullyQualifiedName!~Integration" \
-    -- RunConfiguration.MaxCpuCount=24 \
-       RunConfiguration.DisableAppDomain=true \
-       xUnit.MaxParallelThreads=24 \
-       NUnit.NumberOfTestWorkers=24
+# Find unit test projects (exclude IntegrationTests and TestHelpers)
+TEST_PROJECTS=$(find tests -name "*.Tests.csproj" ! -name "*IntegrationTests*" 2>/dev/null | sort)
+
+if [ -z "$TEST_PROJECTS" ]; then
+    echo "No unit test projects found"
+    exit 0
+fi
+
+# Run all test projects in parallel
+PIDS=""
+FAILED=0
+
+for PROJECT in $TEST_PROJECTS; do
+    dotnet test --no-build "$PROJECT" \
+        -- RunConfiguration.MaxCpuCount=24 \
+           RunConfiguration.DisableAppDomain=true \
+           xUnit.MaxParallelThreads=24 \
+           NUnit.NumberOfTestWorkers=24 &
+    PIDS="$PIDS $!"
+done
+
+# Wait for all tests and track failures
+for PID in $PIDS; do
+    wait $PID || FAILED=1
+done
+
+exit $FAILED
 '''
 
 [tasks."dotnet:test:full"]
