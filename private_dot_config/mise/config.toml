@@ -1,3 +1,7 @@
 [tools]
 python = "latest"
 usage = "latest"
+
+[tasks."changelog:pdf"]
+description = "Generate PDF from CHANGELOG.md"
+run = "python3 ~/.local/bin/changelog_to_pdf.py CHANGELOG.md ${1:-changelog.pdf}"
