@@ -1,0 +1,28 @@
+# Gitleaks configuration for dotfiles repository
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+# Use the default gitleaks config as base
+useDefault = true
+
+# Paths to ignore (commonly contain example/template values)
+[allowlist]
+paths = [
+    '''\.md$''',
+    '''LICENSE''',
+]
+
+# Specific patterns to ignore (false positives in dotfiles)
+regexes = [
+    # Chezmoi template placeholders
+    '''{{.*}}''',
+    # Example/placeholder values commonly found in config files
+    '''your[-_]?api[-_]?key''',
+    '''example[-_]?token''',
+    '''placeholder''',
+]
+
+# Uncomment and customize to ignore specific secrets if needed
+# [[rules]]
+# id = "ignore-specific-file"
+# path = '''path/to/file\.txt'''
