@@ -1,0 +1,13 @@
+[Unit]
+Description=Monitor display changes and auto-switch settings
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/tarurar/.local/bin/display-monitor-daemon
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

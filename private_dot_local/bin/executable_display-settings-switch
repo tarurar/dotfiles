@@ -1,0 +1,84 @@
+#!/bin/bash
+# Switch VS Code font size based on connected displays
+# Auto-detects displays via GNOME Mutter D-Bus on Wayland
+# Usage: display-settings-switch [laptop|external]
+
+VSCODE_SETTINGS="$HOME/.config/Code/User/settings.json"
+LOG_FILE="$HOME/.local/share/display-switch.log"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Detect connected monitors via D-Bus (GNOME Wayland)
+detect_monitors() {
+    gdbus call --session \
+        --dest org.gnome.Mutter.DisplayConfig \
+        --object-path /org/gnome/Mutter/DisplayConfig \
+        --method org.gnome.Mutter.DisplayConfig.GetCurrentState 2>/dev/null
+}
+
+# Determine profile based on connected monitors
+get_profile() {
+    local monitors
+    monitors=$(detect_monitors)
+
+    if [ -z "$monitors" ]; then
+        log "Could not detect monitors via D-Bus"
+        echo "laptop"
+        return
+    fi
+
+    # Count unique monitor entries (eDP, DP, HDMI, USB-C, DVI, VGA)
+    local monitor_count
+    monitor_count=$(echo "$monitors" | grep -oE "'(eDP|DP|HDMI|USB-C|DVI|VGA)-[0-9]+'" | sort -u | wc -l)
+
+    log "Detected $monitor_count monitor(s)"
+
+    if [ "$monitor_count" -gt 1 ]; then
+        echo "external"
+    else
+        echo "laptop"
+    fi
+}
+
+# Allow explicit profile override
+if [ -n "$1" ]; then
+    PROFILE="$1"
+else
+    sleep 2  # Wait for display to stabilize
+    PROFILE=$(get_profile)
+fi
+
+log "Switching to profile: $PROFILE"
+
+# Settings for each profile
+case "$PROFILE" in
+    laptop)
+        VSCODE_FONT_SIZE=14
+        ;;
+    external)
+        VSCODE_FONT_SIZE=18
+        ;;
+    *)
+        log "Unknown profile: $PROFILE"
+        exit 1
+        ;;
+esac
+
+# Update VS Code settings (using sed for JSONC compatibility)
+if [ -f "$VSCODE_SETTINGS" ]; then
+    if grep -q '"editor.fontSize"' "$VSCODE_SETTINGS"; then
+        sed -i 's/"editor\.fontSize": [0-9]*/"editor.fontSize": '"$VSCODE_FONT_SIZE"'/' "$VSCODE_SETTINGS"
+        log "VS Code font size set to $VSCODE_FONT_SIZE"
+    else
+        log "editor.fontSize not found in VS Code settings"
+    fi
+fi
+
+# Send notification
+if command -v notify-send &> /dev/null; then
+    notify-send -i display "Display Switch" "Profile: $PROFILE (VS Code: ${VSCODE_FONT_SIZE}px)"
+fi
+
+log "Switch complete"
