@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/home/tarurar/.local/bin/display-monitor-daemon
+ExecStart=%h/.local/bin/display-monitor-daemon
 Restart=on-failure
 RestartSec=5
 
