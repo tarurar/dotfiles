@@ -104,9 +104,22 @@ Follow the official Microsoft documentation and ASP.NET Core guides for best pra
 
 ## Querying Microsoft Documentation
 
-You have access to MCP tools called `microsoft_docs_search`, `microsoft_docs_fetch`, and `microsoft_code_sample_search` - these tools allow you to search through and fetch Microsoft's latest official documentation and code samples, and that information might be more detailed or newer than what's in your training data set.
+- Use when: Working with Microsoft technologies (C#, F#, ASP.NET Core, .NET, Azure, Microsoft.Extensions, Entity Framework, PowerShell, Windows APIs, etc.)
+- Workflow:
+  1. Use `microsoft_docs_search` for general queries
+  2. Use `microsoft_code_sample_search` for code examples
+  3. Use `microsoft_docs_fetch` for full page content after finding relevant results
+- Priority: Use for Microsoft-specific questions, when you are uncertain or need up to date documentation.
 
-When handling questions around how to work with native Microsoft technologies, such as C#, F#, ASP.NET Core, Microsoft.Extensions, NuGet, Entity Framework, the `dotnet` runtime - please use these tools for research purposes when dealing with specific / narrowly defined questions that may occur.
+## Non Microsoft Documentation Research Rule
+
+When working with external libraries, frameworks, APIs, or tools, you MUST prioritize using documentation MCP tools over relying on training data:
+Context7 MCP (Primary Tool)
+- Use when: You need up-to-date documentation for any library, framework, or tool
+- Workflow: 
+  1. First use context7_resolve-library-id to find the correct library ID
+  2. Then use context7_query-docs with the library ID and your specific question
+- Examples: Node.js libraries, React frameworks, Python packages, database ORMs, testing tools, cloud SDKs, etc.
 
 ## Task Management in Claude Code
  
