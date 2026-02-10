@@ -100,6 +100,9 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 - Avoid excessive console output during builds and test runs, try to minimize it. 
 - Avoid verbose flags (--verbosity detailed or --verbosity diagnostic) unless investigating issues.
 
+## Git Commands
+- Do not use `git -C <path>` when the working directory is already the repository root. Use plain `git` commands instead.
+
 Follow the official Microsoft documentation and ASP.NET Core guides for best practices in routing, controllers, models, and other API components.
 
 ## Querying Microsoft Documentation
