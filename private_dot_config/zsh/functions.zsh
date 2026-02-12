@@ -88,6 +88,18 @@ services_latest_versions() {
 #   ccs         Show running instances
 #   ccs -k      Kill all instances (with confirmation)
 #   (short for "claude code status")
+
+# -----------------------------------------------------------------------------
+# Description:
+#   Shortcut to run Claude Code CLI, passing all arguments through.
+#
+# Usage:
+#   cc [args...]
+#   (short for "claude code")
+cc() {
+    claude "$@"
+}
+
 ccs() {
     local kill_mode=false
     [[ "$1" == "-k" ]] && kill_mode=true
