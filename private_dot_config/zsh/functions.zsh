@@ -79,6 +79,52 @@ services_latest_versions() {
 # Notes:
 #   - Properly handles CSV fields with spaces, commas, and quotes.
 #   - Designed for quick generation of HTML tables from release version files.
+# -----------------------------------------------------------------------------
+# Description:
+#   Checks if any Claude Code CLI instances are running and lists their
+#   working directories.
+#
+# Usage:
+#   ccs         Show running instances
+#   ccs -k      Kill all instances (with confirmation)
+#   (short for "claude code status")
+ccs() {
+    local kill_mode=false
+    [[ "$1" == "-k" ]] && kill_mode=true
+
+    local pids=($(pgrep -x claude))
+
+    if [[ ${#pids[@]} -eq 0 ]]; then
+        echo "No Claude Code instances running."
+        return 0
+    fi
+
+    echo "${#pids[@]} Claude Code instance(s) running:\n"
+    for pid in "${pids[@]}"; do
+        local cwd=$(readlink /proc/$pid/cwd 2>/dev/null)
+        if [[ -n "$cwd" ]]; then
+            echo "  PID $pid  →  $cwd"
+        else
+            echo "  PID $pid  →  (directory unknown)"
+        fi
+    done
+
+    if $kill_mode; then
+        echo ""
+        read -q "reply?Kill all ${#pids[@]} instance(s)? [y/N] "
+        echo ""
+        if [[ "$reply" == "y" ]]; then
+            kill "${pids[@]}" 2>/dev/null
+            echo "Sent SIGTERM to ${#pids[@]} instance(s)."
+        else
+            echo "Aborted."
+        fi
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Description:
+#   Converts a CSV file into HTML <tr> table rows.
 csv_to_html_rows() {
     local file="$1"
     mlr --csv --from "$file" cat | tail -n +2 | while IFS=, read -r component tag date url; do
