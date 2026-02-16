@@ -25,7 +25,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=$(echo \"$input\" | jq -r \".context_window.used_percentage // empty\"); out=\"\\e[36m${user}\\e[0m :: \\e[32m$(basename \"$dir\")\\e[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\e[35m${branch}${dirty}\\e[0m\"; fi; out=\"$out :: \\e[90m[${model}]\\e[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: \\e[33m${pct}%\\e[0m\"; fi; echo -e \"$out\"'"
+    "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=$(echo \"$input\" | jq -r \".context_window.used_percentage // empty\"); out=\"\\033[36m${user}\\033[0m :: \\033[32m$(basename \"$dir\")\\033[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\033[35m${branch}${dirty}\\033[0m\"; fi; out=\"$out :: \\033[90m[${model}]\\033[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: \\033[33m${pct}%\\033[0m\"; fi; echo -e \"$out\"'"
   },
   "enabledPlugins": {
     "csharp-lsp@claude-plugins-official": true,
