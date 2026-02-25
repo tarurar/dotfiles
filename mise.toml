@@ -16,19 +16,14 @@ DOTNET_CLI_UI_LANGUAGE = "en"  # Skip locale detection
 MSBuildEnableWorkloadResolver = "false"  # Skip workload resolution if not needed
 DOTNET_MaxDegreeOfParallelism = "24"
 XUNIT_MAXPARALLEL = "24"
- 
-[tasks."prepare-solution"]
-description = "Finds the solution file and exports it to SOLUTION_FILE env var"
-hide = true
-env = { SOLUTION_FILE = "$(mise run find-solution)" }
 
 [tasks."dotnet:restore"]
-depends = ["prepare-solution"]
 description = "Restore NuGet packages with optimizations"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
+SOLUTION_FILE=$(mise run find-solution)
 
 dotnet restore "${SOLUTION_FILE}" \
     --use-lock-file \
@@ -38,12 +33,12 @@ dotnet restore "${SOLUTION_FILE}" \
 '''
 
 [tasks."dotnet:build"]
-depends = ["prepare-solution"]
 description = "Builds the .NET solution. Warnings are NOT treated as errors."
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
+SOLUTION_FILE=$(mise run find-solution)
 
 dotnet build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -58,12 +53,12 @@ dotnet build "${SOLUTION_FILE}" \
 '''
 
 [tasks."dotnet:build:fast"]
-depends = ["prepare-solution"]
 description = "Builds the .NET solution quickly just for development."
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
+SOLUTION_FILE=$(mise run find-solution)
 
 dotnet build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -77,12 +72,12 @@ dotnet build "${SOLUTION_FILE}" \
 '''
 
 [tasks."dotnet:build:strict"]
-depends = ["prepare-solution"]
 description = "Builds the .NET solution from the scratch. Warnings are treated as errors."
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
+SOLUTION_FILE=$(mise run find-solution)
 
 dotnet build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -225,6 +220,7 @@ quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
+SOLUTION_FILE=$(mise run find-solution)
 
 dotnet test --no-build "${SOLUTION_FILE}"
 '''
