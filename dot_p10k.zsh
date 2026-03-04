@@ -28,6 +28,9 @@
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
+  # Disable gitstatus daemon to prevent index.lock collisions with CLI agents.
+  typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=1
+
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
