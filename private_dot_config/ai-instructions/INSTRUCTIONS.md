@@ -36,7 +36,7 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 
 ## Refactoring & Change
 - Vertical slices: implement minimal end-to-end functionality per change
-- Justify exceptions: when breaking a rule, document why
+- Justify exceptions: when breaking a rule, document why (e.g., `[SuppressMessage("Usage", "CA2234", Justification = "URL is a literal, not a variable")]`)
 - Log only impure actions; pure functions can be re-executed to reproduce state
 
 ## Tooling
