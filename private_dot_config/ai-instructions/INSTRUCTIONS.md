@@ -9,6 +9,20 @@
 - `ConfigureAwait(false)` in library code
 - Favor composition over inheritance
 
+## Code Complexity Limits
+- Methods: stay within ~80 chars x ~24 lines (80/24 rule)
+- Cyclomatic complexity ≤ 7 per method
+- Limit variables per method (locals + params + fields); consider Parameter Object if too many
+- No more than 7 things happening in a single piece of code
+
+## Design Principles
+- Parse, don't validate: convert DTOs to domain objects, don't use IsValid booleans
+- Objects must guarantee they are never in invalid state (protection of invariants)
+- Postel's Law: accept input liberally, return values conservatively
+- Hierarchy of communication: types > method names > comments > tests > commits > docs
+- X-out names: if replacing a method name with "X" loses no info, the types are doing their job
+- Numeric comparisons in number-line order: `2 < x && x <= 5` (ascending left to right)
+
 ## CHANGELOG Standards
 See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 
@@ -17,6 +31,13 @@ See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
 - No "Arrange" / "Act" / "Assert" comments — just follow AAA pattern
 - Always verify a new test fails first: temporarily break SUT, confirm failure, then revert
 - One behavior per test method
+- Devil's advocate: deliberately break SUT to discover missing test cases
+- Never refactor test and production code in the same commit
+
+## Refactoring & Change
+- Vertical slices: implement minimal end-to-end functionality per change
+- Justify exceptions: when breaking a rule, document why
+- Log only impure actions; pure functions can be re-executed to reproduce state
 
 ## Tooling
 - Build: `mise run dotnet:build`
