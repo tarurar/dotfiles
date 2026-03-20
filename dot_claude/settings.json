@@ -42,5 +42,6 @@
     "microsoft-docs@microsoft-docs-marketplace": true,
     "superpowers@claude-plugins-official": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "prefersReducedMotion": true
 }
