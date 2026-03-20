@@ -20,9 +20,30 @@
       "Bash(chezmoi source-path:*)",
       "Bash(chezmoi managed:*)",
       "Bash(chezmoi cat:*)",
+      "Bash(npm:*)",
+      "Bash(npm run:*)",
+      "Bash(npx:*)",
+      "WebSearch",
       "mcp__plugin_atlassian_atlassian__*"
     ],
     "deny": []
+  },
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        "~/.nuget",
+        "~/.local/share/mise",
+        "~/.cache",
+        "~/.npm",
+        "/tmp"
+      ],
+      "denyRead": [
+        "~/.ssh",
+        "~/.gnupg",
+        "~/.aws/credentials"
+      ]
+    }
   },
   "statusLine": {
     "type": "command",
