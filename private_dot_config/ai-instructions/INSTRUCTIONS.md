@@ -9,6 +9,13 @@
 - `ConfigureAwait(false)` in library code
 - Favor composition over inheritance
 
+## Architecture: Functional Core / Imperative Shell
+- Business logic in pure static functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
+- A single orchestrating method (impure shell) handles all side effects (HTTP, file I/O, database) and wires results through the pure functions.
+- Do not pass mutable state through multiple methods that each mutate it independently.
+- Keep wiring and dependency usage in one place — the orchestrator.
+- Pure functions are trivially testable with plain assertions, no mocks needed.
+
 ## Code Complexity Limits
 - Methods: stay within ~80 chars x ~24 lines (80/24 rule)
 - Cyclomatic complexity ≤ 7 per method
