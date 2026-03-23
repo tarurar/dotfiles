@@ -6,7 +6,7 @@
 - Allman brace style (braces on new lines), 4-space indent, 120-char line limit
 - Use `var` when type is obvious
 - No `Async` suffix on async methods
-- `ConfigureAwait(false)` in library code
+- `ConfigureAwait(false)` only in true class libraries, not in ASP.NET Core apps or worker services (no `SynchronizationContext`)
 - Favor composition over inheritance
 
 ## Architecture: Functional Core / Imperative Shell
