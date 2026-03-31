@@ -259,6 +259,72 @@ This creates a systemd user service that starts automatically on login. The serv
 
 **Alternative**: Disable auto-sleep entirely by pressing `Fn + ]` on the NuPhy keyboard. This ensures every key press is transmitted but increases battery usage.
 
+### Issue 8: Right Cmd Hotkey Stops Working After Dongle Unplug/Replug
+
+**Symptom**: After unplugging and replugging the NuPhy dongle, Right Cmd no longer triggers recording. Voxtype is still running but not listening to the keyboard.
+
+**Cause**: Voxtype uses `inotify` on `/dev/input/` to detect new keyboard devices. When the dongle reconnects, voxtype intermittently fails to re-open the new `/dev/input/eventN` device nodes.
+
+**Solution**: Automatically restart voxtype when the dongle reconnects via a udev rule + systemd service.
+
+**Step 1** — Create the udev rule at `/etc/udev/rules.d/81-nuphy-voxtype.rules`:
+
+```
+# Restart voxtype when NuPhy Air75 V3 dongle connects/reconnects
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="2620", TAG+="systemd", ENV{SYSTEMD_WANTS}="restart-voxtype.service"
+```
+
+**Step 2** — Create the system service at `/etc/systemd/system/restart-voxtype.service`:
+
+```ini
+[Unit]
+Description=Restart voxtype after NuPhy keyboard reconnect
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl --user -M tarurar@ restart voxtype
+```
+
+**Step 3** — Reload udev and systemd:
+
+```bash
+sudo udevadm control --reload-rules
+sudo systemctl daemon-reload
+```
+
+**Why `TAG+="systemd"` instead of `RUN+=`**: udev workers run with a security sandbox that blocks all D-Bus (`AF_UNIX`) sockets. Any command in `RUN+=` that needs D-Bus (including `systemctl --user`) will silently fail. Using `TAG+="systemd"` with `SYSTEMD_WANTS` signals systemd directly via kernel netlink, bypassing the sandbox entirely.
+
+**Note on username**: The service uses `-M tarurar@` to connect to the user session via system D-Bus. Replace `tarurar` with your username if setting up on a new machine.
+
+### Issue 9: Voice Transcribed as "." (Dot) Only
+
+**Symptom**: Recording works (beeps heard), but transcription always produces a single ".".
+
+**Cause**: Whisper outputs "." when fed silent or near-silent audio. This happens when WirePlumber automatically switches the default PipeWire source to a newly connected device (e.g., TRRS headphones) and initializes it at a very low volume (0.20 = 20%), too quiet for Whisper to detect speech.
+
+**Diagnosis**:
+
+```bash
+# Check current default source and its volume
+wpctl status | grep -A5 Sources
+wpctl get-volume @DEFAULT_SOURCE@
+```
+
+**Solution**: Set the correct default source and ensure its volume is 1.0:
+
+```bash
+# List all available sources with IDs
+wpctl status
+
+# Set default source (replace ID with the correct one)
+wpctl set-default <source-id>
+
+# Set volume to 100%
+wpctl set-volume @DEFAULT_SOURCE@ 1.0
+```
+
+**TRRS headphone cable note**: A headphone cable with **2 black rings** (TRRS connector) includes a microphone. WirePlumber will detect and expose this as a separate audio source. The microphone works correctly at volume 1.0.
+
 ## Upgrading Voxtype
 
 ### From v0.4.2 to v0.6.4
@@ -312,6 +378,14 @@ systemctl --user stop voxtype
 
 # Check version
 /usr/lib/voxtype/voxtype-vulkan --version
+
+# Check default audio source and volume (if transcription returns ".")
+wpctl status
+wpctl get-volume @DEFAULT_SOURCE@
+wpctl set-volume @DEFAULT_SOURCE@ 1.0
+
+# Check udev auto-restart service (after dongle replug)
+sudo journalctl -u restart-voxtype.service --since "5 minutes ago"
 ```
 
 ## References
@@ -324,4 +398,4 @@ systemctl --user stop voxtype
 
 ---
 
-*Last updated: March 25, 2026 (upgraded to v0.6.4, added auto-sleep fix, removed obsolete build-from-source section)*
+*Last updated: March 31, 2026 (added udev auto-restart on dongle reconnect, added headphone mic volume fix)*
