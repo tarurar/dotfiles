@@ -1,4 +1,9 @@
 {
+  "model": "sonnet",
+  "env": {
+    "MAX_THINKING_TOKENS": "15000",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  },
   "permissions": {
     "allow": [
       "Bash(dotnet format:*)",
