@@ -47,7 +47,7 @@
 - Build: `mise run dotnet:build`
 - Test (no integration): `mise run dotnet:test`
 - Test (all): `mise run dotnet:test:full`
-- Formatting: `csharpier format .`. Mind it is already implemented as stop hook so in most cases it will work on its own.
+- Formatting: `csharpier format .` (auto-runs on session end via stop hook)
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
