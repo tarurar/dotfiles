@@ -47,22 +47,12 @@
 - Build: `mise run dotnet:build`
 - Test (no integration): `mise run dotnet:test`
 - Test (all): `mise run dotnet:test:full`
+- Formatting: `csharpier format .`. Mind it is already implemented as stop hook so in most cases it will work on its own.
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
 
-## Git
-- Do not use `git -C <path>` when already at repo root
-
 ## Documentation Lookup
-
-### Microsoft Technologies
-Use MCP tools for C#, .NET, ASP.NET Core, Azure, EF Core, etc.:
-1. `microsoft_docs_search` for general queries
-2. `microsoft_code_sample_search` for code examples
-3. `microsoft_docs_fetch` for full page content
-
-### Non-Microsoft Libraries
 Use Context7 MCP for up-to-date docs:
 1. `context7_resolve-library-id` to find the library
 2. `context7_query-docs` with the library ID
