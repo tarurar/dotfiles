@@ -30,9 +30,6 @@
 - X-out names: if replacing a method name with "X" loses no info, the types are doing their job
 - Numeric comparisons in number-line order: `2 < x && x <= 5` (ascending left to right)
 
-## CHANGELOG Standards
-See @CHANGELOG-INSTRUCTIONS.md for requirements to format changelog files.
-
 ## Testing
 - Prefer fake implementations over mocks (use Moq when fakes aren't practical)
 - No "Arrange" / "Act" / "Assert" comments — just follow AAA pattern
