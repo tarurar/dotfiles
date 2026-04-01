@@ -16,6 +16,11 @@
 - Keep wiring and dependency usage in one place — the orchestrator.
 - Pure functions are trivially testable with plain assertions, no mocks needed.
 
+## Error Handling
+- Use exceptions for truly exceptional conditions (infrastructure failures, programming errors)
+- Use Result<T> / discriminated unions for expected failure paths (validation, not-found, business rules)
+- Surface errors at the shell layer; pure functions return failure values, not throw
+
 ## Code Complexity Limits
 - Methods: stay within ~80 chars x ~24 lines (80/24 rule)
 - Cyclomatic complexity ≤ 7 per method
