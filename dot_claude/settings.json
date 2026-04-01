@@ -28,8 +28,7 @@
       "Bash(npm:*)",
       "Bash(npm run:*)",
       "Bash(npx:*)",
-      "WebSearch",
-      "mcp__plugin_atlassian_atlassian__*"
+      "WebSearch"
     ],
     "deny": []
   },
@@ -59,7 +58,6 @@
     "context7@claude-plugins-official": true,
     "explanatory-output-style@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
-    "feature-dev@tarurar-plugins": true,
     "code-review@claude-plugins-official": true,
     "document-skills@anthropic-agent-skills": true,
     "claude-md-management@claude-plugins-official": true,
