@@ -57,7 +57,6 @@
   "enabledPlugins": {
     "csharp-lsp@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "atlassian@claude-plugins-official": true,
     "explanatory-output-style@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
     "feature-dev@tarurar-plugins": true,
@@ -65,7 +64,6 @@
     "document-skills@anthropic-agent-skills": true,
     "claude-md-management@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "microsoft-docs@microsoft-docs-marketplace": true,
     "superpowers@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
