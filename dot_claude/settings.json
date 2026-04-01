@@ -1,8 +1,7 @@
 {
-  "model": "sonnet",
+  "model": "opus[1m]",
   "env": {
-    "MAX_THINKING_TOKENS": "15000",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "permissions": {
     "allow": [
