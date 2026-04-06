@@ -184,7 +184,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 
-# Find unit test projects (exclude IntegrationTests and TestHelpers)
 TEST_PROJECTS=$(find tests -name "*.Tests.csproj" ! -name "*IntegrationTests*" 2>/dev/null | sort)
 
 if [ -z "$TEST_PROJECTS" ]; then
@@ -192,25 +191,67 @@ if [ -z "$TEST_PROJECTS" ]; then
     exit 0
 fi
 
-# Run all test projects in parallel
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
 PIDS=""
-FAILED=0
+declare -A PID_PROJECT
 
 for PROJECT in $TEST_PROJECTS; do
+    NAME=$(basename -s .csproj "$PROJECT")
+    OUTFILE="$TMPDIR/$NAME.log"
     dotnet test --no-build "$PROJECT" \
         -- RunConfiguration.MaxCpuCount=24 \
            RunConfiguration.DisableAppDomain=true \
            xUnit.MaxParallelThreads=24 \
-           NUnit.NumberOfTestWorkers=24 &
-    PIDS="$PIDS $!"
+           NUnit.NumberOfTestWorkers=24 \
+        > "$OUTFILE" 2>&1 &
+    PID=$!
+    PIDS="$PIDS $PID"
+    PID_PROJECT[$PID]="$NAME"
 done
 
-# Wait for all tests and track failures
+FAILED_PROJECTS=""
+TOTAL_PASSED=0
+TOTAL_FAILED=0
+TOTAL_SKIPPED=0
+
 for PID in $PIDS; do
-    wait $PID || FAILED=1
+    NAME="${PID_PROJECT[$PID]}"
+    if ! wait "$PID"; then
+        FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
+    fi
+
+    OUTFILE="$TMPDIR/$NAME.log"
+    SUMMARY=$(grep -E "^(Passed!|Failed!)" "$OUTFILE" 2>/dev/null || echo "")
+
+    if [ -n "$SUMMARY" ]; then
+        echo "$SUMMARY"
+        P=$(echo "$SUMMARY" | grep -oP 'Passed:\s*\K\d+' || echo 0)
+        F=$(echo "$SUMMARY" | grep -oP 'Failed:\s*\K\d+' || echo 0)
+        S=$(echo "$SUMMARY" | grep -oP 'Skipped:\s*\K\d+' || echo 0)
+        TOTAL_PASSED=$((TOTAL_PASSED + P))
+        TOTAL_FAILED=$((TOTAL_FAILED + F))
+        TOTAL_SKIPPED=$((TOTAL_SKIPPED + S))
+    else
+        echo "???  - $NAME (no summary line)"
+        FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
+    fi
 done
 
-exit $FAILED
+echo ""
+echo "Total: $TOTAL_PASSED passed, $TOTAL_FAILED failed, $TOTAL_SKIPPED skipped"
+
+if [ -n "$FAILED_PROJECTS" ]; then
+    echo ""
+    echo "=== Failed project output ==="
+    for NAME in $FAILED_PROJECTS; do
+        echo ""
+        echo "--- $NAME ---"
+        cat "$TMPDIR/$NAME.log"
+    done
+    exit 1
+fi
 '''
 
 [tasks."dotnet:test:full"]
