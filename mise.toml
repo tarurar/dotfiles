@@ -181,8 +181,8 @@ depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests (excludes integration tests)"
 quiet = true
 dir = "{{ cwd }}"
-shell = "bash"
 run = '''
+#!/usr/bin/env bash
 set -e
 
 TEST_PROJECTS=$(find tests -name "*.Tests.csproj" ! -name "*IntegrationTests*" 2>/dev/null | sort)
