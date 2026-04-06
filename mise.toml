@@ -181,6 +181,7 @@ depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests (excludes integration tests)"
 quiet = true
 dir = "{{ cwd }}"
+shell = "bash"
 run = '''
 set -e
 
@@ -191,15 +192,15 @@ if [ -z "$TEST_PROJECTS" ]; then
     exit 0
 fi
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
 
 PIDS=""
 declare -A PID_PROJECT
 
 for PROJECT in $TEST_PROJECTS; do
     NAME=$(basename -s .csproj "$PROJECT")
-    OUTFILE="$TMPDIR/$NAME.log"
+    OUTFILE="$WORK/$NAME.log"
     dotnet test --no-build "$PROJECT" \
         -- RunConfiguration.MaxCpuCount=24 \
            RunConfiguration.DisableAppDomain=true \
@@ -222,7 +223,7 @@ for PID in $PIDS; do
         FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
     fi
 
-    OUTFILE="$TMPDIR/$NAME.log"
+    OUTFILE="$WORK/$NAME.log"
     SUMMARY=$(grep -E "^(Passed!|Failed!)" "$OUTFILE" 2>/dev/null || echo "")
 
     if [ -n "$SUMMARY" ]; then
@@ -248,7 +249,7 @@ if [ -n "$FAILED_PROJECTS" ]; then
     for NAME in $FAILED_PROJECTS; do
         echo ""
         echo "--- $NAME ---"
-        cat "$TMPDIR/$NAME.log"
+        cat "$WORK/$NAME.log"
     done
     exit 1
 fi
