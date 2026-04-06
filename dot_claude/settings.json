@@ -33,7 +33,7 @@
     "deny": []
   },
   "sandbox": {
-    "enabled": true,
+    "enabled": false,
     "filesystem": {
       "allowWrite": [
         "~/.nuget",
