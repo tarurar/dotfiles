@@ -195,8 +195,9 @@ fi
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-PIDS=""
-declare -A PID_PROJECT
+declare -A PID_PROJECT PID_EXIT
+PIDS=()
+PROJECT_COUNT=0
 
 for PROJECT in $TEST_PROJECTS; do
     NAME=$(basename -s .csproj "$PROJECT")
@@ -208,22 +209,24 @@ for PROJECT in $TEST_PROJECTS; do
            NUnit.NumberOfTestWorkers=24 \
         > "$OUTFILE" 2>&1 &
     PID=$!
-    PIDS="$PIDS $PID"
+    PIDS+=("$PID")
     PID_PROJECT[$PID]="$NAME"
+    PROJECT_COUNT=$((PROJECT_COUNT + 1))
 done
+
+echo "Running $PROJECT_COUNT test projects..."
 
 FAILED_PROJECTS=""
 TOTAL_PASSED=0
 TOTAL_FAILED=0
 TOTAL_SKIPPED=0
+DONE=0
 
-for PID in $PIDS; do
-    NAME="${PID_PROJECT[$PID]}"
-    if ! wait "$PID"; then
-        FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
-    fi
-
-    OUTFILE="$WORK/$NAME.log"
+collect_result() {
+    local PID=$1
+    local NAME="${PID_PROJECT[$PID]}"
+    local OUTFILE="$WORK/$NAME.log"
+    local SUMMARY
     SUMMARY=$(grep -E "^(Passed!|Failed!)" "$OUTFILE" 2>/dev/null || echo "")
 
     if [ -n "$SUMMARY" ]; then
@@ -238,6 +241,22 @@ for PID in $PIDS; do
         echo "???  - $NAME (no summary line)"
         FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
     fi
+}
+
+REMAINING=("${PIDS[@]}")
+while [ ${#REMAINING[@]} -gt 0 ]; do
+    STILL_RUNNING=()
+    for PID in "${REMAINING[@]}"; do
+        if ! kill -0 "$PID" 2>/dev/null; then
+            wait "$PID" || FAILED_PROJECTS="$FAILED_PROJECTS ${PID_PROJECT[$PID]}"
+            DONE=$((DONE + 1))
+            collect_result "$PID"
+        else
+            STILL_RUNNING+=("$PID")
+        fi
+    done
+    REMAINING=("${STILL_RUNNING[@]}")
+    [ ${#REMAINING[@]} -gt 0 ] && sleep 0.2
 done
 
 echo ""
