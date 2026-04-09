@@ -8,6 +8,7 @@
 - No `Async` suffix on async methods
 - `ConfigureAwait(false)` only in true class libraries, not in ASP.NET Core apps or worker services (no `SynchronizationContext`)
 - Favor composition over inheritance
+- Never call `DateTime.UtcNow` / `DateTimeOffset.UtcNow` directly; inject `TimeProvider` and call `provider.GetUtcNow()`. Use `FakeTimeProvider` (from `Microsoft.Extensions.TimeProvider.Testing`) in tests when time control is required.
 
 ## Architecture: Functional Core / Imperative Shell
 - Business logic in pure static functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
