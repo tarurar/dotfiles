@@ -30,6 +30,8 @@ export BAT_THEME="GitHub"
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS="1"
 # Disable Claude Code config traversal in OpenCode (use own AGENTS.md, skills, etc.)
 export OPENCODE_DISABLE_CLAUDE_CODE="1"
+# bun
+export BUN_INSTALL="$HOME/.bun"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -41,6 +43,7 @@ export PATH=$PATH:$BREW_ROOT
 {{- end }}
 export PATH=$PATH:$CLAUDE_HOME
 export PATH=$PATH:$OPENCODE_HOME
+export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
