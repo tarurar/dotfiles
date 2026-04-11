@@ -38,7 +38,7 @@ Agents that use the **symlink pattern** point to `~/.config/ai-instructions/INST
 |-------|---------------|--------|
 | Codex | `dot_codex/symlink_AGENTS.md.tmpl` | `~/.codex/AGENTS.md` |
 | Gemini | `dot_gemini/symlink_GEMINI.md.tmpl` | `~/.gemini/GEMINI.md` |
-| OpenCode | *(manual symlink, not chezmoi-managed)* | `~/.config/opencode/AGENTS.md` |
+| OpenCode | `private_dot_config/opencode/symlink_AGENTS.md.tmpl` | `~/.config/opencode/AGENTS.md` |
 
 ## Editing Shared Instructions
 
@@ -106,6 +106,6 @@ chezmoi apply ~/.gemini/GEMINI.md
 | Agent | Pattern | File | Agent-Specific Additions |
 |-------|---------|------|--------------------------|
 | Claude Code | template | `dot_claude/CLAUDE.md.tmpl` | `@RTK.md` (RTK token-saver awareness) |
-| OpenCode | manual symlink | `~/.config/opencode/AGENTS.md` | none |
+| OpenCode | symlink | `private_dot_config/opencode/symlink_AGENTS.md.tmpl` | none |
 | Codex | symlink | `dot_codex/symlink_AGENTS.md.tmpl` | none |
 | Gemini | symlink | `dot_gemini/symlink_GEMINI.md.tmpl` | none |
