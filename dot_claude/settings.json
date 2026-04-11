@@ -70,5 +70,6 @@
     "dotnet-test@dotnet-agent-skills": true
   },
   "alwaysThinkingEnabled": true,
-  "prefersReducedMotion": true
+  "prefersReducedMotion": true,
+  "advisorModel": "opus"
 }
