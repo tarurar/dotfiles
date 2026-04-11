@@ -68,3 +68,5 @@ Use Context7 MCP for up-to-date docs:
 - Set dependencies with addBlockedBy for sequential phases
 - Update status to in_progress before starting each task
 - Mark completed only after verification
+
+@RTK.md
