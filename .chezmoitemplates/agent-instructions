@@ -53,14 +53,9 @@
 - Build: `mise run dotnet:build`
 - Test (no integration): `mise run dotnet:test`
 - Test (all): `mise run dotnet:test:full`
-- Formatting: `csharpier format .` (auto-runs on session end via stop hook)
+- Formatting: `csharpier format .`
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
 
-## Task Management
-- Use TaskCreate for multi-step work
-- Set dependencies with addBlockedBy for sequential phases
-- Update status to in_progress before starting each task
-- Mark completed only after verification
 
