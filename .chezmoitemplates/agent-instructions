@@ -58,11 +58,6 @@
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
 
-## Documentation Lookup
-Use Context7 MCP for up-to-date docs:
-1. `context7_resolve-library-id` to find the library
-2. `context7_query-docs` with the library ID
-
 ## Task Management
 - Use TaskCreate for multi-step work
 - Set dependencies with addBlockedBy for sequential phases
