@@ -78,7 +78,7 @@
     "dotnet-test@dotnet-agent-skills": true
   },
   "alwaysThinkingEnabled": true,
-  "prefersReducedMotion": false,
+  "prefersReducedMotion": true,
   "hooks": {
     "PreToolUse": [
       {
