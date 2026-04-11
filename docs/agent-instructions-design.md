@@ -106,6 +106,6 @@ chezmoi apply ~/.gemini/GEMINI.md
 | Agent | Pattern | File | Agent-Specific Additions |
 |-------|---------|------|--------------------------|
 | Claude Code | template | `dot_claude/CLAUDE.md.tmpl` | MCP-based Context7 docs lookup + `@RTK.md` |
-| OpenCode | template | `private_dot_config/opencode/AGENTS.md.tmpl` | CLI-based Context7 docs lookup (`npx ctx7@latest`) |
+| OpenCode | template | `private_dot_config/opencode/AGENTS.md.tmpl` | CLI-based Context7 docs lookup (`npx ctx7@latest`). No Task Management section — OpenCode's `todowrite` tool is self-documenting. |
 | Codex | symlink | `dot_codex/symlink_AGENTS.md.tmpl` | none |
 | Gemini | symlink | `dot_gemini/symlink_GEMINI.md.tmpl` | none |
