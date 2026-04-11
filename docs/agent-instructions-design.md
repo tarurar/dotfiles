@@ -42,11 +42,19 @@ Agents that use the **symlink pattern** point to `~/.config/ai-instructions/INST
 
 ## Editing Shared Instructions
 
-1. Open the source file: `chezmoi edit ~/.config/ai-instructions/INSTRUCTIONS.md`
-   - This opens `.chezmoitemplates/agent-instructions` via the template chain
-   - Or edit the file directly: `$EDITOR ~/.local/share/chezmoi/.chezmoitemplates/agent-instructions`
-2. Save and apply: `chezmoi apply`
-3. All agents pick up the change immediately (symlinks) or after the next session start (generated files)
+1. Edit the source of truth directly:
+   ```bash
+   $EDITOR ~/.local/share/chezmoi/.chezmoitemplates/agent-instructions
+   ```
+   > `chezmoi edit ~/.config/ai-instructions/INSTRUCTIONS.md` will NOT work here — it opens
+   > `INSTRUCTIONS.md.tmpl` (a one-liner delegate), not the actual shared template.
+
+2. Apply to regenerate all affected files:
+   ```bash
+   chezmoi apply ~/.claude/CLAUDE.md ~/.config/ai-instructions/INSTRUCTIONS.md
+   ```
+
+3. All agents pick up the change: symlinked agents (OpenCode, Codex, Gemini) reflect it immediately via the live `INSTRUCTIONS.md`; generated agents (Claude Code) reflect it after restart.
 
 ## Adding a New Agent — Symlink Pattern
 
@@ -63,7 +71,7 @@ Example: adding Aider (`~/.aider/CONVENTIONS.md`):
 mkdir -p ~/.local/share/chezmoi/dot_aider
 echo '{{ .chezmoi.homeDir }}/.config/ai-instructions/INSTRUCTIONS.md' \
   > ~/.local/share/chezmoi/dot_aider/symlink_CONVENTIONS.md.tmpl
-chezmoi apply
+chezmoi apply ~/.aider/CONVENTIONS.md
 ```
 
 ## Adding a New Agent — Template Pattern (Agent-Specific Additions)
@@ -90,7 +98,7 @@ cat > ~/.local/share/chezmoi/dot_gemini/GEMINI.md.tmpl << 'EOF'
 ## Gemini-Specific Instructions
 - Use `gemini_tool_xyz` for ...
 EOF
-chezmoi apply
+chezmoi apply ~/.gemini/GEMINI.md
 ```
 
 ## Current Agent Inventory
