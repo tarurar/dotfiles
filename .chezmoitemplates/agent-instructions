@@ -35,6 +35,7 @@
 - Hierarchy of communication: types > method names > comments > tests > commits > docs
 - X-out names: if replacing a method name with "X" loses no info, the types are doing their job
 - Numeric comparisons in number-line order: `2 < x && x <= 5` (ascending left to right)
+- No self-use in concrete composites: a composite instance method operates on private state, not by invoking its class's other public methods. Self-calls create an implicit Template Method contract that couples subclasses and wrapping decorators to the internal call chain; acceptable only when the extension point is intentional and documented.
 
 ## Testing
 - Prefer fake implementations over mocks (use Moq when fakes aren't practical)
