@@ -80,6 +80,7 @@
   },
   "alwaysThinkingEnabled": true,
   "prefersReducedMotion": true,
+  "skipAutoPermissionPrompt": true,
   "hooks": {
     "Stop": [
       {
