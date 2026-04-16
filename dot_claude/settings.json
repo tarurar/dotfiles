@@ -38,7 +38,8 @@
       "Bash(rtk:*)",
       "WebSearch"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "auto"
   },
   "sandbox": {
     "enabled": false,
