@@ -56,6 +56,8 @@
 - Test (full unit, no integration): `mise run dotnet:test` — use only when broader scope is needed
 - Test (all including integration): `mise run dotnet:test:full`
 - Do not chain tiers: `smoke` ⊂ `test` ⊂ `test:full`, so running a narrower tier before a broader one is pure duplication.
+- Do not prepend a test tier with `dotnet:build` — each `dotnet:test*` task has a build baked in via `depends`.
+- Exception: when NuGet packages change, restore first with `mise run dotnet:restore` (or `mise run dotnet:build`, which also restores) — `dotnet:test` and `dotnet:test:smoke` depend on `build:fast` (`--no-restore`) and will not pick up new packages otherwise.
 - Formatting: `csharpier format .`
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
