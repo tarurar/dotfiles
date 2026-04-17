@@ -52,8 +52,9 @@
 
 ## Tooling
 - Build: `mise run dotnet:build`
-- Test (no integration): `mise run dotnet:test`
-- Test (all): `mise run dotnet:test:full`
+- Test (smoke, preferred): `mise run dotnet:test:smoke`
+- Test (full unit, no integration): `mise run dotnet:test` — use only when broader scope is needed
+- Test (all including integration): `mise run dotnet:test:full`
 - Formatting: `csharpier format .`
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
