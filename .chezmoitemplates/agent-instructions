@@ -59,4 +59,8 @@
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
 
-
+## Dotfiles (chezmoi)
+- Many files on this machine are chezmoi-managed. Source repo: `~/.local/share/chezmoi` (remote: `github.com/tarurar/dotfiles`). Commonly managed paths: `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/`, and top-level dotfiles in `$HOME`.
+- Before editing a file under any such path, run `chezmoi source-path <file>` to check. If it resolves inside `~/.local/share/chezmoi`, the file is managed — editing the deployed copy will be overwritten on the next `chezmoi apply`.
+- Workflow: edit the source path → `chezmoi apply <deployed-path>` → verify target matches (`diff`) → commit in `~/.local/share/chezmoi` and push.
+- `*.tmpl` files expand chezmoi variables. The shared `agent-instructions` template at `~/.local/share/chezmoi/.chezmoitemplates/agent-instructions` is included by all agent instruction files (Claude, Codex, Gemini, OpenCode) — edits there propagate to every agent.
