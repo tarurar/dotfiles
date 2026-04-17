@@ -272,6 +272,102 @@ if [ -n "$FAILED_PROJECTS" ]; then
 fi
 '''
 
+[tasks."dotnet:test:smoke"]
+depends = ["dotnet:build:fast"]
+description = "Runs the .NET unit tests quickly by excluding slow tests (e.g. real network timeouts)"
+quiet = true
+dir = "{{ cwd }}"
+run = '''
+#!/usr/bin/env bash
+set -e
+
+TEST_PROJECTS=$(find tests -name "*.Tests.csproj" ! -name "*IntegrationTests*" 2>/dev/null | sort)
+
+if [ -z "$TEST_PROJECTS" ]; then
+    echo "No unit test projects found"
+    exit 0
+fi
+
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+
+declare -A PID_PROJECT
+PIDS=""
+PROJECT_COUNT=0
+
+for PROJECT in $TEST_PROJECTS; do
+    NAME=$(basename -s .csproj "$PROJECT")
+    OUTFILE="$WORK/$NAME.log"
+    dotnet test --no-build "$PROJECT" --filter "Category!=Slow" \
+        -- RunConfiguration.MaxCpuCount=24 \
+           RunConfiguration.DisableAppDomain=true \
+           xUnit.MaxParallelThreads=24 \
+           NUnit.NumberOfTestWorkers=24 \
+        > "$OUTFILE" 2>&1 &
+    PID=$!
+    PIDS="$PIDS $PID"
+    PID_PROJECT[$PID]="$NAME"
+    PROJECT_COUNT=$((PROJECT_COUNT + 1))
+done
+
+echo "Running $PROJECT_COUNT test projects..."
+
+FAILED_PROJECTS=""
+TOTAL_PASSED=0
+TOTAL_FAILED=0
+TOTAL_SKIPPED=0
+
+collect_result() {
+    local PID=$1
+    local NAME="${PID_PROJECT[$PID]}"
+    local OUTFILE="$WORK/$NAME.log"
+    local SUMMARY
+    SUMMARY=$(grep -E "^(Passed!|Failed!)" "$OUTFILE" 2>/dev/null || echo "")
+
+    if [ -n "$SUMMARY" ]; then
+        echo "$SUMMARY"
+        P=$(echo "$SUMMARY" | grep -oP 'Passed:\s*\K\d+' || echo 0)
+        F=$(echo "$SUMMARY" | grep -oP 'Failed:\s*\K\d+' || echo 0)
+        S=$(echo "$SUMMARY" | grep -oP 'Skipped:\s*\K\d+' || echo 0)
+        TOTAL_PASSED=$((TOTAL_PASSED + P))
+        TOTAL_FAILED=$((TOTAL_FAILED + F))
+        TOTAL_SKIPPED=$((TOTAL_SKIPPED + S))
+    else
+        echo "???  - $NAME (no summary line)"
+        FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
+    fi
+}
+
+REMAINING="$PIDS"
+while [ -n "$REMAINING" ]; do
+    STILL_RUNNING=""
+    for PID in $REMAINING; do
+        if ! kill -0 "$PID" 2>/dev/null; then
+            wait "$PID" || FAILED_PROJECTS="$FAILED_PROJECTS ${PID_PROJECT[$PID]}"
+            collect_result "$PID"
+        else
+            STILL_RUNNING="$STILL_RUNNING $PID"
+        fi
+    done
+    REMAINING="$STILL_RUNNING"
+    [ -n "$REMAINING" ] && sleep 0.2
+done
+
+echo ""
+echo "Total: $TOTAL_PASSED passed, $TOTAL_FAILED failed, $TOTAL_SKIPPED skipped"
+
+if [ -n "$FAILED_PROJECTS" ]; then
+    echo ""
+    echo "=== Failed project output ==="
+    for NAME in $FAILED_PROJECTS; do
+        echo ""
+        echo "--- $NAME ---"
+        cat "$WORK/$NAME.log"
+    done
+    exit 1
+fi
+'''
+
 [tasks."dotnet:test:full"]
 depends = ["dotnet:build"]
 description = "Runs all .NET tests including integration tests"
