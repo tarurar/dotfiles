@@ -24,8 +24,9 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
-dotnet restore "${SOLUTION_FILE}" \
+$RTK_DOTNET restore "${SOLUTION_FILE}" \
     --use-lock-file \
     --locked-mode \
     -maxcpucount:12 \
@@ -39,8 +40,9 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
-dotnet build "${SOLUTION_FILE}" \
+$RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
@@ -59,8 +61,9 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
-dotnet build "${SOLUTION_FILE}" \
+$RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
     /property:IsLocalBuild=true \
     --nologo \
@@ -78,8 +81,9 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
-dotnet build "${SOLUTION_FILE}" \
+$RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
@@ -376,6 +380,7 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
-dotnet test --no-build "${SOLUTION_FILE}"
+$RTK_DOTNET test --no-build "${SOLUTION_FILE}"
 '''
