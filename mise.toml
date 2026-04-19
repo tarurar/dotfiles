@@ -16,6 +16,8 @@ DOTNET_CLI_UI_LANGUAGE = "en"  # Skip locale detection
 MSBuildEnableWorkloadResolver = "false"  # Skip workload resolution if not needed
 DOTNET_MaxDegreeOfParallelism = "24"
 XUNIT_MAXPARALLEL = "24"
+# Route dotnet through rtk when installed for compact output; fall back to plain dotnet.
+RTK_DOTNET = '''{{ exec(command='command -v rtk >/dev/null 2>&1 && printf "rtk dotnet" || printf dotnet', cache_key='rtk_dotnet', cache_duration='1h') }}'''
 
 [tasks."dotnet:restore"]
 description = "Restore NuGet packages with optimizations"
@@ -24,7 +26,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
-RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
 $RTK_DOTNET restore "${SOLUTION_FILE}" \
     --use-lock-file \
@@ -40,7 +41,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
-RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
 $RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -61,7 +61,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
-RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
 $RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -81,7 +80,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
-RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
 $RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -380,7 +378,6 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
-RTK_DOTNET=$(command -v rtk >/dev/null 2>&1 && echo "rtk dotnet" || echo "dotnet")
 
 $RTK_DOTNET test --no-build "${SOLUTION_FILE}"
 '''
