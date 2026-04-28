@@ -1,5 +1,5 @@
 #!/bin/bash
-# Switch VS Code font size based on connected displays
+# Switch VS Code zoom level based on connected displays
 # Auto-detects displays via GNOME Mutter D-Bus on Wayland
 # Usage: display-settings-switch [laptop|external]
 
@@ -55,10 +55,10 @@ log "Switching to profile: $PROFILE"
 # Settings for each profile
 case "$PROFILE" in
     laptop)
-        VSCODE_FONT_SIZE=14
+        VSCODE_ZOOM_LEVEL=1.1
         ;;
     external)
-        VSCODE_FONT_SIZE=18
+        VSCODE_ZOOM_LEVEL=1
         ;;
     *)
         log "Unknown profile: $PROFILE"
@@ -68,17 +68,17 @@ esac
 
 # Update VS Code settings (using sed for JSONC compatibility)
 if [ -f "$VSCODE_SETTINGS" ]; then
-    if grep -q '"editor.fontSize"' "$VSCODE_SETTINGS"; then
-        sed -i 's/"editor\.fontSize": [0-9]*/"editor.fontSize": '"$VSCODE_FONT_SIZE"'/' "$VSCODE_SETTINGS"
-        log "VS Code font size set to $VSCODE_FONT_SIZE"
+    if grep -q '"window.zoomLevel"' "$VSCODE_SETTINGS"; then
+        sed -i 's/"window\.zoomLevel": -\?[0-9]\+\(\.[0-9]\+\)\?/"window.zoomLevel": '"$VSCODE_ZOOM_LEVEL"'/' "$VSCODE_SETTINGS"
+        log "VS Code zoom level set to $VSCODE_ZOOM_LEVEL"
     else
-        log "editor.fontSize not found in VS Code settings"
+        log "window.zoomLevel not found in VS Code settings"
     fi
 fi
 
 # Send notification
 if command -v notify-send &> /dev/null; then
-    notify-send -i display "Display Switch" "Profile: $PROFILE (VS Code: ${VSCODE_FONT_SIZE}px)"
+    notify-send -i display "Display Switch" "Profile: $PROFILE (VS Code zoom: ${VSCODE_ZOOM_LEVEL})"
 fi
 
 log "Switch complete"

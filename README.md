@@ -13,9 +13,9 @@ chezmoi apply
 
 Some configurations require additional setup after `chezmoi apply`:
 
-### Display Switch (VS Code font auto-adjustment)
+### Display Switch (VS Code zoom auto-adjustment)
 
-Automatically adjusts VS Code font size when switching between laptop and external displays on GNOME Wayland.
+Automatically adjusts VS Code window zoom level when switching between laptop and external displays on GNOME Wayland.
 
 **Enable the service:**
 
@@ -28,4 +28,4 @@ See [docs/display-switch-setup.md](docs/display-switch-setup.md) for full docume
 
 ## Documentation
 
-- [Display Switch Setup](docs/display-switch-setup.md) - Automatic VS Code font size switching on GNOME Wayland
+- [Display Switch Setup](docs/display-switch-setup.md) - Automatic VS Code window zoom switching on GNOME Wayland

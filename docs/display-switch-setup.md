@@ -1,10 +1,10 @@
-# Automatic VS Code Font Size Switching on GNOME Wayland
+# Automatic VS Code Window Zoom Switching on GNOME Wayland
 
 ## Problem
 
-When switching between a laptop display (13") and an external display (34"), VS Code font size needs adjustment:
-- Laptop: font size 14
-- External monitor: font size 18
+When switching between a laptop display (13") and an external display (34"), VS Code window zoom level needs adjustment:
+- Laptop: zoom level 1.1
+- External monitor: zoom level 1
 
 Manually changing this setting every time is tedious.
 
@@ -22,7 +22,7 @@ On GNOME Wayland, we use:
 
 ```bash
 #!/bin/bash
-# Switch VS Code font size based on connected displays
+# Switch VS Code zoom level based on connected displays
 # Auto-detects displays via GNOME Mutter D-Bus on Wayland
 # Usage: display-settings-switch [laptop|external]
 
@@ -78,10 +78,10 @@ log "Switching to profile: $PROFILE"
 # Settings for each profile
 case "$PROFILE" in
     laptop)
-        VSCODE_FONT_SIZE=14
+        VSCODE_ZOOM_LEVEL=1.1
         ;;
     external)
-        VSCODE_FONT_SIZE=18
+        VSCODE_ZOOM_LEVEL=1
         ;;
     *)
         log "Unknown profile: $PROFILE"
@@ -91,17 +91,17 @@ esac
 
 # Update VS Code settings (using sed for JSONC compatibility)
 if [ -f "$VSCODE_SETTINGS" ]; then
-    if grep -q '"editor.fontSize"' "$VSCODE_SETTINGS"; then
-        sed -i 's/"editor\.fontSize": [0-9]*/"editor.fontSize": '"$VSCODE_FONT_SIZE"'/' "$VSCODE_SETTINGS"
-        log "VS Code font size set to $VSCODE_FONT_SIZE"
+    if grep -q '"window.zoomLevel"' "$VSCODE_SETTINGS"; then
+        sed -i 's/"window\.zoomLevel": -\?[0-9]\+\(\.[0-9]\+\)\?/"window.zoomLevel": '"$VSCODE_ZOOM_LEVEL"'/' "$VSCODE_SETTINGS"
+        log "VS Code zoom level set to $VSCODE_ZOOM_LEVEL"
     else
-        log "editor.fontSize not found in VS Code settings"
+        log "window.zoomLevel not found in VS Code settings"
     fi
 fi
 
 # Send notification
 if command -v notify-send &> /dev/null; then
-    notify-send -i display "Display Switch" "Profile: $PROFILE (VS Code: ${VSCODE_FONT_SIZE}px)"
+    notify-send -i display "Display Switch" "Profile: $PROFILE (VS Code zoom: ${VSCODE_ZOOM_LEVEL})"
 fi
 
 log "Switch complete"
@@ -177,13 +177,13 @@ WantedBy=graphical-session.target
 
 ### Automatic
 
-Connect or disconnect an external monitor - VS Code font size changes automatically.
+Connect or disconnect an external monitor - VS Code window zoom level changes automatically.
 
 ### Manual
 
 ```bash
-display-settings-switch laptop    # Set font size 14
-display-settings-switch external  # Set font size 18
+display-settings-switch laptop    # Set zoom level 1.1
+display-settings-switch external  # Set zoom level 1
 ```
 
 ### Monitoring
@@ -205,3 +205,5 @@ tail -f ~/.local/share/display-switch.log
 3. **Why D-Bus instead of udev?** - On GNOME Wayland, D-Bus provides the `MonitorsChanged` signal directly from Mutter, which is cleaner than udev rules that require complex user session handling.
 
 4. **VS Code hot-reload** - VS Code automatically detects changes to settings.json and applies them without requiring a window reload.
+
+5. **Daemon/service independence** - The daemon and systemd service do not know which VS Code setting is changed. They only detect monitor changes and invoke `display-settings-switch`, so switching from font size to zoom level does not require changes to those files.
