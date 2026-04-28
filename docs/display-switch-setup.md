@@ -4,7 +4,7 @@
 
 When switching between a laptop display (13") and an external display (34"), VS Code window zoom level needs adjustment:
 - Laptop: zoom level 1.1
-- External monitor: zoom level 1
+- External monitor: zoom level 1.4
 
 Manually changing this setting every time is tedious.
 
@@ -81,7 +81,7 @@ case "$PROFILE" in
         VSCODE_ZOOM_LEVEL=1.1
         ;;
     external)
-        VSCODE_ZOOM_LEVEL=1
+        VSCODE_ZOOM_LEVEL=1.4
         ;;
     *)
         log "Unknown profile: $PROFILE"
@@ -183,7 +183,7 @@ Connect or disconnect an external monitor - VS Code window zoom level changes au
 
 ```bash
 display-settings-switch laptop    # Set zoom level 1.1
-display-settings-switch external  # Set zoom level 1
+display-settings-switch external  # Set zoom level 1.4
 ```
 
 ### Monitoring

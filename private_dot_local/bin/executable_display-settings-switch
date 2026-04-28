@@ -58,7 +58,7 @@ case "$PROFILE" in
         VSCODE_ZOOM_LEVEL=1.1
         ;;
     external)
-        VSCODE_ZOOM_LEVEL=1
+        VSCODE_ZOOM_LEVEL=1.4
         ;;
     *)
         log "Unknown profile: $PROFILE"
