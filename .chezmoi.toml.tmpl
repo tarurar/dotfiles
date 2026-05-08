@@ -13,9 +13,14 @@
         id = "283C3AC9-2E9E-404E-A4D2-1F821C71DCE8"
 
 [diff]
-    command = "code"
-    args = ["--wait", "--diff"]
+    pager = "delta"
+    pagerArgs = ["--light"]
 
 [merge]
-    command = "code"
-    args = ["--new-window", "--wait", "--merge"]
+    command = "nvim"
+    args = [
+        "-d",
+        "{{ "{{" }} .Destination {{ "}}" }}",
+        "{{ "{{" }} .Source {{ "}}" }}",
+        "{{ "{{" }} .Target {{ "}}" }}"
+    ]
