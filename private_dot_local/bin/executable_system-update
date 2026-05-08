@@ -26,6 +26,22 @@ run_if_available() {
     "$@"
 }
 
+run_fwupdmgr() {
+    if ! command -v fwupdmgr >/dev/null 2>&1; then
+        echo "Skipping fwupdmgr: command not found"
+        return
+    fi
+
+    local status=0
+    fwupdmgr "$@" || status=$?
+
+    if [[ "$status" -eq 2 ]]; then
+        return
+    fi
+
+    return "$status"
+}
+
 lock_holders() {
     local lock_file="$1"
 
@@ -86,5 +102,5 @@ section "Snap"
 run_if_available snap sudo snap refresh
 
 section "Firmware"
-run_if_available fwupdmgr fwupdmgr refresh
-run_if_available fwupdmgr fwupdmgr update
+run_fwupdmgr refresh
+run_fwupdmgr update
