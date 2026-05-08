@@ -1,0 +1,48 @@
+theme = GitHub Light Default
+minimum-contrast = 1
+
+cursor-style = block
+cursor-style-blink = false
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+
+font-family = Berkeley Mono Trial
+font-size = 13
+font-feature = -calt
+
+working-directory = home
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
+
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
+notify-on-command-finish-after = 30s
+
+background-opacity = 1
+window-padding-x = 6
+window-padding-y = 4
+window-padding-balance = true
+window-padding-color = extend
+resize-overlay = after-first
+
+gtk-titlebar-style = tabs
+gtk-toolbar-style = flat
+window-decoration = auto
+gtk-wide-tabs = false
+window-theme = ghostty
+window-save-state = always
+window-new-tab-position = current
+scrollbar = never
+focus-follows-mouse = true
+
+keybind = ctrl+shift+r=prompt_tab_title
+
+shell-integration = detect
+
+copy-on-select = clipboard
+maximize = true
+
+# Workaround for Ghostty Linux/GTK Wayland startup maximize bug.
+window-width = 9999
+window-height = 9999
