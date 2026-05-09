@@ -1,6 +1,7 @@
 [tools]
+"aqua:TomWright/dasel" = "latest"
+"github:jdx/usage" = "latest"
 python = "latest"
-usage = "latest"
 
 [tasks."changelog:pdf"]
 description = "Generate PDF from CHANGELOG.md"

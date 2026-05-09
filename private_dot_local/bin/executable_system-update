@@ -93,7 +93,7 @@ check_package_manager_locks
 
 section "APT"
 sudo apt update
-sudo apt upgrade
+sudo apt upgrade --yes
 
 section "Flatpak"
 run_if_available flatpak flatpak update
