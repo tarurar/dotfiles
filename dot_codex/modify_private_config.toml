@@ -1,0 +1,74 @@
+#!/bin/sh
+awk '
+BEGIN {
+    print "model = \"gpt-5.5\""
+    print "model_reasoning_effort = \"high\""
+    print "personality = \"pragmatic\""
+    print "service_tier = \"fast\""
+    print ""
+}
+
+in_mcp && $0 !~ /^\[/ {
+    next
+}
+
+in_mcp && $0 ~ /^\[/ {
+    in_mcp = 0
+}
+
+$0 ~ /^\[mcp_servers\.(context7|exa)\]$/ {
+    in_mcp = 1
+    next
+}
+
+$0 ~ /^\[features\]$/ {
+    current_table = "features"
+    printed_features = 1
+    print
+    print "unified_exec = true"
+    print "shell_snapshot = true"
+    print "multi_agent = true"
+    print "apps = false"
+    next
+}
+
+$0 ~ /^\[/ {
+    current_table = $0
+    print
+    next
+}
+
+current_table == "" && $0 ~ /^(model|model_reasoning_effort|personality|service_tier)[[:space:]]*=/ {
+    next
+}
+
+current_table == "features" && $0 ~ /^(unified_exec|shell_snapshot|multi_agent|apps)[[:space:]]*=/ {
+    next
+}
+
+{
+    print
+}
+
+END {
+    if (!printed_features) {
+        print ""
+        print "[features]"
+        print "unified_exec = true"
+        print "shell_snapshot = true"
+        print "multi_agent = true"
+        print "apps = false"
+    }
+
+    print ""
+    print "[mcp_servers.context7]"
+    print "url = \"https://mcp.context7.com/mcp\""
+    print "env_http_headers = { \"CONTEXT7_API_KEY\" = \"CONTEXT7_API_KEY\" }"
+
+    print ""
+    print "[mcp_servers.exa]"
+    print "command = \"npx\""
+    print "args = [\"-y\", \"exa-mcp-server\", \"tools=web_search_exa,web_fetch_exa,web_search_advanced_exa\"]"
+    print "env_vars = [\"EXA_API_KEY\"]"
+}
+'
