@@ -101,6 +101,9 @@ run_if_available flatpak flatpak update
 section "Snap"
 run_if_available snap sudo snap refresh
 
+section "Mise"
+run_if_available mise mise upgrade
+
 section "Firmware"
 run_fwupdmgr refresh
 run_fwupdmgr update
