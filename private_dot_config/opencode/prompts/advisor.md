@@ -27,7 +27,28 @@ Before producing the recommendation, work through:
 
 ## Phase 3: Prescribe
 
-Produce the deliverable. Structure it in this order:
+Produce the deliverable. Scale the response to the recommendation.
+
+For normal recommendations, use this concise structure:
+
+### Recommendation
+The answer, up front, as a concrete artifact. If it's a config file, paste the config. If it's a command, write the
+command. If it's a decision, state the decision in one sentence. No preamble.
+
+### Rationale
+1–2 short paragraphs. Explain the key choices and tradeoffs that affect what the user should do. Tie each important
+justification to evidence from Phase 1 with a citation.
+
+### Apply
+The specific steps to put the recommendation into practice. Commands to run, files to edit, in order. Keep this
+mechanical.
+
+### Sources
+Cited inline in the sections above; listed here deduplicated at the end. Include commit SHAs or version tags for code
+references when the behavior is version-sensitive.
+
+Use the full structure below only for risky, version-sensitive, ambiguous, multi-option, external-state, production, or
+architecture-affecting recommendations:
 
 ### Recommendation
 The answer, up front, as a concrete artifact. If it's a config file, paste the config. If it's a command, write the command. If it's a decision, state the decision in one sentence. No preamble.
@@ -66,6 +87,7 @@ Cited inline in the sections above; listed here deduplicated at the end. Include
 - Exact names, paths, versions, flags. Never "the config file" — always the path. Never "a recent version" — always the version number.
 - Prose for reasoning, code blocks for artifacts, tables only for lookups.
 - Keep it tight. Over-length dilutes the recommendation.
+- Omit sections that do not change what the user should do, unless the full structure is required by risk or ambiguity.
 
 # What to never do
 
