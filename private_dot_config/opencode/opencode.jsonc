@@ -663,5 +663,5 @@
       },
     },
   },
-  "instructions": ["AGENTS.md", "/home/tarurar/.config/opencode/rules/rtk.md"],
+  "instructions": ["AGENTS.md", "~/.config/opencode/rules/rtk.md"],
 }
