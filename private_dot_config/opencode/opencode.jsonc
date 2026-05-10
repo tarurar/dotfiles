@@ -332,7 +332,7 @@
           "reasoning": true,
           "tool_call": true,
           "options": {
-            "reasoningEffort": "high",
+            "reasoningEffort": "xhigh",
             "textVerbosity": "medium",
             "reasoningSummary": "auto",
             "include": ["reasoning.encrypted_content"],
