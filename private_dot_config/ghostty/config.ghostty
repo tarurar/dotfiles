@@ -32,7 +32,7 @@ window-decoration = auto
 gtk-wide-tabs = false
 window-theme = ghostty
 window-save-state = always
-window-new-tab-position = current
+window-new-tab-position = end
 scrollbar = never
 focus-follows-mouse = true
 
