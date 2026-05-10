@@ -29,7 +29,7 @@
     "editor.formatOnType": false,
     "editor.formatOnSave": true,
     "editor.wordWrap": "on",
-    "editor.fontFamily": "'JetBrains Mono NL', monospace",
+    "editor.fontFamily": "Berkeley Mono Trial",
     "editor.fontLigatures": true,
     "editor.fontSize": 13,
     "editor.stickyScroll.enabled": false,
@@ -156,35 +156,6 @@
     "search.searchOnType": false,
     "window.commandCenter": false,
     "git.openRepositoryInParentFolders": "never",
-{{- if and (hasKey . "mssql") .mssql.server }}
-    "mssql.connectionGroups": [
-        {
-            "name": "ROOT",
-            "id": "{{ .mssql.groupId }}"
-        }
-    ],
-    "mssql.connections": [
-        {
-            "authenticationType": "SqlLogin",
-            "connectTimeout": 30,
-            "applicationName": "vscode-mssql",
-            "applicationIntent": "ReadWrite",
-            "profileName": "{{ .mssql.profileName }}",
-            "server": "{{ .mssql.server }}",
-            "user": "{{ .mssql.username }}",
-            "password": "",
-            "savePassword": true,
-            "database": "",
-            "trustServerCertificate": true,
-            "groupId": "{{ .mssql.groupId }}",
-            "id": "{{ .mssql.id }}",
-            "commandTimeout": 30,
-            "encrypt": "Mandatory",
-            "profileSource": 0,
-            "emptyPasswordInput": false
-        }
-    ],
-{{- end }}
     "diffEditor.ignoreTrimWhitespace": false,
     "explorer.confirmDragAndDrop": false,
     "csharpier.enableDiagnostics": false,
@@ -202,5 +173,10 @@
         "editor.defaultFormatter": "vscode.typescript-language-features",
         "editor.formatOnSave": false
     },
-    "update.mode": "none"
+    "update.mode": "none",
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "[csharp]": {
+        "editor.defaultFormatter": "csharpier.csharpier-vscode"
+    },
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
 }
