@@ -1,34 +1,89 @@
-# Global Preferences
+# Core Principles of Development
 
-## Code Style (C# / .NET)
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+# Code Style (C# / .NET)
 - Prefer functional constructs: LINQ, lambdas, returning values over assignments
 - Every method: single responsibility, single abstraction level
-- Allman brace style (braces on new lines), 4-space indent, 120-char line limit
 - Use `var` when type is obvious
 - No `Async` suffix on async methods
 - `ConfigureAwait(false)` only in true class libraries, not in ASP.NET Core apps or worker services (no `SynchronizationContext`)
 - Favor composition over inheritance
-- Never call `DateTime.UtcNow` / `DateTimeOffset.UtcNow` directly; inject `TimeProvider` and call `provider.GetUtcNow()`. Use `FakeTimeProvider` (from `Microsoft.Extensions.TimeProvider.Testing`) in tests when time control is required.
+- Never call `DateTime.UtcNow` / `DateTimeOffset.UtcNow` directly; inject `TimeProvider` and call `provider.GetUtcNow()`.
+- Use `FakeTimeProvider` (from `Microsoft.Extensions.TimeProvider.Testing`) in tests when time control is required.
 
-## Architecture: Functional Core / Imperative Shell
-- Business logic in pure static functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
+# Architecture: Functional Core / Imperative Shell
+- Business logic in pure static idempotent functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
 - A single orchestrating method (impure shell) handles all side effects (HTTP, file I/O, database) and wires results through the pure functions.
 - Do not pass mutable state through multiple methods that each mutate it independently.
 - Keep wiring and dependency usage in one place — the orchestrator.
 - Pure functions are trivially testable with plain assertions, no mocks needed.
 
-## Error Handling
+# Error Handling
 - Use exceptions for truly exceptional conditions (infrastructure failures, programming errors)
 - Use Result<T> / discriminated unions for expected failure paths (validation, not-found, business rules)
 - Surface errors at the shell layer; pure functions return failure values, not throw
 
-## Code Complexity Limits
+# Code Complexity Limits
 - Methods: stay within ~80 chars x ~24 lines (80/24 rule)
 - Cyclomatic complexity ≤ 7 per method
 - Limit variables per method (locals + params + fields); consider Parameter Object if too many
 - No more than 7 things happening in a single piece of code
 
-## Design Principles
+# Design Principles
 - Parse, don't validate: convert DTOs to domain objects, don't use IsValid booleans
 - Objects must guarantee they are never in invalid state (protection of invariants)
 - Postel's Law: accept input liberally, return values conservatively
@@ -37,20 +92,19 @@
 - Numeric comparisons in number-line order: `2 < x && x <= 5` (ascending left to right)
 - No self-use in concrete composites: a composite instance method operates on private state, not by invoking its class's other public methods. Self-calls create an implicit Template Method contract that couples subclasses and wrapping decorators to the internal call chain; acceptable only when the extension point is intentional and documented.
 
-## Testing
-- Prefer fake implementations over mocks (use Moq when fakes aren't practical)
+# Testing
+- Prefer fake implementations over mocks (use mocks when fakes aren't practical)
 - No "Arrange" / "Act" / "Assert" comments — just follow AAA pattern
 - Always verify a new test fails first: temporarily break SUT, confirm failure, then revert
 - One behavior per test method
 - Devil's advocate: deliberately break SUT to discover missing test cases
-- Never refactor test and production code in the same commit
 
-## Refactoring & Change
+# Refactoring & Change
 - Vertical slices: implement minimal end-to-end functionality per change
 - Justify exceptions: when breaking a rule, document why (e.g., `[SuppressMessage("Usage", "CA2234", Justification = "URL is a literal, not a variable")]`)
 - Log only impure actions; pure functions can be re-executed to reproduce state
 
-## Tooling
+# Tooling
 - Build: `mise run dotnet:build`
 - Test (smoke, preferred): `mise run dotnet:test:smoke`
 - Test (full unit, no integration): `mise run dotnet:test` — use only when broader scope is needed
@@ -58,13 +112,12 @@
 - Do not chain tiers: `smoke` ⊂ `test` ⊂ `test:full`, so running a narrower tier before a broader one is pure duplication.
 - Do not prepend a test tier with `dotnet:build` — each `dotnet:test*` task has a build baked in via `depends`.
 - Exception: when NuGet packages change, restore first with `mise run dotnet:restore` (or `mise run dotnet:build`, which also restores) — `dotnet:test` and `dotnet:test:smoke` depend on `build:fast` (`--no-restore`) and will not pick up new packages otherwise.
-- Formatting: `csharpier format .`
 - Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
 - After changing test code, do NOT use `--no-build` (new code won't be compiled)
 - Minimize console output; avoid `--verbosity detailed` unless investigating
 
-## Dotfiles (chezmoi)
-- Many files on this machine are chezmoi-managed. Source repo: `~/.local/share/chezmoi` (remote: `github.com/tarurar/dotfiles`). Commonly managed paths: `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/`, and top-level dotfiles in `$HOME`.
+# Dotfiles (chezmoi)
+- Many dotfiles are chezmoi-managed. Source repo: `~/.local/share/chezmoi` (remote: `github.com/tarurar/dotfiles`). Commonly managed paths: `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/`, and top-level dotfiles in `$HOME`.
 - Before editing a file under any such path, run `chezmoi source-path <file>` to check. If it resolves inside `~/.local/share/chezmoi`, the file is managed — editing the deployed copy will be overwritten on the next `chezmoi apply`.
 - Workflow: edit the source path → `chezmoi apply <deployed-path>` → verify target matches (`diff`) → commit in `~/.local/share/chezmoi` and push.
 - `*.tmpl` files expand chezmoi variables. The shared `agent-instructions` template at `~/.local/share/chezmoi/.chezmoitemplates/agent-instructions` is included by all agent instruction files (Claude, Codex, Gemini, OpenCode) — edits there propagate to every agent.
