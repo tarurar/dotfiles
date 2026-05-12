@@ -16,6 +16,21 @@
       "*.log",
     ],
   },
+  "formatter": {
+    "csharpier": {
+      "command": ["csharpier", "format", "$FILE"],
+      "extensions": [
+        ".cs",
+        ".csx",
+        ".csproj",
+        ".props",
+        ".targets",
+        ".config",
+        ".slnx",
+        ".xml",
+      ],
+    },
+  },
   "mcp": {
     "context-mode": {
       "type": "local",
@@ -28,7 +43,7 @@
       "headers": {
         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}",
       },
-      "timeout": 40000
+      "timeout": 40000,
     },
     "exa": {
       "type": "remote",
