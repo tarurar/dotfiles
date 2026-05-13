@@ -46,3 +46,6 @@ maximize = true
 # Workaround for Ghostty Linux/GTK Wayland startup maximize bug.
 window-width = 9999
 window-height = 9999
+
+selection-background = #d0ebff
+selection-foreground = #1f2328
