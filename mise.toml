@@ -179,55 +179,181 @@ echo "💡 Click the link above or run: xdg-open \"file://${REPORT_PATH}\""
 '''
 
 [tasks."dotnet:test"]
-depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests (excludes integration tests)"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
 
-mise run dotnet:test:projects
+mise run dotnet:test:projects -- unit
 '''
 
 [tasks."dotnet:test:smoke"]
-depends = ["dotnet:build:fast"]
 description = "Runs the .NET unit tests quickly by excluding slow tests (e.g. real network timeouts)"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
 
-mise run dotnet:test:projects -- "Category!=Slow"
+mise run dotnet:test:projects -- unit "Category!=Slow"
 '''
 
 [tasks."dotnet:test:projects"]
 hide = true
-description = "Runs unit test projects discovered next to the solution"
+description = "Runs test projects discovered from a solution or project tree"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 #!/usr/bin/env bash
 set -e
 
-FILTER="${1:-}"
-SOLUTION_FILE=$(mise run find-solution)
-SOLUTION_DIR=$(dirname "$SOLUTION_FILE")
-TEST_ROOT="$SOLUTION_DIR/tests"
+MODE="${1:-unit}"
+FILTER="${2:-}"
+SOLUTION_FILE=$(mise run find-solution 2>/dev/null || true)
+ROOT="${MISE_ORIGINAL_CWD:-$PWD}"
 
-if [ ! -d "$TEST_ROOT" ]; then
-    echo "No unit test projects found"
+if [ -n "$SOLUTION_FILE" ]; then
+    ROOT=$(dirname "$SOLUTION_FILE")
+fi
+
+build_fast() {
+    local TARGET=$1
+
+    $RTK_DOTNET build "$TARGET" \
+        /property:Configuration=Debug \
+        /property:IsLocalBuild=true \
+        --nologo \
+        --no-restore \
+        -maxcpucount:12 \
+        -nodeReuse:true \
+        /property:UseSharedCompilation=true \
+        /property:BuildInParallel=true
+}
+
+build_full() {
+    local TARGET=$1
+
+    $RTK_DOTNET build "$TARGET" \
+        /property:Configuration=Debug \
+        /property:GenerateFullPaths=true \
+        /consoleloggerparameters:NoSummary \
+        /property:GenerateDocumentation=false \
+        /property:IsLocalBuild=true \
+        -maxcpucount:12 \
+        -nodeReuse:true \
+        /property:UseSharedCompilation=true \
+        /property:BuildInParallel=true
+}
+
+if [ "$MODE" = "full" ] && [ -n "$SOLUTION_FILE" ]; then
+    build_full "$SOLUTION_FILE"
+    dotnet test --no-build "$SOLUTION_FILE"
     exit 0
 fi
 
-mapfile -t TEST_PROJECTS < <(
-    find "$TEST_ROOT" -name "*.Tests.csproj" ! -name "*IntegrationTests*" -type f \
+list_solution_projects() {
+    local SOLUTION=$1
+    local SOLUTION_DIR
+
+    SOLUTION_DIR=$(dirname "$SOLUTION")
+    $RTK_DOTNET sln "$SOLUTION" list \
+        | sed '1,2d' \
+        | while IFS= read -r PROJECT; do
+            if [ -z "$PROJECT" ]; then
+                continue
+            fi
+
+            case "$PROJECT" in
+                /*) printf '%s\n' "$PROJECT" ;;
+                *) realpath -m "$SOLUTION_DIR/$PROJECT" ;;
+            esac
+        done
+}
+
+find_project_files() {
+    find "$ROOT" -maxdepth 5 \
+        \( -type d \( -name .git -o -name .idea -o -name .vs -o -name bin -o -name obj \) -prune \) -o \
+        \( -type f -name "*.csproj" -print \) \
         2>/dev/null | sort
+}
+
+is_test_project() {
+    local PROJECT=$1
+    local LOWER
+
+    LOWER=$(printf '%s' "$PROJECT" | tr '[:upper:]' '[:lower:]')
+    case "$LOWER" in
+        */test/*|*/tests/*|*.test.csproj|*.tests.csproj|*.unittest.csproj|*.unittests.csproj)
+            return 0
+            ;;
+    esac
+
+    grep -Eiq \
+        '<IsTestProject>[[:space:]]*true[[:space:]]*</IsTestProject>|Microsoft\.NET\.Test\.Sdk|xunit|nunit|mstest' \
+        "$PROJECT"
+}
+
+is_integration_project() {
+    local PROJECT=$1
+    local LOWER
+
+    LOWER=$(printf '%s' "$PROJECT" | tr '[:upper:]' '[:lower:]')
+    case "$LOWER" in
+        *integrationtest*|*/integration/*|*/integrationtests/*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+mapfile -t PROJECTS < <(
+    if [ -n "$SOLUTION_FILE" ]; then
+        list_solution_projects "$SOLUTION_FILE"
+    else
+        find_project_files
+    fi
 )
 
+TEST_PROJECTS=()
+EXCLUDED_PROJECTS=0
+TEST_PROJECT_COUNT=0
+PROJECT_COUNT=0
+
+for PROJECT in "${PROJECTS[@]}"; do
+    PROJECT_COUNT=$((PROJECT_COUNT + 1))
+
+    if ! is_test_project "$PROJECT"; then
+        continue
+    fi
+
+    if [ "$MODE" != "full" ] && is_integration_project "$PROJECT"; then
+        EXCLUDED_PROJECTS=$((EXCLUDED_PROJECTS + 1))
+        continue
+    fi
+
+    TEST_PROJECTS+=("$PROJECT")
+    TEST_PROJECT_COUNT=$((TEST_PROJECT_COUNT + 1))
+done
+
+echo "Solution: ${SOLUTION_FILE:-none}"
+echo "Projects discovered: $PROJECT_COUNT"
+echo "Test projects selected: $TEST_PROJECT_COUNT"
+echo "Integration projects excluded: $EXCLUDED_PROJECTS"
+
 if [ -z "${TEST_PROJECTS[*]}" ]; then
-    echo "No unit test projects found"
+    echo "No test projects found"
     exit 0
 fi
+
+for PROJECT in "${TEST_PROJECTS[@]}"; do
+    if [ "$MODE" = "full" ]; then
+        build_full "$PROJECT"
+    else
+        build_fast "$PROJECT"
+    fi
+done
 
 TEST_FILTER_ARGS=()
 if [ -n "$FILTER" ]; then
@@ -244,7 +370,7 @@ PROJECT_COUNT=0
 for PROJECT in "${TEST_PROJECTS[@]}"; do
     NAME=$(basename -s .csproj "$PROJECT")
     OUTFILE="$WORK/$NAME.log"
-    $RTK_DOTNET test --no-build "$PROJECT" "${TEST_FILTER_ARGS[@]}" \
+    dotnet test --no-build "$PROJECT" "${TEST_FILTER_ARGS[@]}" \
         -- RunConfiguration.MaxCpuCount=24 \
            RunConfiguration.DisableAppDomain=true \
            xUnit.MaxParallelThreads=24 \
@@ -263,24 +389,39 @@ TOTAL_PASSED=0
 TOTAL_FAILED=0
 TOTAL_SKIPPED=0
 
+mark_failed() {
+    local NAME=$1
+
+    case " $FAILED_PROJECTS " in
+        *" $NAME "*) ;;
+        *) FAILED_PROJECTS="$FAILED_PROJECTS $NAME" ;;
+    esac
+}
+
 collect_result() {
     local PID=$1
     local NAME="${PID_PROJECT[$PID]}"
     local OUTFILE="$WORK/$NAME.log"
     local SUMMARY
-    SUMMARY=$(grep -E "^(Passed!|Failed!)" "$OUTFILE" 2>/dev/null || echo "")
+    SUMMARY=$(grep -E "^(Passed!|Failed!|ok dotnet test:|fail dotnet test:)" "$OUTFILE" 2>/dev/null || echo "")
 
     if [ -n "$SUMMARY" ]; then
         echo "$SUMMARY"
-        P=$(echo "$SUMMARY" | grep -oP 'Passed:\s*\K\d+' || echo 0)
-        F=$(echo "$SUMMARY" | grep -oP 'Failed:\s*\K\d+' || echo 0)
-        S=$(echo "$SUMMARY" | grep -oP 'Skipped:\s*\K\d+' || echo 0)
+        if echo "$SUMMARY" | grep -Eq "^(ok|fail) dotnet test:"; then
+            P=$(echo "$SUMMARY" | grep -oE '[0-9]+ (tests? )?passed' | head -n1 | grep -oE '[0-9]+' || echo 0)
+            F=$(echo "$SUMMARY" | grep -oE '[0-9]+ (tests? )?failed' | head -n1 | grep -oE '[0-9]+' || echo 0)
+            S=$(echo "$SUMMARY" | grep -oE '[0-9]+ (tests? )?skipped' | head -n1 | grep -oE '[0-9]+' || echo 0)
+        else
+            P=$(echo "$SUMMARY" | grep -oP 'Passed:\s*\K\d+' || echo 0)
+            F=$(echo "$SUMMARY" | grep -oP 'Failed:\s*\K\d+' || echo 0)
+            S=$(echo "$SUMMARY" | grep -oP 'Skipped:\s*\K\d+' || echo 0)
+        fi
         TOTAL_PASSED=$((TOTAL_PASSED + P))
         TOTAL_FAILED=$((TOTAL_FAILED + F))
         TOTAL_SKIPPED=$((TOTAL_SKIPPED + S))
     else
         echo "???  - $NAME (no summary line)"
-        FAILED_PROJECTS="$FAILED_PROJECTS $NAME"
+        mark_failed "$NAME"
     fi
 }
 
@@ -289,7 +430,7 @@ while [ -n "$REMAINING" ]; do
     STILL_RUNNING=""
     for PID in $REMAINING; do
         if ! kill -0 "$PID" 2>/dev/null; then
-            wait "$PID" || FAILED_PROJECTS="$FAILED_PROJECTS ${PID_PROJECT[$PID]}"
+            wait "$PID" || mark_failed "${PID_PROJECT[$PID]}"
             collect_result "$PID"
         else
             STILL_RUNNING="$STILL_RUNNING $PID"
@@ -315,13 +456,11 @@ fi
 '''
 
 [tasks."dotnet:test:full"]
-depends = ["dotnet:build"]
 description = "Runs all .NET tests including integration tests"
 quiet = true
 dir = "{{ cwd }}"
 run = '''
 set -e
-SOLUTION_FILE=$(mise run find-solution)
 
-$RTK_DOTNET test --no-build "${SOLUTION_FILE}"
+mise run dotnet:test:projects -- full
 '''
