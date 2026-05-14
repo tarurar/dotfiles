@@ -348,7 +348,7 @@
           "reasoning": true,
           "tool_call": true,
           "options": {
-            "reasoningEffort": "high",
+            "reasoningEffort": "xhigh",
             "serviceTier": "priority",
             "textVerbosity": "medium",
             "reasoningSummary": "auto",
