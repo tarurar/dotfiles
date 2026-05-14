@@ -104,6 +104,11 @@ run_if_available snap sudo snap refresh
 section "Mise"
 run_if_available mise mise upgrade
 
+section "Agent CLIs"
+run_if_available codex codex update
+run_if_available claude claude update
+run_if_available opencode opencode upgrade
+
 section "Skills"
 run_if_available npm npx -y skills@latest update -g -y
 
