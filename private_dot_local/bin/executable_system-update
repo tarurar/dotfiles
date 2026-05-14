@@ -42,6 +42,26 @@ run_fwupdmgr() {
     return "$status"
 }
 
+show_mouse_battery_level() {
+    if ! command -v solaar >/dev/null 2>&1; then
+        echo "Skipping mouse battery level: solaar not found"
+        return
+    fi
+
+    local battery_level
+    battery_level="$(
+        solaar show 2>/dev/null |
+            awk -F'Battery: ' '/Battery:/ { value = $2 } END { print value }'
+    )"
+
+    if [[ -z "$battery_level" ]]; then
+        echo "Skipping mouse battery level: unavailable"
+        return
+    fi
+
+    echo "Mouse battery level: $battery_level"
+}
+
 lock_holders() {
     local lock_file="$1"
 
@@ -115,3 +135,6 @@ run_if_available npm npx -y skills@latest update -g -y
 section "Firmware"
 run_fwupdmgr refresh
 run_fwupdmgr update
+
+section "Mouse"
+show_mouse_battery_level
