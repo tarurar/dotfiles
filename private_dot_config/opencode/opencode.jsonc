@@ -348,7 +348,8 @@
           "reasoning": true,
           "tool_call": true,
           "options": {
-            "reasoningEffort": "xhigh",
+            "reasoningEffort": "high",
+            "serviceTier": "priority",
             "textVerbosity": "medium",
             "reasoningSummary": "auto",
             "include": ["reasoning.encrypted_content"],
