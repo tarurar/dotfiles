@@ -7,8 +7,10 @@ cursor-click-to-move = true
 mouse-hide-while-typing = true
 
 font-family = "JetBrainsMonoNL Nerd Font"
+font-thicken = true
 font-size = 13
 font-feature = -calt
+font-feature = -liga
 
 working-directory = home
 window-inherit-working-directory = true
@@ -27,7 +29,6 @@ window-padding-color = extend
 resize-overlay = after-first
 
 gtk-titlebar-style = tabs
-macos-titlebar-style = tabs
 gtk-toolbar-style = flat
 window-decoration = auto
 gtk-wide-tabs = false
@@ -44,9 +45,18 @@ shell-integration = detect
 copy-on-select = clipboard
 maximize = true
 
+# === Clipboard ===
+clipboard-paste-protection = false
+clipboard-read = allow
+clipboard-write = allow
+
 # Workaround for Ghostty Linux/GTK Wayland startup maximize bug.
 window-width = 9999
 window-height = 9999
 
 selection-background = #d0ebff
 selection-foreground = #1f2328
+
+# === macOS Specific ===
+macos-option-as-alt = true
+macos-titlebar-style = tabs
