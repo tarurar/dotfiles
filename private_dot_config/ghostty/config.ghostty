@@ -1,62 +1,97 @@
+# =============================================================================
+# Theme & Colors
+# =============================================================================
 theme = GitHub Light Default
 minimum-contrast = 1
+background-opacity = 1
 
-cursor-style = block
-cursor-style-blink = false
-cursor-click-to-move = true
-mouse-hide-while-typing = true
+# Selection colors
+selection-background = #d0ebff
+selection-foreground = #1f2328
 
+# =============================================================================
+# Font
+# =============================================================================
 font-family = "JetBrainsMonoNL Nerd Font"
-# font-thicken = true
 font-size = 13
 font-feature = -calt
 font-feature = -liga
 
-working-directory = home
-window-inherit-working-directory = true
-tab-inherit-working-directory = true
-split-inherit-working-directory = true
+# =============================================================================
+# Cursor & Mouse
+# =============================================================================
+cursor-style = block
+cursor-style-blink = false
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+focus-follows-mouse = true
 
-notify-on-command-finish = unfocused
-notify-on-command-finish-action = notify
-notify-on-command-finish-after = 30s
-
-background-opacity = 1
+# =============================================================================
+# Window
+# =============================================================================
+window-decoration = auto
+window-theme = ghostty
+window-save-state = always
+window-new-tab-position = end
 window-padding-x = 6
 window-padding-y = 4
 window-padding-balance = true
 window-padding-color = extend
 resize-overlay = after-first
-
-gtk-titlebar-style = tabs
-gtk-toolbar-style = flat
-window-decoration = auto
-gtk-wide-tabs = false
-window-theme = ghostty
-window-save-state = always
-window-new-tab-position = end
-scrollbar = never
-focus-follows-mouse = true
-
-keybind = ctrl+shift+r=prompt_tab_title
-
-shell-integration = detect
-
-copy-on-select = clipboard
 maximize = true
-
-# === Clipboard ===
-clipboard-paste-protection = false
-clipboard-read = allow
-clipboard-write = allow
+scrollbar = never
 
 # Workaround for Ghostty Linux/GTK Wayland startup maximize bug.
 window-width = 9999
 window-height = 9999
 
-selection-background = #d0ebff
-selection-foreground = #1f2328
+# =============================================================================
+# Working Directory
+# =============================================================================
+working-directory = home
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
 
-# === macOS Specific ===
+# =============================================================================
+# GTK (Linux)
+# =============================================================================
+gtk-titlebar-style = tabs
+gtk-toolbar-style = flat
+gtk-wide-tabs = false
+
+# =============================================================================
+# macOS
+# =============================================================================
 macos-option-as-alt = true
 macos-titlebar-style = tabs
+
+# =============================================================================
+# Notifications
+# =============================================================================
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
+notify-on-command-finish-after = 30s
+
+# =============================================================================
+# Clipboard
+# =============================================================================
+clipboard-paste-protection = false
+clipboard-read = allow
+clipboard-write = allow
+copy-on-select = clipboard
+
+# =============================================================================
+# Keybindings
+# =============================================================================
+keybind = ctrl+shift+r=prompt_tab_title
+
+# =============================================================================
+# Shell Integration
+# =============================================================================
+shell-integration = detect
+
+# =============================================================================
+# Unused / Deprecated
+# =============================================================================
+# font-thicken = true
