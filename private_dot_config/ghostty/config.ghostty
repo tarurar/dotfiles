@@ -7,7 +7,7 @@ cursor-click-to-move = true
 mouse-hide-while-typing = true
 
 font-family = "JetBrainsMonoNL Nerd Font"
-font-thicken = true
+# font-thicken = true
 font-size = 13
 font-feature = -calt
 font-feature = -liga
