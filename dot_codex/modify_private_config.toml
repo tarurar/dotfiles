@@ -10,6 +10,15 @@ if [ -z "${dasel_command:-}" ]; then
     exit 1
 fi
 
+# Read stdin (existing file content from chezmoi)
+input=$(cat)
+
+# If the file doesn't exist or is empty, provide a minimal TOML so the query can safely spread null maps
+if [ -z "$input" ]; then
+    input='[features]
+[mcp_servers]'
+fi
+
 query='
   $features = $root.features;
   $mcp_servers = $root.mcp_servers;
@@ -51,4 +60,4 @@ query='
   $root
 '
 
-"$dasel_command" query -i toml -o toml "$(printf "%s" "$query" | tr '\n' ' ' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+printf '%s\n' "$input" | "$dasel_command" query -i toml -o toml "$(printf "%s" "$query" | tr '\n' ' ' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
