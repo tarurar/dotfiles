@@ -27,6 +27,7 @@ window-padding-color = extend
 resize-overlay = after-first
 
 gtk-titlebar-style = tabs
+macos-titlebar-style = tabs
 gtk-toolbar-style = flat
 window-decoration = auto
 gtk-wide-tabs = false
