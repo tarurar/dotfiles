@@ -6,7 +6,7 @@ cursor-style-blink = false
 cursor-click-to-move = true
 mouse-hide-while-typing = true
 
-font-family = Berkeley Mono Trial
+font-family = "JetBrainsMonoNL Nerd Font"
 font-size = 13
 font-feature = -calt
 
