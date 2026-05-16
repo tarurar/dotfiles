@@ -55,39 +55,34 @@
       },
     },
   },
-  "model": "openai/gpt-5.5",
-  "small_model": "openai/gpt-5.4-mini-fast",
-  //"model": "kimi-for-coding/k2p6",
+  "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6"{{ else }}"openai/gpt-5.5"{{ end }},
+  "small_model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6"{{ else }}"openai/gpt-5.4-mini-fast"{{ end }},
   "agent": {
     "build": {
       "description": "Primary build agent: write, edit, test, debug, dispatch subagents",
       "mode": "primary",
-      "model": "openai/gpt-5.5-build",
-      //"model": "kimi-for-coding/k2p6-build",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-build"{{ else }}"openai/gpt-5.5-build"{{ end }},
       "prompt": "{file:./prompts/build.md}",
       "color": "accent",
     },
     "explain": {
       "description": "Teaching mode: verbose step-by-step with rationale",
       "mode": "primary",
-      "model": "openai/gpt-5.5-explain",
-      //"model": "kimi-for-coding/k2p6-explain",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-explain"{{ else }}"openai/gpt-5.5-explain"{{ end }},
       "prompt": "{file:./prompts/explain.md}",
       "color": "info",
     },
     "terse": {
       "description": "Senior engineer: minimal preamble, code-first",
       "mode": "primary",
-      "model": "openai/gpt-5.4-mini-terse",
-      //"model": "kimi-for-coding/k2p6-terse",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-terse"{{ else }}"openai/gpt-5.4-mini-terse"{{ end }},
       "prompt": "Respond with code first. One-line rationale only when non-obvious. No preamble.",
       "color": "warning",
     },
     "plan": {
       "description": "High-reasoning planner with read-only permissions",
       "mode": "primary",
-      "model": "openai/gpt-5.5-planner",
-      //"model": "kimi-for-coding/k2p6-planner",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-planner"{{ else }}"openai/gpt-5.5-planner"{{ end }},
       "prompt": "{file:./prompts/planner.md}",
       "permission": {
         "edit": "deny",
@@ -101,8 +96,7 @@
     "fast-edit": {
       "description": "Single-edit executor: read/edit/bash only, no planning",
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini-fast-edit",
-      //"model": "kimi-for-coding/k2p6-fast",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-fast"{{ else }}"openai/gpt-5.4-mini-fast-edit"{{ end }},
       "prompt": "Execute the requested change. No commentary. Call edit or bash tools directly.",
       "permission": {
         "edit": "allow",
@@ -121,16 +115,14 @@
     "strict": {
       "description": "JSON-strict tool-forced executor",
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini-strict",
-      //"model": "kimi-for-coding/k2p6-strict",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-strict"{{ else }}"openai/gpt-5.4-mini-strict"{{ end }},
       "prompt": "Respond exclusively by calling the provided tool with valid JSON arguments.",
       "color": "error",
     },
     "explore": {
       "description": "Read-only code exploration: maps structure, finds references, reports findings",
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini-explore",
-      //"model": "kimi-for-coding/k2p6-explore",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-explore"{{ else }}"openai/gpt-5.4-mini-explore"{{ end }},
       "prompt": "{file:./prompts/explore.md}",
       "permission": {
         "edit": "deny",
@@ -162,8 +154,7 @@
     "advisor": {
       "description": "Learn a topic from source code and docs, then produce actionable recommendation",
       "mode": "primary",
-      "model": "openai/gpt-5.5-advisor",
-      //"model": "kimi-for-coding/k2p6-advisor",
+      "model": {{ if eq .chezmoi.os "darwin" }}"kimi-for-coding/k2p6-advisor"{{ else }}"openai/gpt-5.5-advisor"{{ end }},
       "prompt": "{file:./prompts/advisor.md}",
       "permission": {
         "edit": "deny",
