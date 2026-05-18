@@ -12,7 +12,7 @@ selection-foreground = #1f2328
 # =============================================================================
 # Font
 # =============================================================================
-font-family = "JetBrainsMonoNL Nerd Font"
+font-family = "Berkeley Mono Trial"
 font-size = 13
 font-feature = -calt
 font-feature = -liga
