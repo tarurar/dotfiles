@@ -12,23 +12,25 @@
         groupId = "3FAED4FE-D445-4172-A234-DD31DB9181AB"
         id = "283C3AC9-2E9E-404E-A4D2-1F821C71DCE8"
 
-{{ if ne (lookPath "delta") "" }}
 [diff]
+    command = "smerge"
+    args = [
+        "mergetool",
+        "{{ "{{" }} .Destination {{ "}}" }}",
+        "{{ "{{" }} .Target {{ "}}" }}"
+    ]
+{{ if ne (lookPath "delta") "" }}
     pager = "delta"
     pagerArgs = ["--light"]
 {{ end }}
 
 [merge]
-    command = "nvim"
+    command = "smerge"
     args = [
-        "-d",
-        "-i",
-        "NONE",
-        "-c",
-        "set background=light",
-        "-c",
-        "colorscheme zellner",
+        "mergetool",
+        "{{ "{{" }} .Target {{ "}}" }}",
         "{{ "{{" }} .Destination {{ "}}" }}",
         "{{ "{{" }} .Source {{ "}}" }}",
-        "{{ "{{" }} .Target {{ "}}" }}"
+        "-o",
+        "{{ "{{" }} .Source {{ "}}" }}"
     ]
