@@ -194,6 +194,16 @@
       },
       "color": "info",
     },
+    "gpt-general": {
+      "mode": "primary",
+      "model": "openai/gpt-5.5-general",
+      "color": "accent",
+    },
+    "kimi-general": {
+      "mode": "primary",
+      "model": "kimi-for-coding-oauth/kimi-for-coding",
+      "color": "warning",
+    },
   },
   "snapshot": true,
   "share": "manual",
@@ -359,6 +369,21 @@
           "tool_call": true,
           "options": {
             "reasoningEffort": "xhigh",
+            "serviceTier": "priority",
+            "textVerbosity": "medium",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+          },
+        },
+        "gpt-5.5-general": {
+          "id": "gpt-5.5",
+          "name": "GPT-5.5 General (High+Fast)",
+          "reasoning": true,
+          "tool_call": true,
+          "options": {
+            "reasoningEffort": "high",
             "serviceTier": "priority",
             "textVerbosity": "medium",
             "reasoningSummary": "auto",
