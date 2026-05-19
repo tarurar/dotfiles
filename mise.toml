@@ -227,7 +227,7 @@ build_fast() {
         -maxcpucount:12 \
         -nodeReuse:true \
         /property:UseSharedCompilation=true \
-        /property:BuildInParallel=true
+        /property:BuildInParallel=false
 }
 
 build_full() {
@@ -242,7 +242,7 @@ build_full() {
         -maxcpucount:12 \
         -nodeReuse:true \
         /property:UseSharedCompilation=true \
-        /property:BuildInParallel=true
+        /property:BuildInParallel=false
 }
 
 if [ "$MODE" = "full" ] && [ -n "$SOLUTION_FILE" ]; then
@@ -279,17 +279,9 @@ find_project_files() {
 
 is_test_project() {
     local PROJECT=$1
-    local LOWER
-
-    LOWER=$(printf '%s' "$PROJECT" | tr '[:upper:]' '[:lower:]')
-    case "$LOWER" in
-        */test/*|*/tests/*|*.test.csproj|*.tests.csproj|*.unittest.csproj|*.unittests.csproj)
-            return 0
-            ;;
-    esac
 
     grep -Eiq \
-        '<IsTestProject>[[:space:]]*true[[:space:]]*</IsTestProject>|Microsoft\.NET\.Test\.Sdk|xunit|nunit|mstest' \
+        '<IsTestProject>[[:space:]]*true[[:space:]]*</IsTestProject>|Microsoft\.NET\.Test\.Sdk|xunit\.runner\.visualstudio|NUnit3TestAdapter|MSTest\.TestAdapter' \
         "$PROJECT"
 }
 
