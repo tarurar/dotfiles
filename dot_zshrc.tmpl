@@ -84,8 +84,8 @@ HYPHEN_INSENSITIVE="false"
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+# Disable Oh My Zsh auto-title; Ghostty gets a narrower directory-title hook below.
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -169,10 +169,19 @@ export EDITOR='nano'
 # Source functions file
 [[ -f ~/.config/zsh/functions.zsh ]] && source ~/.config/zsh/functions.zsh
 
-# Register function to run on directory change and update zellij tab name
-chpwd_functions+=(zellij_tab_name_update)
-# Run it once upon start
-zellij_tab_name_update
+autoload -Uz add-zsh-hook
+
+if [[ "$TERM_PROGRAM" == ghostty || -n "$GHOSTTY_RESOURCES_DIR" ]]; then
+    add-zsh-hook chpwd ghostty_title_dir
+    add-zsh-hook precmd ghostty_title_dir
+fi
+
+if [[ -n "$ZELLIJ" ]]; then
+    # Register function to run on directory change and update zellij tab name
+    chpwd_functions+=(zellij_tab_name_update)
+    # Run it once upon start
+    zellij_tab_name_update
+fi
 
 # Mise activation
 {{- if eq .chezmoi.os "darwin"}}

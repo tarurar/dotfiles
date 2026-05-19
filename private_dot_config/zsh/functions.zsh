@@ -1,3 +1,11 @@
+ghostty_title_dir() {
+    [[ "$TERM_PROGRAM" == ghostty || -n "$GHOSTTY_RESOURCES_DIR" ]] || return
+
+    local name=${PWD:t}
+    [[ -n "$name" ]] || name=/
+    printf '\033]2;%s\007' "$name"
+}
+
 zellij_tab_name_update() {
     # Check if we're in a Zellij session
     if [[ -z "$ZELLIJ" ]]; then

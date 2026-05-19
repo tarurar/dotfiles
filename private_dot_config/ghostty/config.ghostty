@@ -52,6 +52,7 @@ working-directory = home
 window-inherit-working-directory = true
 tab-inherit-working-directory = true
 split-inherit-working-directory = true
+shell-integration-features = no-title
 
 # =============================================================================
 # GTK (Linux)
