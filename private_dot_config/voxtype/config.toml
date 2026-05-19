@@ -69,6 +69,9 @@ translate = false
 # - clipboard: Copies text to clipboard (requires wl-copy)
 mode = "paste"
 
+# Keystroke used by paste mode after copying text to the clipboard
+paste_keys = "ctrl+shift+v"
+
 # Fall back to clipboard if typing fails
 fallback_to_clipboard = true
 
