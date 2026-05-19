@@ -339,7 +339,11 @@ if [ -z "${TEST_PROJECTS[*]}" ]; then
     exit 0
 fi
 
+echo "Building selected test project dependency graphs..."
 for PROJECT in "${TEST_PROJECTS[@]}"; do
+    NAME=$(basename -s .csproj "$PROJECT")
+    echo "Building dependency graph for $NAME..."
+
     if [ "$MODE" = "full" ]; then
         build_full "$PROJECT"
     else
