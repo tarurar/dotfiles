@@ -16,12 +16,18 @@ input=$(cat)
 # If the file doesn't exist or is empty, provide a minimal TOML so the query can safely spread null maps
 if [ -z "$input" ]; then
     input='[features]
-[mcp_servers]'
+[mcp_servers]
+[sandbox_workspace_write]'
+elif ! printf '%s\n' "$input" | grep -q '^\[sandbox_workspace_write\]'; then
+    input="$input
+
+[sandbox_workspace_write]"
 fi
 
 query='
   $features = $root.features;
   $mcp_servers = $root.mcp_servers;
+  $sandbox_workspace_write = $root.sandbox_workspace_write;
 
   $root = {
     $root...,
@@ -29,12 +35,20 @@ query='
     "model_reasoning_effort": "high",
     "personality": "pragmatic",
     "service_tier": "fast",
+    "approvals_reviewer": "auto_review",
     "features": {
       $features...,
       "unified_exec": true,
       "shell_snapshot": true,
       "multi_agent": true,
       "apps": false
+    },
+    "sandbox_workspace_write": {
+      $sandbox_workspace_write...,
+      "writable_roots": [
+        "~/.local/share/chezmoi",
+        "~/Sources"
+      ]
     },
     "mcp_servers": {
       $mcp_servers...,
