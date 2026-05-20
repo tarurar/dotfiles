@@ -41,6 +41,10 @@ dir = "{{ cwd }}"
 run = '''
 set -e
 SOLUTION_FILE=$(mise run find-solution)
+MAX_CPU_COUNT=12
+if [ "${CODEX_SANDBOX_NETWORK_DISABLED:-}" = "1" ]; then
+    MAX_CPU_COUNT=1
+fi
 
 $RTK_DOTNET build "${SOLUTION_FILE}" \
     /property:Configuration=Debug \
@@ -48,7 +52,7 @@ $RTK_DOTNET build "${SOLUTION_FILE}" \
     /consoleloggerparameters:NoSummary \
     /property:GenerateDocumentation=false \
     /property:IsLocalBuild=true \
-    -maxcpucount:12 \
+    -maxcpucount:"${MAX_CPU_COUNT}" \
     -nodeReuse:true \
     /property:UseSharedCompilation=true \
     /property:BuildInParallel=true
