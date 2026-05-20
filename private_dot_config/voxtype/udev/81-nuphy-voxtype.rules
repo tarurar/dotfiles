@@ -1,0 +1,2 @@
+# Restart voxtype when NuPhy Air75 V3 dongle connects/reconnects
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="2620", TAG+="systemd", ENV{SYSTEMD_WANTS}="restart-voxtype.service"

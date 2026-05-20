@@ -26,6 +26,28 @@ systemctl --user enable --now display-monitor.service
 
 See [docs/display-switch-setup.md](docs/display-switch-setup.md) for full documentation.
 
+### Voxtype Voice Dictation
+
+Offline voice dictation with Voxtype, faster-whisper, ydotoold, and a NuPhy dongle reconnect workaround.
+
+**Enable the user services:**
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now ydotoold.service voxtype.service
+```
+
+**Install the NuPhy udev rule:**
+
+```bash
+sudo install -m 0644 ~/.config/voxtype/udev/81-nuphy-voxtype.rules /etc/udev/rules.d/81-nuphy-voxtype.rules
+sudo udevadm control --reload-rules
+sudo systemctl daemon-reload
+```
+
+See [Voxtype setup guide](private_dot_config/voxtype/voice-dictation-setup-guide.md) for full documentation.
+
 ## Documentation
 
 - [Display Switch Setup](docs/display-switch-setup.md) - Automatic VS Code window zoom switching on GNOME Wayland
+- [Voxtype Setup](private_dot_config/voxtype/voice-dictation-setup-guide.md) - Offline voice dictation on GNOME Wayland

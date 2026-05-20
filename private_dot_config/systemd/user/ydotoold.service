@@ -1,0 +1,11 @@
+[Unit]
+Description=ydotool daemon for virtual input
+Documentation=man:ydotool(1)
+
+[Service]
+ExecStart=/usr/local/bin/ydotoold
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

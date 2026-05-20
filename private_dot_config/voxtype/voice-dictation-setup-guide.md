@@ -120,27 +120,13 @@ sudo chmod +x /usr/local/bin/ydotool /usr/local/bin/ydotoold
 
 ### Step 8: Create ydotoold Systemd Service
 
-Create the service file:
+The service file is managed by chezmoi at:
 
 ```bash
-mkdir -p ~/.config/systemd/user
-
-cat > ~/.config/systemd/user/ydotoold.service << 'EOF'
-[Unit]
-Description=ydotool daemon for virtual input
-Documentation=man:ydotool(1)
-
-[Service]
-ExecStart=/usr/local/bin/ydotoold
-Restart=on-failure
-RestartSec=3
-
-[Install]
-WantedBy=default.target
-EOF
+~/.config/systemd/user/ydotoold.service
 ```
 
-Enable and start:
+After `chezmoi apply`, enable and start it:
 
 ```bash
 systemctl --user daemon-reload
@@ -193,11 +179,18 @@ on_transcription = true
 
 ### Step 10: Enable Voxtype Auto-Start
 
+The service file is managed by chezmoi at:
+
 ```bash
-voxtype setup systemd
+~/.config/systemd/user/voxtype.service
 ```
 
-This creates a systemd user service that starts automatically on login. The service file is at `~/.config/systemd/user/voxtype.service` and points to `/usr/lib/voxtype/voxtype-vulkan daemon`.
+It points to `/usr/lib/voxtype/voxtype-vulkan daemon`. After `chezmoi apply`, enable and start it:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now voxtype
+```
 
 ## Issues Encountered and Solutions
 
@@ -267,11 +260,13 @@ This creates a systemd user service that starts automatically on login. The serv
 
 **Solution**: Automatically restart voxtype when the dongle reconnects via a udev rule + systemd service.
 
-**Step 1** — Create the udev rule at `/etc/udev/rules.d/81-nuphy-voxtype.rules`:
+**Step 1** — Install the chezmoi-managed udev rule:
 
-```
-# Restart voxtype when NuPhy Air75 V3 dongle connects/reconnects
-ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="19f5", ATTRS{idProduct}=="2620", TAG+="systemd", ENV{SYSTEMD_WANTS}="restart-voxtype.service"
+The source file is managed at `~/.config/voxtype/udev/81-nuphy-voxtype.rules`.
+It must be installed into `/etc/udev/rules.d/` because udev only reads system rule directories.
+
+```bash
+sudo install -m 0644 ~/.config/voxtype/udev/81-nuphy-voxtype.rules /etc/udev/rules.d/81-nuphy-voxtype.rules
 ```
 
 **Step 2** — Create the system service at `/etc/systemd/system/restart-voxtype.service`:
@@ -291,6 +286,8 @@ ExecStart=/usr/bin/systemctl --user -M tarurar@ restart voxtype
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
 ```
+
+**What the rule does**: It matches the NuPhy Air75 V3 USB dongle by vendor/product ID (`19f5:2620`) when the dongle is added, then asks systemd to start `restart-voxtype.service`. That oneshot service restarts the user `voxtype` daemon so it re-opens the new `/dev/input/eventN` keyboard devices.
 
 **Why `TAG+="systemd"` instead of `RUN+=`**: udev workers run with a security sandbox that blocks all D-Bus (`AF_UNIX`) sockets. Any command in `RUN+=` that needs D-Bus (including `systemctl --user`) will silently fail. Using `TAG+="systemd"` with `SYSTEMD_WANTS` signals systemd directly via kernel netlink, bypassing the sandbox entirely.
 
@@ -350,7 +347,7 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 | Output mode | paste |
 | Language | auto-detect |
 | GPU | Vulkan enabled (AMD Radeon 890M) |
-| Auto-start | systemd user services |
+| Auto-start | chezmoi-managed systemd user services |
 
 ## Usage
 
@@ -386,6 +383,10 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 
 # Check udev auto-restart service (after dongle replug)
 sudo journalctl -u restart-voxtype.service --since "5 minutes ago"
+
+# Install/update the NuPhy voxtype udev rule from chezmoi-managed source
+sudo install -m 0644 ~/.config/voxtype/udev/81-nuphy-voxtype.rules /etc/udev/rules.d/81-nuphy-voxtype.rules
+sudo udevadm control --reload-rules
 ```
 
 ## References
@@ -398,4 +399,4 @@ sudo journalctl -u restart-voxtype.service --since "5 minutes ago"
 
 ---
 
-*Last updated: March 31, 2026 (added udev auto-restart on dongle reconnect, added headphone mic volume fix)*
+*Last updated: May 20, 2026 (moved voxtype user services and NuPhy udev rule source under chezmoi management)*
