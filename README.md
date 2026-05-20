@@ -45,6 +45,14 @@ sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
 ```
 
+**Install the Framework laptop keyboard hwdb remap:**
+
+```bash
+sudo install -m 0644 ~/.config/voxtype/hwdb/61-framework-voxtype-keyboard.hwdb /etc/udev/hwdb.d/61-framework-voxtype-keyboard.hwdb
+sudo systemd-hwdb update
+sudo udevadm trigger /dev/input/by-path/platform-i8042-serio-0-event-kbd
+```
+
 See [Voxtype setup guide](private_dot_config/voxtype/voice-dictation-setup-guide.md) for full documentation.
 
 ## Documentation

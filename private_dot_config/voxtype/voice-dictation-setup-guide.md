@@ -192,6 +192,36 @@ systemctl --user daemon-reload
 systemctl --user enable --now voxtype
 ```
 
+### Step 11: Install Framework AltGr Remap
+
+The internal Framework Laptop 13 keyboard has no physical Right Meta key. To keep
+Voxtype listening on `RIGHTMETA` for the external NuPhy keyboard while also
+supporting laptop-only use, the laptop's AltGr key is remapped to `rightmeta`
+with a systemd hwdb entry.
+
+The hwdb source file is managed by chezmoi at:
+
+```bash
+~/.config/voxtype/hwdb/61-framework-voxtype-keyboard.hwdb
+```
+
+The rule uses the `evdev:atkbd:dmi` selector because the internal keyboard is
+an AT keyboard exposed as `AT Translated Set 2 keyboard`. The product-name
+match uses `pnLaptop13*` because udev sanitizes punctuation in the DMI modalias
+before hwdb lookup.
+
+Install it into the system hwdb directory and reload only the internal keyboard:
+
+```bash
+sudo install -m 0644 ~/.config/voxtype/hwdb/61-framework-voxtype-keyboard.hwdb /etc/udev/hwdb.d/61-framework-voxtype-keyboard.hwdb
+sudo systemd-hwdb update
+sudo udevadm trigger /dev/input/by-path/platform-i8042-serio-0-event-kbd
+```
+
+The rule is scoped to the internal `AT Translated Set 2 keyboard` on the
+Framework Laptop 13 AMD Ryzen AI 300 model. It does not change the external
+NuPhy keyboard.
+
 ## Issues Encountered and Solutions
 
 ### Issue 1: Input Group Not Taking Effect
@@ -322,6 +352,20 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 
 **TRRS headphone cable note**: A headphone cable with **2 black rings** (TRRS connector) includes a microphone. WirePlumber will detect and expose this as a separate audio source. The microphone works correctly at volume 1.0.
 
+### Issue 10: Laptop Keyboard Has No Right Meta Key
+
+**Symptom**: Voxtype is configured for `RIGHTMETA`, which works on the external
+NuPhy Air75 V3 but cannot be triggered from the laptop keyboard because the
+Framework internal keyboard has no physical Right Meta key.
+
+**Cause**: Voxtype v0.6.4 has a single built-in evdev hotkey (`[hotkey].key` /
+`--hotkey <KEY>`). There is no native config for `RIGHTMETA` OR `RIGHTALT`.
+
+**Solution**: Keep Voxtype configured for `RIGHTMETA` and remap the laptop-only
+AltGr key to `rightmeta` with systemd hwdb. Diagnostics showed AltGr on
+`/dev/input/event2` emits scan code `b8` as `KEY_RIGHTALT`, so the managed hwdb
+rule maps `KEYBOARD_KEY_b8=rightmeta` for the Framework internal keyboard only.
+
 ## Upgrading Voxtype
 
 ### From v0.4.2 to v0.6.4
@@ -343,7 +387,7 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 | Voxtype | 0.6.4 (.deb package, Vulkan binary) |
 | Whisper model | large-v3-turbo (1.6 GB) |
 | ydotool | 1.0.4 |
-| Hotkey | Right Cmd (toggle mode) |
+| Hotkey | Right Cmd / laptop AltGr via hwdb remap (toggle mode) |
 | Output mode | paste |
 | Language | auto-detect |
 | GPU | Vulkan enabled (AMD Radeon 890M) |
@@ -351,9 +395,9 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 
 ## Usage
 
-1. Press **Right Cmd** key to start recording (beep sound)
+1. Press **Right Cmd** on NuPhy or **AltGr** on the laptop to start recording (beep sound)
 2. Speak in Russian or English
-3. Press **Right Cmd** again to stop (beep sound)
+3. Press the same key again to stop (beep sound)
 4. Text is transcribed and pasted at cursor position
 5. Notification shows the transcribed text
 
@@ -387,6 +431,14 @@ sudo journalctl -u restart-voxtype.service --since "5 minutes ago"
 # Install/update the NuPhy voxtype udev rule from chezmoi-managed source
 sudo install -m 0644 ~/.config/voxtype/udev/81-nuphy-voxtype.rules /etc/udev/rules.d/81-nuphy-voxtype.rules
 sudo udevadm control --reload-rules
+
+# Install/update the Framework laptop AltGr -> Right Meta hwdb remap
+sudo install -m 0644 ~/.config/voxtype/hwdb/61-framework-voxtype-keyboard.hwdb /etc/udev/hwdb.d/61-framework-voxtype-keyboard.hwdb
+sudo systemd-hwdb update
+sudo udevadm trigger /dev/input/by-path/platform-i8042-serio-0-event-kbd
+
+# Verify the laptop AltGr key now emits KEY_RIGHTMETA
+sudo evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd
 ```
 
 ## References
@@ -399,4 +451,4 @@ sudo udevadm control --reload-rules
 
 ---
 
-*Last updated: May 20, 2026 (moved voxtype user services and NuPhy udev rule source under chezmoi management)*
+*Last updated: May 20, 2026 (added Framework laptop AltGr to Right Meta hwdb remap for Voxtype)*
