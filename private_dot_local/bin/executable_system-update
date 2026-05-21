@@ -132,6 +132,9 @@ run_if_available opencode opencode upgrade
 section "Skills"
 run_if_available npm npx -y skills@latest update -g -y
 
+section "npm global"
+run_if_available npm npm update -g
+
 section "Firmware"
 run_fwupdmgr refresh
 run_fwupdmgr update
