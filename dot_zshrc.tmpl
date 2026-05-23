@@ -191,6 +191,11 @@ eval "$($HOME/.local/bin/mise activate zsh)"
 eval "$(/usr/bin/mise activate zsh)"
 {{- end}}
 
+# fzf shell integration
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
