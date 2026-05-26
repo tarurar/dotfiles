@@ -36,12 +36,12 @@
     },
   },
   "mcp": {
-    "context-mode": {
-      "type": "local",
-      "command": [
-        "context-mode"
-      ],
-    },
+    // "context-mode": {
+    //   "type": "local",
+    //   "command": [
+    //     "context-mode"
+    //   ],
+    // },
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
@@ -204,6 +204,11 @@
       "model": "kimi-for-coding-oauth/kimi-for-coding",
       "color": "warning",
     },
+    "deepseek-general": {
+      "mode": "primary",
+      "model": "deepseek/deepseek-v4-pro-coder",
+      "color": "success",
+    },
   },
   "snapshot": true,
   "share": "manual",
@@ -253,7 +258,7 @@
   "username": "Andrei",
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git#v5.1.0",
-    "context-mode",
+    //"context-mode",
     "opencode-kimi-full",
   ],
   "provider": {
@@ -488,35 +493,25 @@
       },
     },
     "deepseek": {
+      "api": "https://api.deepseek.com",
+      "env": [
+        "DEEPSEEK_API_KEY"
+      ],
+      "npm": "@ai-sdk/openai-compatible",
       "models": {
         "deepseek-v4-pro-coder": {
           "id": "deepseek-v4-pro",
           "name": "DeepSeek V4 Pro (Coder)",
-          "reasoning": true,
-          "tool_call": true,
-          "limit": {
-            "context": 1048576,
-            "output": 262144,
-          },
-          "interleaved": {
-            "field": "reasoning_content",
-          },
           "options": {
             "thinking": {
               "type": "enabled",
             },
-            "reasoning_effort": "high",
             "reasoningEffort": "high",
           },
         },
         "deepseek-v4-flash-fast": {
           "id": "deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (Fast, no thinking)",
-          "tool_call": true,
-          "limit": {
-            "context": 1048576,
-            "output": 262144,
-          },
           "options": {
             "thinking": {
               "type": "disabled",
@@ -526,20 +521,10 @@
         "deepseek-v4-pro-reasoner": {
           "id": "deepseek-v4-pro",
           "name": "DeepSeek V4 Pro (Reasoner)",
-          "reasoning": true,
-          "tool_call": true,
-          "limit": {
-            "context": 1048576,
-            "output": 262144,
-          },
-          "interleaved": {
-            "field": "reasoning_content",
-          },
           "options": {
             "thinking": {
               "type": "enabled",
             },
-            "reasoning_effort": "max",
             "reasoningEffort": "max",
           },
         },
