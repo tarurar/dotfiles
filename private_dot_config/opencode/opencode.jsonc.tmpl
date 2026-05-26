@@ -207,6 +207,7 @@
     "deepseek-general": {
       "mode": "primary",
       "model": "deepseek/deepseek-v4-pro-coder",
+      "variant": "high",
       "color": "success",
     },
   },
@@ -508,6 +509,26 @@
             },
             "reasoningEffort": "high",
           },
+          "variants": {
+            "low": {
+              "disabled": true,
+            },
+            "medium": {
+              "disabled": true,
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+              },
+              "reasoningEffort": "high",
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+              },
+              "reasoningEffort": "max",
+            },
+          },
         },
         "deepseek-v4-flash-fast": {
           "id": "deepseek-v4-flash",
@@ -526,6 +547,26 @@
               "type": "enabled",
             },
             "reasoningEffort": "max",
+          },
+          "variants": {
+            "low": {
+              "disabled": true,
+            },
+            "medium": {
+              "disabled": true,
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+              },
+              "reasoningEffort": "high",
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+              },
+              "reasoningEffort": "max",
+            },
           },
         },
       },
