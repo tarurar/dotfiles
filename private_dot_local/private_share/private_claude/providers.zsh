@@ -13,7 +13,7 @@ ccbki() {
   local CLAUDE_CODE_AUTO_COMPACT_WINDOW="262144"
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
-  local CLAUDE_CODE_EXTRA_BODY='{"thinking": {"type": "enabled", "keep": "all"}}'
+  local CLAUDE_CODE_EXTRA_BODY='{"chat_template_args": {"enable_thinking": true}}'
 
   # Launch Claude Code with these vars scoped to this invocation only
   ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL" \
