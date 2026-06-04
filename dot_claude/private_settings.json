@@ -82,17 +82,6 @@
   "prefersReducedMotion": true,
   "skipAutoPermissionPrompt": true,
   "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "notify-send 'Claude Code' 'Task complete — ready for input' --icon=face-smile",
-            "async": true
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "hooks": [
