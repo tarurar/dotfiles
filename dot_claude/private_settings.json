@@ -81,6 +81,7 @@
   "alwaysThinkingEnabled": true,
   "prefersReducedMotion": true,
   "skipAutoPermissionPrompt": true,
+  "awaySummaryEnabled": false,
   "hooks": {
     "Notification": [
       {
