@@ -41,7 +41,8 @@ query='
       "unified_exec": true,
       "shell_snapshot": true,
       "multi_agent": true,
-      "apps": false
+      "apps": false,
+      "memories": false
     },
     "sandbox_workspace_write": {
       $sandbox_workspace_write...,
