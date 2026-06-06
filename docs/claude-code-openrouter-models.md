@@ -30,6 +30,7 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 | `ccomm` | OpenRouter | `minimax/minimax-m3` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1` |
+| `ccogf` | OpenRouter | `google/gemini-3.5-flash` |
 
 ## Usage
 
@@ -55,6 +56,12 @@ Start Claude Code with OpenRouter GLM 5.1:
 
 ```bash
 ccog
+```
+
+Start Claude Code with OpenRouter Gemini 3.5 Flash:
+
+```bash
+ccogf
 ```
 
 Pass normal Claude Code arguments after the function name:

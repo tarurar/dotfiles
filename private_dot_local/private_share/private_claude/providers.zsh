@@ -158,6 +158,10 @@ ccog() {
   _cco_openrouter_model "z-ai/glm-5.1" "202800" "$@"
 }
 
+ccogf() {
+  _cco_openrouter_model "google/gemini-3.5-flash" "1048576" "$@"
+}
+
 ccbg() {
   _ccb_ensure_baseten_proxy || return
 
