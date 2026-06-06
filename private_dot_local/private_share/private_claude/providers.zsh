@@ -3,7 +3,80 @@
 
 # Assumes BASETEN_API_KEY is already exported (e.g., from local_env)
 
+_ccb_baseten_proxy_service="baseten-anthropic-proxy.service"
+_ccb_baseten_proxy_url="http://127.0.0.1:4000"
+
+_ccb_baseten_proxy_health() {
+  command -v curl >/dev/null 2>&1 || return 127
+  curl --fail --silent --max-time 1 \
+    "$_ccb_baseten_proxy_url/health" >/dev/null
+}
+
+_ccb_ensure_baseten_proxy() {
+  if [[ -z "${BASETEN_API_KEY:-}" ]]; then
+    print -u2 "BASETEN_API_KEY is not set"
+    return 1
+  fi
+
+  if ! command -v systemctl >/dev/null 2>&1; then
+    print -u2 "systemctl is required to manage $_ccb_baseten_proxy_service"
+    return 1
+  fi
+
+  if ! command -v curl >/dev/null 2>&1; then
+    print -u2 "curl is required to health-check $_ccb_baseten_proxy_url"
+    return 1
+  fi
+
+  systemctl --user import-environment BASETEN_API_KEY PATH || return
+
+  if systemctl --user is-active --quiet "$_ccb_baseten_proxy_service"; then
+    if _ccb_baseten_proxy_health; then
+      return 0
+    fi
+
+    print -u2 "$_ccb_baseten_proxy_service is active but not healthy"
+    systemctl --user --no-pager status "$_ccb_baseten_proxy_service"
+    return 1
+  fi
+
+  systemctl --user start "$_ccb_baseten_proxy_service" || return
+
+  local attempt
+  for attempt in {1..20}; do
+    if _ccb_baseten_proxy_health; then
+      return 0
+    fi
+    sleep 0.25
+  done
+
+  print -u2 "$_ccb_baseten_proxy_service did not become healthy"
+  systemctl --user --no-pager status "$_ccb_baseten_proxy_service"
+  return 1
+}
+
+ccb-proxy-stop() {
+  systemctl --user stop "$_ccb_baseten_proxy_service"
+}
+
+ccb-proxy-status() {
+  systemctl --user --no-pager status "$_ccb_baseten_proxy_service"
+  _ccb_baseten_proxy_health \
+    && print "health: ok ($_ccb_baseten_proxy_url/health)" \
+    || print "health: unavailable ($_ccb_baseten_proxy_url/health)"
+}
+
+ccb-proxy-logs() {
+  if (( $# == 0 )); then
+    journalctl --user -u "$_ccb_baseten_proxy_service" -n 100 --no-pager
+  else
+    journalctl --user -u "$_ccb_baseten_proxy_service" "$@"
+  fi
+}
+
 ccbki() {
+  _ccb_ensure_baseten_proxy || return
+
   local ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
   # local ANTHROPIC_BASE_URL="https://inference.baseten.co"
   local ANTHROPIC_AUTH_TOKEN="$BASETEN_API_KEY"
@@ -34,6 +107,8 @@ ccbki() {
 }
 
 ccbg() {
+  _ccb_ensure_baseten_proxy || return
+
   local ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
   # local ANTHROPIC_BASE_URL="https://inference.baseten.co"
   local ANTHROPIC_AUTH_TOKEN="$BASETEN_API_KEY"

@@ -1,0 +1,9 @@
+[Unit]
+Description=Baseten Anthropic compatibility proxy for Claude Code
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/baseten-anthropic-fix.py
+Restart=on-failure
+RestartSec=2
+Environment=PYTHONUNBUFFERED=1
