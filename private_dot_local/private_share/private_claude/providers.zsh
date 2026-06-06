@@ -106,7 +106,11 @@ ccbki() {
     claude "$@"
 }
 
-ccoki() {
+_cco_openrouter_model() {
+  local model="$1"
+  local compact_window="$2"
+  shift 2
+
   if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
     print -u2 "OPENROUTER_API_KEY is not set"
     return 1
@@ -114,11 +118,11 @@ ccoki() {
 
   local ANTHROPIC_BASE_URL="https://openrouter.ai/api"
   local ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY"
-  local ANTHROPIC_DEFAULT_OPUS_MODEL="moonshotai/kimi-k2.6"
-  local ANTHROPIC_DEFAULT_SONNET_MODEL="moonshotai/kimi-k2.6"
-  local ANTHROPIC_DEFAULT_HAIKU_MODEL="moonshotai/kimi-k2.6"
-  local CLAUDE_CODE_SUBAGENT_MODEL="moonshotai/kimi-k2.6"
-  local CLAUDE_CODE_AUTO_COMPACT_WINDOW="262144"
+  local ANTHROPIC_DEFAULT_OPUS_MODEL="$model"
+  local ANTHROPIC_DEFAULT_SONNET_MODEL="$model"
+  local ANTHROPIC_DEFAULT_HAIKU_MODEL="$model"
+  local CLAUDE_CODE_SUBAGENT_MODEL="$model"
+  local CLAUDE_CODE_AUTO_COMPACT_WINDOW="$compact_window"
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
   local CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="1"
@@ -136,6 +140,22 @@ ccoki() {
   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="$CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC" \
   CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="$CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS" \
     claude "$@"
+}
+
+ccoki() {
+  _cco_openrouter_model "moonshotai/kimi-k2.6" "262144" "$@"
+}
+
+ccomm() {
+  _cco_openrouter_model "minimax/minimax-m3" "1048576" "$@"
+}
+
+ccods() {
+  _cco_openrouter_model "deepseek/deepseek-v4-pro" "1048576" "$@"
+}
+
+ccog() {
+  _cco_openrouter_model "z-ai/glm-5.1" "202800" "$@"
 }
 
 ccbg() {
