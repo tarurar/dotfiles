@@ -146,20 +146,12 @@ ccoki() {
   _cco_openrouter_model "moonshotai/kimi-k2.6" "262144" "$@"
 }
 
-ccomm() {
-  _cco_openrouter_model "minimax/minimax-m3" "1048576" "$@"
-}
-
 ccods() {
   _cco_openrouter_model "deepseek/deepseek-v4-pro" "1048576" "$@"
 }
 
 ccog() {
   _cco_openrouter_model "z-ai/glm-5.1" "202800" "$@"
-}
-
-ccogf() {
-  _cco_openrouter_model "google/gemini-3.5-flash" "1048576" "$@"
 }
 
 ccbg() {

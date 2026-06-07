@@ -27,10 +27,8 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 | Function | Provider | Model |
 | --- | --- | --- |
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6` |
-| `ccomm` | OpenRouter | `minimax/minimax-m3` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1` |
-| `ccogf` | OpenRouter | `google/gemini-3.5-flash` |
 
 ## Usage
 
@@ -38,12 +36,6 @@ Start Claude Code with OpenRouter Kimi K2.6:
 
 ```bash
 ccoki
-```
-
-Start Claude Code with OpenRouter MiniMax M3:
-
-```bash
-ccomm
 ```
 
 Start Claude Code with OpenRouter DeepSeek V4 Pro:
@@ -56,12 +48,6 @@ Start Claude Code with OpenRouter GLM 5.1:
 
 ```bash
 ccog
-```
-
-Start Claude Code with OpenRouter Gemini 3.5 Flash:
-
-```bash
-ccogf
 ```
 
 Pass normal Claude Code arguments after the function name:
