@@ -74,7 +74,7 @@ CLAUDE_CODE_SUBAGENT_MODEL="<selected-openrouter-model>"
 
 `ANTHROPIC_API_KEY` is explicitly empty to avoid Claude Code falling back to Anthropic authentication.
 
-Each OpenRouter wrapper also sets:
+`ccoki` and `ccog` also set:
 
 ```bash
 CLAUDE_CODE_EXTRA_BODY='{"provider":{"sort":"throughput","allow_fallbacks":true}}'
@@ -82,6 +82,15 @@ CLAUDE_CODE_EXTRA_BODY='{"provider":{"sort":"throughput","allow_fallbacks":true}
 
 This tells OpenRouter to prioritize the provider endpoint with the highest
 current throughput and fall back if that endpoint is unavailable.
+
+`ccods` instead sets:
+
+```bash
+CLAUDE_CODE_EXTRA_BODY='{"provider":{"sort":"price","allow_fallbacks":true}}'
+```
+
+This tells OpenRouter to prioritize the cheapest provider endpoint for DeepSeek
+V4 Pro and fall back if that endpoint is unavailable.
 
 ## Verification
 
