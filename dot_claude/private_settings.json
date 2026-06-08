@@ -82,6 +82,7 @@
   "prefersReducedMotion": true,
   "skipAutoPermissionPrompt": true,
   "awaySummaryEnabled": false,
+  "prefersReducedMotion": false,
   "hooks": {
     "Notification": [
       {
