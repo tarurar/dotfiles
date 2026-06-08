@@ -26,7 +26,7 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 
 | Function | Provider | Model |
 | --- | --- | --- |
-| `ccoki` | OpenRouter, prefers Weights & Biases | `moonshotai/kimi-k2.6` |
+| `ccoki` | OpenRouter | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1` |
 
@@ -74,14 +74,14 @@ CLAUDE_CODE_SUBAGENT_MODEL="<selected-openrouter-model>"
 
 `ANTHROPIC_API_KEY` is explicitly empty to avoid Claude Code falling back to Anthropic authentication.
 
-`ccoki` also sets:
+Each OpenRouter wrapper also sets:
 
 ```bash
-CLAUDE_CODE_EXTRA_BODY='{"provider":{"order":["wandb"],"allow_fallbacks":true}}'
+CLAUDE_CODE_EXTRA_BODY='{"provider":{"sort":"throughput","allow_fallbacks":true}}'
 ```
 
-This tells OpenRouter to try Weights & Biases first and fall back to other
-providers if W&B is unavailable.
+This tells OpenRouter to prioritize the provider endpoint with the highest
+current throughput and fall back if that endpoint is unavailable.
 
 ## Verification
 

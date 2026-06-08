@@ -109,8 +109,7 @@ ccbki() {
 _cco_openrouter_model() {
   local model="$1"
   local compact_window="$2"
-  local extra_body="$3"
-  shift 3
+  shift 2
 
   if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
     print -u2 "OPENROUTER_API_KEY is not set"
@@ -127,6 +126,7 @@ _cco_openrouter_model() {
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
   local CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="1"
+  local CLAUDE_CODE_EXTRA_BODY='{"provider":{"sort":"throughput","allow_fallbacks":true}}'
   local -a claude_env=(
     "ANTHROPIC_BASE_URL=$ANTHROPIC_BASE_URL"
     "ANTHROPIC_AUTH_TOKEN=$ANTHROPIC_AUTH_TOKEN"
@@ -140,29 +140,22 @@ _cco_openrouter_model() {
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=$CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=$CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"
     "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=$CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS"
+    "CLAUDE_CODE_EXTRA_BODY=$CLAUDE_CODE_EXTRA_BODY"
   )
-
-  if [[ -n "$extra_body" ]]; then
-    claude_env+=("CLAUDE_CODE_EXTRA_BODY=$extra_body")
-  fi
 
   env "${claude_env[@]}" claude "$@"
 }
 
 ccoki() {
-  _cco_openrouter_model \
-    "moonshotai/kimi-k2.6" \
-    "262144" \
-    '{"provider":{"order":["wandb"],"allow_fallbacks":true}}' \
-    "$@"
+  _cco_openrouter_model "moonshotai/kimi-k2.6" "262144" "$@"
 }
 
 ccods() {
-  _cco_openrouter_model "deepseek/deepseek-v4-pro" "1048576" "" "$@"
+  _cco_openrouter_model "deepseek/deepseek-v4-pro" "1048576" "$@"
 }
 
 ccog() {
-  _cco_openrouter_model "z-ai/glm-5.1" "202800" "" "$@"
+  _cco_openrouter_model "z-ai/glm-5.1" "202800" "$@"
 }
 
 ccbg() {
