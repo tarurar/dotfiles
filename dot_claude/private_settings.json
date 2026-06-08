@@ -79,7 +79,6 @@
     "dotnet-test@dotnet-agent-skills": true
   },
   "alwaysThinkingEnabled": true,
-  "prefersReducedMotion": true,
   "skipAutoPermissionPrompt": true,
   "awaySummaryEnabled": false,
   "prefersReducedMotion": false,
