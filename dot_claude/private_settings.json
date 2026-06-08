@@ -65,7 +65,7 @@
   "enabledPlugins": {
     "csharp-lsp@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "context-mode@claude-plugins-official": true,
+    "context-mode@context-mode": true,
     "code-simplifier@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
