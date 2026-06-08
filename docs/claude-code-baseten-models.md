@@ -22,10 +22,10 @@ source ~/.zshrc
 
 ## Functions
 
-| Function | Provider | Model |
-| --- | --- | --- |
-| `ccbki` | Baseten | `moonshotai/Kimi-K2.6` |
-| `ccbg` | Baseten | `zai-org/GLM-5.1` |
+| Function | Provider | Claude Code model string | Provider model |
+| --- | --- | --- | --- |
+| `ccbki` | Baseten | `moonshotai/Kimi-K2.6[1m]` | `moonshotai/Kimi-K2.6` |
+| `ccbg` | Baseten | `zai-org/GLM-5.1[1m]` | `zai-org/GLM-5.1` |
 
 ## Usage
 
@@ -83,12 +83,19 @@ Each Baseten wrapper sets:
 ```bash
 ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
 ANTHROPIC_AUTH_TOKEN="$BASETEN_API_KEY"
-ANTHROPIC_MODEL="<selected-baseten-model>"
-ANTHROPIC_DEFAULT_OPUS_MODEL="<selected-baseten-model>"
-ANTHROPIC_DEFAULT_SONNET_MODEL="<selected-baseten-model>"
-ANTHROPIC_DEFAULT_HAIKU_MODEL="<selected-baseten-model>"
-CLAUDE_CODE_SUBAGENT_MODEL="<selected-baseten-model>"
+ANTHROPIC_MODEL="<selected-baseten-model>[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL="<selected-baseten-model>[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL="<selected-baseten-model>[1m]"
+ANTHROPIC_DEFAULT_HAIKU_MODEL="<selected-baseten-model>[1m]"
+CLAUDE_CODE_SUBAGENT_MODEL="<selected-baseten-model>[1m]"
+CLAUDE_CODE_AUTO_COMPACT_WINDOW="<real-model-context-window>"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
 ```
+
+The `[1m]` suffix is a Claude Code CLI context-accounting workaround for custom
+models. It should be present in every model variable. The real provider model
+slug remains the same because Claude Code strips the suffix before sending the
+request. See `docs/claude-code-custom-model-context.md`.
 
 The local proxy forwards requests to `https://inference.baseten.co`, injects the Baseten authorization header, and rewrites Claude Code system messages into the top-level Anthropic `system` field.
 

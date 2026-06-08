@@ -80,10 +80,10 @@ ccbki() {
   local ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
   # local ANTHROPIC_BASE_URL="https://inference.baseten.co"
   local ANTHROPIC_AUTH_TOKEN="$BASETEN_API_KEY"
-  local ANTHROPIC_DEFAULT_OPUS_MODEL="moonshotai/Kimi-K2.6"
-  local ANTHROPIC_DEFAULT_SONNET_MODEL="moonshotai/Kimi-K2.6"
-  local ANTHROPIC_DEFAULT_HAIKU_MODEL="moonshotai/Kimi-K2.6"
-  local CLAUDE_CODE_SUBAGENT_MODEL="moonshotai/Kimi-K2.6"
+  local ANTHROPIC_DEFAULT_OPUS_MODEL="moonshotai/Kimi-K2.6[1m]"
+  local ANTHROPIC_DEFAULT_SONNET_MODEL="moonshotai/Kimi-K2.6[1m]"
+  local ANTHROPIC_DEFAULT_HAIKU_MODEL="moonshotai/Kimi-K2.6[1m]"
+  local CLAUDE_CODE_SUBAGENT_MODEL="moonshotai/Kimi-K2.6[1m]"
   local CLAUDE_CODE_AUTO_COMPACT_WINDOW="262144"
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
@@ -151,7 +151,7 @@ _cco_openrouter_model() {
 
 ccoki() {
   _cco_openrouter_model \
-    "moonshotai/kimi-k2.6" \
+    "moonshotai/kimi-k2.6[1m]" \
     "262144" \
     '{"provider":{"sort":"throughput","allow_fallbacks":true}}' \
     "$@"
@@ -159,7 +159,7 @@ ccoki() {
 
 ccods() {
   _cco_openrouter_model \
-    "deepseek/deepseek-v4-pro" \
+    "deepseek/deepseek-v4-pro[1m]" \
     "1048576" \
     '{"provider":{"sort":"price","allow_fallbacks":true}}' \
     "$@"
@@ -167,8 +167,8 @@ ccods() {
 
 ccog() {
   _cco_openrouter_model \
-    "z-ai/glm-5.1" \
-    "202800" \
+    "z-ai/glm-5.1[1m]" \
+    "202752" \
     '{"provider":{"sort":"throughput","allow_fallbacks":true}}' \
     "$@"
 }
@@ -179,11 +179,11 @@ ccbg() {
   local ANTHROPIC_BASE_URL="http://127.0.0.1:4000"
   # local ANTHROPIC_BASE_URL="https://inference.baseten.co"
   local ANTHROPIC_AUTH_TOKEN="$BASETEN_API_KEY"
-  local ANTHROPIC_DEFAULT_OPUS_MODEL="zai-org/GLM-5.1"
-  local ANTHROPIC_DEFAULT_SONNET_MODEL="zai-org/GLM-5.1"
-  local ANTHROPIC_DEFAULT_HAIKU_MODEL="zai-org/GLM-5.1"
-  local CLAUDE_CODE_SUBAGENT_MODEL="zai-org/GLM-5.1"
-  local CLAUDE_CODE_AUTO_COMPACT_WINDOW="202800"
+  local ANTHROPIC_DEFAULT_OPUS_MODEL="zai-org/GLM-5.1[1m]"
+  local ANTHROPIC_DEFAULT_SONNET_MODEL="zai-org/GLM-5.1[1m]"
+  local ANTHROPIC_DEFAULT_HAIKU_MODEL="zai-org/GLM-5.1[1m]"
+  local CLAUDE_CODE_SUBAGENT_MODEL="zai-org/GLM-5.1[1m]"
+  local CLAUDE_CODE_AUTO_COMPACT_WINDOW="202752"
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
   local CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="1"
@@ -207,10 +207,10 @@ ccbg() {
 ccks() {
   local ANTHROPIC_BASE_URL="https://api.kimi.com/coding/"
   local ANTHROPIC_AUTH_TOKEN="$KIMI_API_KEY"
-  local ANTHROPIC_DEFAULT_OPUS_MODEL="kimi-for-coding"
-  local ANTHROPIC_DEFAULT_SONNET_MODEL="kimi-for-coding"
-  local ANTHROPIC_DEFAULT_HAIKU_MODEL="kimi-for-coding"
-  local CLAUDE_CODE_SUBAGENT_MODEL="kimi-for-coding"
+  local ANTHROPIC_DEFAULT_OPUS_MODEL="kimi-for-coding[1m]"
+  local ANTHROPIC_DEFAULT_SONNET_MODEL="kimi-for-coding[1m]"
+  local ANTHROPIC_DEFAULT_HAIKU_MODEL="kimi-for-coding[1m]"
+  local CLAUDE_CODE_SUBAGENT_MODEL="kimi-for-coding[1m]"
   local CLAUDE_CODE_AUTO_COMPACT_WINDOW="262144"
   local CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
   local CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"

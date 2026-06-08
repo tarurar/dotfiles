@@ -24,11 +24,11 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 
 ## Functions
 
-| Function | Provider | Model |
-| --- | --- | --- |
-| `ccoki` | OpenRouter | `moonshotai/kimi-k2.6` |
-| `ccods` | OpenRouter | `deepseek/deepseek-v4-pro` |
-| `ccog` | OpenRouter | `z-ai/glm-5.1` |
+| Function | Provider | Claude Code model string | Provider model |
+| --- | --- | --- | --- |
+| `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
+| `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
+| `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |
 
 ## Usage
 
@@ -65,14 +65,21 @@ Each OpenRouter wrapper sets:
 ANTHROPIC_BASE_URL="https://openrouter.ai/api"
 ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY"
 ANTHROPIC_API_KEY=""
-ANTHROPIC_MODEL="<selected-openrouter-model>"
-ANTHROPIC_DEFAULT_OPUS_MODEL="<selected-openrouter-model>"
-ANTHROPIC_DEFAULT_SONNET_MODEL="<selected-openrouter-model>"
-ANTHROPIC_DEFAULT_HAIKU_MODEL="<selected-openrouter-model>"
-CLAUDE_CODE_SUBAGENT_MODEL="<selected-openrouter-model>"
+ANTHROPIC_MODEL="<selected-openrouter-model>[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL="<selected-openrouter-model>[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL="<selected-openrouter-model>[1m]"
+ANTHROPIC_DEFAULT_HAIKU_MODEL="<selected-openrouter-model>[1m]"
+CLAUDE_CODE_SUBAGENT_MODEL="<selected-openrouter-model>[1m]"
+CLAUDE_CODE_AUTO_COMPACT_WINDOW="<real-model-context-window>"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
 ```
 
 `ANTHROPIC_API_KEY` is explicitly empty to avoid Claude Code falling back to Anthropic authentication.
+
+The `[1m]` suffix is a Claude Code CLI context-accounting workaround for custom
+models. It should be present in every model variable. The real provider model
+slug remains the same because Claude Code strips the suffix before sending the
+request. See `docs/claude-code-custom-model-context.md`.
 
 `ccoki` and `ccog` also set:
 
@@ -111,4 +118,4 @@ OpenRouter usage should also appear in the OpenRouter activity dashboard.
 
 - Use `https://openrouter.ai/api`, not `https://openrouter.ai/api/v1`. The `/api/v1` endpoint is for OpenAI-compatible clients.
 - Claude Code is optimized for Anthropic models. Non-Anthropic OpenRouter models can work, but tool use, thinking blocks, and long agent loops may vary by model/provider.
-- The model slugs above were verified against OpenRouter model pages on 2026-06-07.
+- Context windows were verified against OpenRouter model metadata on 2026-06-08.

@@ -9,6 +9,11 @@
 
 Claude Code currently needs a local compatibility proxy for these Baseten calls. The proxy injects the `Authorization` header and rewrites `system` role messages from `messages[]` to the top-level Anthropic `system` field.
 
+The shell wrappers append `[1m]` to the model variables before launching Claude
+Code. That suffix is a Claude Code context-accounting workaround and is expected
+to be stripped before the request reaches the proxy. See
+`docs/claude-code-custom-model-context.md`.
+
 ## Managed Files
 
 All files are managed from the chezmoi source repo:
