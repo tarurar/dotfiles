@@ -1,5 +1,6 @@
 [tools]
 "aqua:TomWright/dasel" = "latest"
+fzf = "latest"
 "github:jdx/usage" = "latest"
 python = "latest"
 
