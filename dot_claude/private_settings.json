@@ -103,6 +103,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/home/tarurar/.claude/hooks/context-mode-cache-heal.mjs\""
+          }
+        ]
+      }
     ]
   }
 }
