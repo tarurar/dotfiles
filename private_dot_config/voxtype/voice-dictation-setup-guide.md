@@ -70,17 +70,11 @@ Download and install the .deb package:
 
 ```bash
 cd /tmp
-wget https://github.com/peteonrails/voxtype/releases/download/v0.6.4/voxtype_0.6.4-1_amd64.deb
-sudo dpkg -i voxtype_0.6.4-1_amd64.deb
+wget https://github.com/peteonrails/voxtype/releases/download/v0.7.5/voxtype_0.7.5-1_amd64.deb
+sudo apt install ./voxtype_0.7.5-1_amd64.deb
 ```
 
-The package includes all backend binaries (CPU, Vulkan, ONNX variants). The Vulkan binary at `/usr/lib/voxtype/voxtype-vulkan` is used for AMD GPU acceleration.
-
-**Note**: The package may not install the `/usr/bin/voxtype` wrapper correctly. If `voxtype` command is not found after install, create a symlink:
-
-```bash
-sudo ln -sf /usr/lib/voxtype/voxtype-vulkan /usr/bin/voxtype
-```
+The package includes CPU, Vulkan, and ONNX backend binaries under `/usr/lib/voxtype/`. The `/usr/bin/voxtype` wrapper selects the active backend.
 
 ### Step 5: Download Whisper Model
 
@@ -100,7 +94,7 @@ Select **large-v3-turbo** (1.6 GB) - the multilingual model recommended for GPU 
 sudo voxtype setup gpu --enable
 ```
 
-This enables Vulkan-based GPU inference for faster transcription.
+This auto-detects the best GPU backend. On the Framework AMD setup it selects Vulkan for faster Whisper inference.
 
 ### Step 7: Install ydotool v1.0.4
 
@@ -142,7 +136,7 @@ Edit `~/.config/voxtype/config.toml`:
 state_file = "auto"
 
 [hotkey]
-enabled = true             # Must be explicit — v0.6.4 defaults to false
+enabled = true             # Built-in evdev hotkey detection
 key = "RIGHTMETA"          # Right Cmd/Super/Windows key
 modifiers = []
 mode = "toggle"            # Press to start, press to stop
@@ -164,6 +158,7 @@ translate = false
 
 [output]
 mode = "paste"             # Clipboard + Ctrl+V (required for Cyrillic)
+paste_keys = "ctrl+shift+v"
 fallback_to_clipboard = true
 type_delay_ms = 0
 
@@ -173,9 +168,7 @@ on_recording_stop = false
 on_transcription = true
 ```
 
-**Important v0.6.4 config changes**:
-- `hotkey.enabled = true` — must be set explicitly (new default is `false`)
-- `state_file = "auto"` — new top-level setting for status integration
+Optional 0.7 features such as `voxtype configure`, OSD, alternate engines, and `[output.post_process]` grammar cleanup are intentionally left disabled in this setup.
 
 ### Step 10: Enable Voxtype Auto-Start
 
@@ -185,7 +178,7 @@ The service file is managed by chezmoi at:
 ~/.config/systemd/user/voxtype.service
 ```
 
-It points to `/usr/lib/voxtype/voxtype-vulkan daemon`. After `chezmoi apply`, enable and start it:
+It points to `/usr/bin/voxtype -q daemon`, so the service uses the package wrapper and the backend selected by `voxtype setup gpu`. After `chezmoi apply`, enable and start it:
 
 ```bash
 systemctl --user daemon-reload
@@ -358,7 +351,7 @@ wpctl set-volume @DEFAULT_SOURCE@ 1.0
 NuPhy Air75 V3 but cannot be triggered from the laptop keyboard because the
 Framework internal keyboard has no physical Right Meta key.
 
-**Cause**: Voxtype v0.6.4 has a single built-in evdev hotkey (`[hotkey].key` /
+**Cause**: Voxtype has a single built-in evdev hotkey (`[hotkey].key` /
 `--hotkey <KEY>`). There is no native config for `RIGHTMETA` OR `RIGHTALT`.
 
 **Solution**: Keep Voxtype configured for `RIGHTMETA` and remap the laptop-only
@@ -368,23 +361,22 @@ rule maps `KEYBOARD_KEY_b8=rightmeta` for the Framework internal keyboard only.
 
 ## Upgrading Voxtype
 
-### From v0.4.2 to v0.6.4
+### From v0.6.4 to v0.7.5
 
 1. Stop the service: `systemctl --user stop voxtype`
-2. Download and install: `sudo dpkg -i voxtype_0.6.4-1_amd64.deb`
-3. Update `~/.config/voxtype/config.toml`:
-   - Add `state_file = "auto"` at the top level
-   - Add `enabled = true` under `[hotkey]` (new default is `false`)
-4. Restart: `systemctl --user restart voxtype`
-5. Verify: `/usr/lib/voxtype/voxtype-vulkan --version`
+2. Download and install: `sudo apt install ./voxtype_0.7.5-1_amd64.deb`
+3. Enable the wrapper-selected GPU backend: `sudo voxtype setup gpu --enable`
+4. Update the user service to start `/usr/bin/voxtype -q daemon`
+5. Restart: `systemctl --user daemon-reload && systemctl --user restart voxtype`
+6. Verify: `voxtype --version`, `voxtype setup gpu --status`, and `voxtype info variants`
 
-**What changed**: The v0.6.4 .deb package includes the Vulkan binary with the UTF-8/Cyrillic fix (previously required building from source). No need to rebuild from source.
+**What changed**: v0.7.5 uses the `/usr/bin/voxtype` wrapper to select installed backend variants. The previous direct `/usr/lib/voxtype/voxtype-vulkan daemon` service path is replaced with the wrapper.
 
 ## Final Configuration Summary
 
 | Component | Version/Setting |
 |-----------|-----------------|
-| Voxtype | 0.6.4 (.deb package, Vulkan binary) |
+| Voxtype | 0.7.5 (.deb package, wrapper-selected Vulkan backend) |
 | Whisper model | large-v3-turbo (1.6 GB) |
 | ydotool | 1.0.4 |
 | Hotkey | Right Cmd / laptop AltGr via hwdb remap (toggle mode) |
@@ -415,10 +407,14 @@ systemctl --user status ydotoold
 
 # Run voxtype with verbose logging (for debugging)
 systemctl --user stop voxtype
-/usr/lib/voxtype/voxtype-vulkan -vv daemon
+voxtype -vv daemon
 
 # Check version
-/usr/lib/voxtype/voxtype-vulkan --version
+voxtype --version
+
+# Check active backend variant
+voxtype setup gpu --status
+voxtype info variants
 
 # Check default audio source and volume (if transcription returns ".")
 wpctl status
@@ -451,4 +447,4 @@ sudo evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd
 
 ---
 
-*Last updated: May 20, 2026 (added Framework laptop AltGr to Right Meta hwdb remap for Voxtype)*
+*Last updated: June 9, 2026 (updated Voxtype setup to 0.7.5 wrapper-selected backend)*

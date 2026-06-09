@@ -30,6 +30,12 @@ See [docs/display-switch-setup.md](docs/display-switch-setup.md) for full docume
 
 Offline voice dictation with Voxtype, faster-whisper, ydotoold, and a NuPhy dongle reconnect workaround.
 
+**Enable Voxtype GPU acceleration after package install/upgrade:**
+
+```bash
+sudo voxtype setup gpu --enable
+```
+
 **Enable the user services:**
 
 ```bash

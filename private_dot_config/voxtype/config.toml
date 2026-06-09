@@ -7,7 +7,7 @@
 state_file = "auto"
 
 [hotkey]
-# Enable evdev-based hotkey detection (v0.6.4 defaults to false)
+# Enable evdev-based hotkey detection
 enabled = true
 
 # Key to hold for push-to-talk
@@ -64,9 +64,10 @@ translate = false
 # threads = 4
 
 [output]
-# Primary output mode: "type" or "clipboard"
-# - type: Simulates keyboard input at cursor position (requires ydotool)
+# Primary output mode: "type", "clipboard", or "paste"
+# - type: Simulates keyboard input at cursor position
 # - clipboard: Copies text to clipboard (requires wl-copy)
+# - paste: Copies text to clipboard then sends paste_keys
 mode = "paste"
 
 # Keystroke used by paste mode after copying text to the clipboard
@@ -97,4 +98,3 @@ on_transcription = true
 #
 # Custom word replacements (case-insensitive)
 # replacements = { "hyperwhisper" = "hyprwhspr" }
-
