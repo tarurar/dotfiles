@@ -36,6 +36,7 @@
       "Bash(npm run:*)",
       "Bash(npx:*)",
       "Bash(rtk:*)",
+      "mcp__plugin_context-mode_context-mode",
       "WebSearch"
     ],
     "deny": [],
