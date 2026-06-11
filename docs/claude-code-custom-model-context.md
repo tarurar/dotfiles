@@ -62,10 +62,10 @@ In this setup:
 
 | Model | Real context window | Auto-compact threshold |
 | --- | ---: | ---: |
-| OpenRouter Anthropic Fable latest | `1000000` | Claude Code 1M default |
-| OpenRouter Anthropic Opus latest | `1000000` | Claude Code 1M default |
-| OpenRouter Anthropic Sonnet latest | `1000000` | Claude Code 1M default |
-| OpenRouter Anthropic Haiku latest | `200000` | Claude Code 200K default |
+| OpenRouter Anthropic Fable 5 | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Opus 4.5 | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Sonnet 4.6 | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Haiku 4.5 | `200000` | Claude Code 200K default |
 | Kimi K2.6 | `262144` | about `235930` tokens |
 | DeepSeek V4 Pro | `1048576` | about `943718` tokens |
 | GLM 5.1 | `202752` | about `182477` tokens |
@@ -82,7 +82,7 @@ The expected behavior is:
 
 | Alias | Provider | Claude Code model string | Real provider model |
 | --- | --- | --- | --- |
-| `ccoa` | OpenRouter Anthropic 1P | `~anthropic/claude-fable-latest[1m]`, `~anthropic/claude-opus-latest[1m]`, `~anthropic/claude-sonnet-latest[1m]`, `~anthropic/claude-haiku-latest` | `~anthropic/claude-*-latest` |
+| `ccoa` | OpenRouter Anthropic 1P | `anthropic/claude-fable-5[1m]`, `anthropic/claude-opus-4.5[1m]`, `anthropic/claude-sonnet-4.6[1m]`, `anthropic/claude-haiku-4.5` | pinned Anthropic Claude models |
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |

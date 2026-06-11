@@ -26,7 +26,7 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 
 | Function | Provider | Claude Code model string | Provider model |
 | --- | --- | --- | --- |
-| `ccoa` | OpenRouter Anthropic 1P | `fable`, `opus`, `sonnet`, `haiku` aliases | `~anthropic/claude-*-latest` |
+| `ccoa` | OpenRouter Anthropic 1P | `fable`, `opus`, `sonnet`, `haiku` aliases | pinned Anthropic Claude models |
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |
@@ -87,12 +87,12 @@ Anthropic authentication.
 first-party routes:
 
 ```bash
-ANTHROPIC_DEFAULT_FABLE_MODEL="~anthropic/claude-fable-latest[1m]"
-ANTHROPIC_DEFAULT_OPUS_MODEL="~anthropic/claude-opus-latest[1m]"
-ANTHROPIC_DEFAULT_SONNET_MODEL="~anthropic/claude-sonnet-latest[1m]"
-ANTHROPIC_DEFAULT_HAIKU_MODEL="~anthropic/claude-haiku-latest"
+ANTHROPIC_DEFAULT_FABLE_MODEL="anthropic/claude-fable-5[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL="anthropic/claude-opus-4.5[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL="anthropic/claude-sonnet-4.6[1m]"
+ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-haiku-4.5"
 ANTHROPIC_MODEL="sonnet"
-CLAUDE_CODE_SUBAGENT_MODEL="~anthropic/claude-sonnet-latest[1m]"
+CLAUDE_CODE_SUBAGENT_MODEL="anthropic/claude-sonnet-4.6[1m]"
 CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY="1"
 CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK="1"
 CLAUDE_CODE_EXTRA_BODY='{"provider":{"order":["anthropic"],"allow_fallbacks":true}}'
@@ -100,7 +100,7 @@ CLAUDE_CODE_EXTRA_BODY='{"provider":{"order":["anthropic"],"allow_fallbacks":tru
 
 Fable, Opus, and Sonnet carry the `[1m]` suffix so Claude Code's `/context`
 view uses extended-context accounting. Haiku intentionally has no suffix
-because the OpenRouter `~anthropic/claude-haiku-latest` route is 200K.
+because the OpenRouter `anthropic/claude-haiku-4.5` route is 200K.
 `ccoa` does not set `CLAUDE_CODE_AUTO_COMPACT_WINDOW`; it relies on Claude
 Code's native context handling for these Anthropic-family aliases.
 
