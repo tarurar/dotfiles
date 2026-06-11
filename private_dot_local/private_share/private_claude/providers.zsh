@@ -157,9 +157,9 @@ ccoa() {
 
   local ANTHROPIC_BASE_URL="https://openrouter.ai/api"
   local ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY"
-  local ANTHROPIC_DEFAULT_FABLE_MODEL="~anthropic/claude-fable-latest"
-  local ANTHROPIC_DEFAULT_OPUS_MODEL="~anthropic/claude-opus-latest"
-  local ANTHROPIC_DEFAULT_SONNET_MODEL="~anthropic/claude-sonnet-latest"
+  local ANTHROPIC_DEFAULT_FABLE_MODEL="~anthropic/claude-fable-latest[1m]"
+  local ANTHROPIC_DEFAULT_OPUS_MODEL="~anthropic/claude-opus-latest[1m]"
+  local ANTHROPIC_DEFAULT_SONNET_MODEL="~anthropic/claude-sonnet-latest[1m]"
   local ANTHROPIC_DEFAULT_HAIKU_MODEL="~anthropic/claude-haiku-latest"
   local ANTHROPIC_DEFAULT_FABLE_MODEL_NAME="Fable via OpenRouter"
   local ANTHROPIC_DEFAULT_OPUS_MODEL_NAME="Opus via OpenRouter"
