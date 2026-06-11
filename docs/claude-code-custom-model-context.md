@@ -32,9 +32,11 @@ of falling back to its 200K custom-model default. Claude Code strips the suffix
 before sending the model ID to the provider, so the provider still receives the
 real provider model ID, for example `moonshotai/kimi-k2.6`.
 
-Set the suffix on every model variable used by the wrapper. Claude Code reads
-the suffix per variable; a plain model ID in one variable can make that path use
-200K accounting even if another variable for the same model includes `[1m]`.
+Set the suffix on every model variable that should use extended-context
+accounting. Claude Code reads the suffix per variable; a plain model ID in one
+variable can make that path use 200K accounting even if another variable for the
+same model includes `[1m]`. Do not add the suffix to a model whose provider route
+is really 200K.
 
 ## Auto-Compaction Window
 
@@ -52,10 +54,18 @@ CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="90"
 auto-compaction calculations. `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` applies as a
 percentage of that value.
 
+`ccoa` is the exception in this repo. It routes Claude Code's own Anthropic
+family aliases through OpenRouter and does not set `CLAUDE_CODE_AUTO_COMPACT_WINDOW`.
+Fable, Opus, and Sonnet use `[1m]`; Haiku stays on the standard 200K route.
+
 In this setup:
 
 | Model | Real context window | Auto-compact threshold |
 | --- | ---: | ---: |
+| OpenRouter Anthropic Fable latest | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Opus latest | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Sonnet latest | `1000000` | Claude Code 1M default |
+| OpenRouter Anthropic Haiku latest | `200000` | Claude Code 200K default |
 | Kimi K2.6 | `262144` | about `235930` tokens |
 | DeepSeek V4 Pro | `1048576` | about `943718` tokens |
 | GLM 5.1 | `202752` | about `182477` tokens |
@@ -64,13 +74,15 @@ The expected behavior is:
 
 1. `/context` should stop showing a 200K denominator for these custom models.
 2. Auto-compaction should trigger at 90% of `CLAUDE_CODE_AUTO_COMPACT_WINDOW`,
-   not at 90-95% of Claude Code's 200K fallback.
+   not at 90-95% of Claude Code's 200K fallback, for wrappers that set that
+   variable.
 3. The provider should still receive the model ID without `[1m]`.
 
 ## Current Aliases
 
 | Alias | Provider | Claude Code model string | Real provider model |
 | --- | --- | --- | --- |
+| `ccoa` | OpenRouter Anthropic 1P | `~anthropic/claude-fable-latest[1m]`, `~anthropic/claude-opus-latest[1m]`, `~anthropic/claude-sonnet-latest[1m]`, `~anthropic/claude-haiku-latest` | `~anthropic/claude-*-latest` |
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |
