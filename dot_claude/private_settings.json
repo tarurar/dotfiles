@@ -1,8 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "opus[1m]",
-  "effortLevel": "xhigh",
-  "advisorModel": "opus[1m]",
   "cleanupPeriodDays": 15,
   "env": {
     "CLAUDE_CODE_NO_FLICKER": "1",
@@ -10,7 +7,6 @@
     "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
   },
   "includeCoAuthoredBy": false,
-  "language": "english",
   "permissions": {
     "allow": [
       "Bash(dotnet format:*)",
@@ -42,46 +38,7 @@
     "deny": [],
     "defaultMode": "auto"
   },
-  "sandbox": {
-    "enabled": false,
-    "filesystem": {
-      "allowWrite": [
-        "~/.nuget",
-        "~/.local/share/mise",
-        "~/.cache",
-        "~/.npm",
-        "/tmp"
-      ],
-      "denyRead": [
-        "~/.ssh",
-        "~/.gnupg",
-        "~/.aws/credentials"
-      ]
-    }
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=$(echo \"$input\" | jq -r \".context_window.used_percentage | if . then (. | round | tostring) else empty end\"); r5h=$(echo \"$input\" | jq -r \".rate_limits.five_hour.used_percentage | if . then (. | round | tostring) else empty end\"); r7d=$(echo \"$input\" | jq -r \".rate_limits.seven_day.used_percentage | if . then (. | round | tostring) else empty end\"); out=\"\\033[36m${user}\\033[0m :: \\033[32m$(basename \"$dir\")\\033[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\033[35m${branch}${dirty}\\033[0m\"; fi; out=\"$out :: \\033[90m[${model}]\\033[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: ctx→\\033[33m${pct}%\\033[0m\"; fi; if [ -n \"$r5h\" ]; then out=\"$out :: 5h→\\033[33m${r5h}%\\033[0m\"; fi; if [ -n \"$r7d\" ]; then out=\"$out :: 7d→\\033[33m${r7d}%\\033[0m\"; fi; echo -e \"$out\"'"
-  },
-  "enabledPlugins": {
-    "csharp-lsp@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "context-mode@context-mode": true,
-    "code-simplifier@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "microsoft-docs@claude-plugins-official": true,
-    "dotnet@dotnet-agent-skills": true,
-    "dotnet-aspnet@dotnet-agent-skills": true,
-    "dotnet-data@dotnet-agent-skills": true,
-    "dotnet-msbuild@dotnet-agent-skills": true,
-    "dotnet-nuget@dotnet-agent-skills": true,
-    "dotnet-test@dotnet-agent-skills": true
-  },
-  "alwaysThinkingEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "awaySummaryEnabled": false,
-  "prefersReducedMotion": false,
+  "model": "fable",
   "hooks": {
     "Notification": [
       {
@@ -115,5 +72,48 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c 'input=$(cat); dir=$(echo \"$input\" | jq -r \".workspace.current_dir\"); model=$(echo \"$input\" | jq -r \".model.display_name\"); user=$(whoami); branch=$(cd \"$dir\" && git branch --show-current 2>/dev/null); if [ -n \"$branch\" ] && [ ${#branch} -gt 40 ]; then branch=\"${branch:0:27}...${branch: -10}\"; fi; dirty=\"\"; if [ -n \"$branch\" ] && [ -n \"$(cd \"$dir\" && git status --porcelain 2>/dev/null)\" ]; then dirty=\" *\"; fi; pct=$(echo \"$input\" | jq -r \".context_window.used_percentage | if . then (. | round | tostring) else empty end\"); r5h=$(echo \"$input\" | jq -r \".rate_limits.five_hour.used_percentage | if . then (. | round | tostring) else empty end\"); r7d=$(echo \"$input\" | jq -r \".rate_limits.seven_day.used_percentage | if . then (. | round | tostring) else empty end\"); out=\"\\033[36m${user}\\033[0m :: \\033[32m$(basename \"$dir\")\\033[0m\"; if [ -n \"$branch\" ]; then out=\"$out on \\033[35m${branch}${dirty}\\033[0m\"; fi; out=\"$out :: \\033[90m[${model}]\\033[0m\"; if [ -n \"$pct\" ]; then out=\"$out :: ctx→\\033[33m${pct}%\\033[0m\"; fi; if [ -n \"$r5h\" ]; then out=\"$out :: 5h→\\033[33m${r5h}%\\033[0m\"; fi; if [ -n \"$r7d\" ]; then out=\"$out :: 7d→\\033[33m${r7d}%\\033[0m\"; fi; echo -e \"$out\"'"
+  },
+  "enabledPlugins": {
+    "csharp-lsp@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "context-mode@context-mode": true,
+    "code-simplifier@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "microsoft-docs@claude-plugins-official": true,
+    "dotnet@dotnet-agent-skills": true,
+    "dotnet-aspnet@dotnet-agent-skills": true,
+    "dotnet-data@dotnet-agent-skills": true,
+    "dotnet-msbuild@dotnet-agent-skills": true,
+    "dotnet-nuget@dotnet-agent-skills": true,
+    "dotnet-test@dotnet-agent-skills": true
+  },
+  "language": "english",
+  "sandbox": {
+    "enabled": false,
+    "filesystem": {
+      "allowWrite": [
+        "~/.nuget",
+        "~/.local/share/mise",
+        "~/.cache",
+        "~/.npm",
+        "/tmp"
+      ],
+      "denyRead": [
+        "~/.ssh",
+        "~/.gnupg",
+        "~/.aws/credentials"
+      ]
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "advisorModel": "opus[1m]",
+  "awaySummaryEnabled": false,
+  "prefersReducedMotion": false,
+  "skipAutoPermissionPrompt": true
 }
