@@ -205,6 +205,11 @@
       "model": "kimi-for-coding-oauth/kimi-for-coding",
       "color": "warning",
     },
+    "kimi-k2.7": {
+      "mode": "primary",
+      "model": "openrouter/moonshotai/kimi-k2.7-code",
+      "color": "warning",
+    },
     "deepseek-general": {
       "mode": "primary",
       "model": "deepseek/deepseek-v4-pro-coder",
@@ -470,6 +475,15 @@
       "models": {
         "moonshotai/kimi-k2.6": {
           "name": "Kimi K2.6 (fastest throughput)",
+          "options": {
+            "provider": {
+              "sort": "throughput",
+              "allow_fallbacks": true,
+            },
+          },
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code (fastest throughput)",
           "options": {
             "provider": {
               "sort": "throughput",
