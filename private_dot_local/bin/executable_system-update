@@ -129,6 +129,7 @@ section "Agent CLIs"
 run_if_available codex codex update
 run_if_available claude claude update
 run_if_available opencode opencode upgrade
+run_if_available pi pi update
 
 section "Skills"
 run_if_available npm npx -y skills@latest update -g -y
