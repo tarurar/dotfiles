@@ -107,3 +107,29 @@ ccks() {
 
   env "${claude_env[@]}" claude "$@"
 }
+
+ccz() {
+  if [[ -z "${ZAI_API_KEY:-}" ]]; then
+    print -u2 "ZAI_API_KEY is not set"
+    return 1
+  fi
+
+  local -a claude_env=(
+    "ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic"
+    "ANTHROPIC_AUTH_TOKEN=$ZAI_API_KEY"
+    "ANTHROPIC_API_KEY="
+    "ANTHROPIC_DEFAULT_OPUS_MODEL=glm-5.2[1m]"
+    "ANTHROPIC_DEFAULT_SONNET_MODEL=glm-5.2[1m]"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL=glm-4.5-air"
+    "ANTHROPIC_MODEL=sonnet"
+    "CLAUDE_CODE_SUBAGENT_MODEL=glm-5.2[1m]"
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000"
+    "API_TIMEOUT_MS=3000000"
+    "CLAUDE_CODE_EFFORT_LEVEL=high"
+    "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1"
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1"
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1"
+  )
+
+  env "${claude_env[@]}" claude "$@"
+}

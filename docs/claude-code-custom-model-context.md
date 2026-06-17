@@ -68,7 +68,7 @@ In this setup:
 | OpenRouter Anthropic Haiku 4.5 | `200000` | Claude Code 200K default |
 | Kimi K2.6 | `262144` | about `235930` tokens |
 | DeepSeek V4 Pro | `1048576` | about `943718` tokens |
-| GLM 5.2 | `1048576` | about `943718` tokens |
+| GLM 5.2 (OpenRouter `ccog` or Z.AI `ccz`) | `1048576` | about `943718` tokens |
 
 The expected behavior is:
 
@@ -86,7 +86,44 @@ The expected behavior is:
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.2[1m]` | `z-ai/glm-5.2` |
+| `ccz` | Z.AI GLM Coding Plan | `sonnet` → `glm-5.2[1m]`, `haiku` → `glm-4.5-air` | `glm-5.2`, `glm-4.5-air` |
 | `ccks` | Kimi direct | `kimi-for-coding[1m]` | `kimi-for-coding` |
+
+## Z.AI GLM Coding Plan (`ccz`)
+
+`ccz` connects directly to Z.AI's Anthropic-compatible endpoint instead of routing through OpenRouter.
+
+Required configuration in `~/.local_env` or your shell profile:
+
+```bash
+export ZAI_API_KEY="your-zai-api-key"
+```
+
+Runtime environment set by `ccz`:
+
+```bash
+ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
+ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY"
+ANTHROPIC_DEFAULT_OPUS_MODEL="glm-5.2[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL="glm-5.2[1m]"
+ANTHROPIC_DEFAULT_HAIKU_MODEL="glm-4.5-air"
+ANTHROPIC_MODEL="sonnet"
+CLAUDE_CODE_SUBAGENT_MODEL="glm-5.2[1m]"
+CLAUDE_CODE_AUTO_COMPACT_WINDOW="1000000"
+API_TIMEOUT_MS="3000000"
+CLAUDE_CODE_EFFORT_LEVEL="high"
+CLAUDE_CODE_ALWAYS_ENABLE_EFFORT="1"
+```
+
+- The `sonnet` slot maps to `glm-5.2[1m]`; the `haiku` slot maps to `glm-4.5-air`.
+- `CLAUDE_CODE_EFFORT_LEVEL=high` makes high reasoning effort the default.
+- `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` ensures the effort parameter is sent even though `glm-5.2[1m]` is a custom model ID that Claude Code may not recognize as effort-capable.
+
+Start Claude Code with Z.AI:
+
+```bash
+ccz
+```
 
 ## Verification
 
