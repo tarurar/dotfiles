@@ -111,12 +111,10 @@ ANTHROPIC_MODEL="sonnet"
 CLAUDE_CODE_SUBAGENT_MODEL="glm-5.2[1m]"
 CLAUDE_CODE_AUTO_COMPACT_WINDOW="1000000"
 API_TIMEOUT_MS="3000000"
-CLAUDE_CODE_EFFORT_LEVEL="high"
 CLAUDE_CODE_ALWAYS_ENABLE_EFFORT="1"
 ```
 
 - The `sonnet` slot maps to `glm-5.2[1m]`; the `haiku` slot maps to `glm-4.5-air`.
-- `CLAUDE_CODE_EFFORT_LEVEL=high` makes high reasoning effort the default.
 - `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` ensures the effort parameter is sent even though `glm-5.2[1m]` is a custom model ID that Claude Code may not recognize as effort-capable.
 
 Start Claude Code with Z.AI:
