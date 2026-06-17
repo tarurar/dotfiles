@@ -66,6 +66,7 @@ query='
     },
     "mcp_servers": {
       $mcp_servers...,
+      "railway": null,
       "context7": {
         "url": "https://mcp.context7.com/mcp",
         "env_http_headers": {
