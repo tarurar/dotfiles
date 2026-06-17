@@ -116,8 +116,8 @@ ccods() {
 
 ccog() {
   _cco_openrouter_model \
-    "z-ai/glm-5.1[1m]" \
-    "202752" \
+    "z-ai/glm-5.2[1m]" \
+    "1048576" \
     '{"provider":{"sort":"throughput","allow_fallbacks":true}}' \
     "$@"
 }

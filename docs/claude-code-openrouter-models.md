@@ -29,7 +29,7 @@ If Claude Code was previously logged in with Anthropic, run `/logout` once insid
 | `ccoa` | OpenRouter Anthropic 1P | `fable`, `opus`, `sonnet`, `haiku` aliases | pinned Anthropic Claude models |
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
-| `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |
+| `ccog` | OpenRouter | `z-ai/glm-5.2[1m]` | `z-ai/glm-5.2` |
 
 ## Usage
 
@@ -54,7 +54,7 @@ Start Claude Code with OpenRouter DeepSeek V4 Pro:
 ccods
 ```
 
-Start Claude Code with OpenRouter GLM 5.1:
+Start Claude Code with OpenRouter GLM 5.2:
 
 ```bash
 ccog
