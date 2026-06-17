@@ -37,6 +37,8 @@ export RTK_TELEMETRY_DISABLED=1
 # opencode enable experimental features
 export OPENCODE_EXPERIMENTAL="true"
 export OPENCODE_EXPERIMENTAL_WORKSPACES="1"
+# Kimi WebBridge
+export KIMI_WEBBRIDGE_HOME="$HOME/.kimi-webbridge/bin"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -48,6 +50,7 @@ export PATH=$PATH:$BREW_ROOT
 {{- end }}
 export PATH=$PATH:$CLAUDE_HOME
 export PATH=$PATH:$OPENCODE_HOME
+export PATH=$PATH:$KIMI_WEBBRIDGE_HOME
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/opt/nvim:$PATH"
 
