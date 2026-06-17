@@ -7,7 +7,7 @@ Anthropic-compatible providers and models. These custom models can have context
 windows that are different from Claude Code's standard 200K default.
 
 Claude Code does not reliably infer the real context window for every custom
-model behind OpenRouter, Baseten, or a direct Anthropic-compatible endpoint. If
+model behind OpenRouter or a direct Anthropic-compatible endpoint. If
 Claude Code treats the model as a standard 200K model, `/context` reports a
 200K denominator and auto-compaction can trigger too early.
 
@@ -86,8 +86,6 @@ The expected behavior is:
 | `ccoki` | OpenRouter | `moonshotai/kimi-k2.6[1m]` | `moonshotai/kimi-k2.6` |
 | `ccods` | OpenRouter | `deepseek/deepseek-v4-pro[1m]` | `deepseek/deepseek-v4-pro` |
 | `ccog` | OpenRouter | `z-ai/glm-5.1[1m]` | `z-ai/glm-5.1` |
-| `ccbki` | Baseten | `moonshotai/Kimi-K2.6[1m]` | `moonshotai/Kimi-K2.6` |
-| `ccbg` | Baseten | `zai-org/GLM-5.1[1m]` | `zai-org/GLM-5.1` |
 | `ccks` | Kimi direct | `kimi-for-coding[1m]` | `kimi-for-coding` |
 
 ## Verification
