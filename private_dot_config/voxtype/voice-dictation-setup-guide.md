@@ -144,7 +144,7 @@ mode = "toggle"            # Press to start, press to stop
 [audio]
 device = "default"
 sample_rate = 16000
-max_duration_secs = 120
+max_duration_secs = 180
 
 [audio.feedback]
 enabled = true
