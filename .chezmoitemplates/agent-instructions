@@ -64,6 +64,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Favor composition over inheritance
 - Never call `DateTime.UtcNow` / `DateTimeOffset.UtcNow` directly; inject `TimeProvider` and call `provider.GetUtcNow()`.
 - Use `FakeTimeProvider` (from `Microsoft.Extensions.TimeProvider.Testing`) in tests when time control is required.
+- One top-level type declaration per file: class, record, struct, enum, interface, or delegate.
+  Exceptions:
+  - Discriminated unions declared as abstract record or abstract class with nested record/class inheritors.
+  - Cases where extracting a nested class would require marking the parent class `partial`.
 
 # Architecture: Functional Core / Imperative Shell
 - Business logic in pure static idempotent functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
