@@ -129,7 +129,7 @@ section "Agent CLIs"
 run_if_available codex codex update
 run_if_available claude claude update
 run_if_available opencode opencode upgrade
-run_if_available pi pi update
+run_if_available pi pi update --all
 run_if_available kimi-webbridge kimi-webbridge upgrade
 run_if_available kimi kimi upgrade
 
