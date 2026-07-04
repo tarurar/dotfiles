@@ -38,6 +38,7 @@ Agents that use the **symlink pattern** point to `~/.config/ai-instructions/INST
 |-------|---------------|--------|
 | Codex | `dot_codex/symlink_AGENTS.md.tmpl` | `~/.codex/AGENTS.md` |
 | Gemini | `dot_gemini/symlink_GEMINI.md.tmpl` | `~/.gemini/GEMINI.md` |
+| Command Code | `dot_commandcode/symlink_AGENTS.md.tmpl` | `~/.commandcode/AGENTS.md` |
 | OpenCode | `private_dot_config/opencode/AGENTS.md.tmpl` | `~/.config/opencode/AGENTS.md` *(generated, not symlink)* |
 
 ## Editing Shared Instructions
@@ -110,3 +111,4 @@ chezmoi apply ~/.gemini/GEMINI.md
 | Codex | symlink | `dot_codex/symlink_AGENTS.md.tmpl` | none |
 | Gemini | symlink | `dot_gemini/symlink_GEMINI.md.tmpl` | none |
 | Pi | template | `dot_pi/agent/AGENTS.md.tmpl` | CLI-based Context7 docs lookup via `pi-context7` tools. No Task Management section — handled by the Pi skills system. |
+| Command Code | symlink | `dot_commandcode/symlink_AGENTS.md.tmpl` | none |
