@@ -177,6 +177,10 @@ udevadm info -a -n /dev/hidraw0
 
 - **Bluetooth Device 1/2/3**: Fn + 1/2/3
 - **2.4GHz Mode**: Fn + 4
+- **Restart a Stuck 2.4GHz Connection**: If the keyboard stops responding while
+  the green indicator on the left is blinking, press and hold **Fn + 4** for
+  **3–5 seconds**. This restarts the wireless connection, and the keyboard
+  should reconnect automatically.
 - **Wired Mode**: Automatic when USB connected
 
 ## Final Checklist
@@ -195,4 +199,4 @@ Before attempting firmware update:
 
 *This guide was created after successfully recovering a NuPhy Air 75 v3 stuck in upgrade mode on Ubuntu Linux. The critical missing piece in most documentation is the USB permission configuration required for Linux systems. The temporary `chmod` command provides immediate relief while the udev rules offer a permanent solution.*
 
-*Last updated: 2025*
+*Last updated: 2026*
