@@ -1,67 +1,53 @@
 ---
 name: commit
-description: Use when the user asks to create a git commit from current repository changes, especially with "commit" or "$commit"; stages only relevant files, writes conventional commit messages, and never pushes unless explicitly asked.
+description: >-
+  Create one or more conventional Git commits from current repository changes.
+  Use when the user asks to commit, including with "$commit"; inspect all work,
+  stage only the intended changes, honor exclusions known from the current
+  context, and never push unless explicitly asked.
 ---
 
 # Commit
 
-Create well-formatted conventional commits that match the repo's style,
-splitting when appropriate.
+Create focused commits that match the repository's existing message style.
 
 ## Workflow
 
-1. Run `git status`, `git diff --staged`, and `git log -10 --oneline` in
-   parallel to confirm what is staged, understand the change, and observe the
-   repo's commit style.
-2. If nothing is staged, stage only files that belong to the intended change by
-   explicit path. Do not use `git add -A` or `git add .`; they sweep in
-   unrelated, generated, or sensitive files such as `.env`, credentials, and
-   large binaries.
-3. If the diff contains multiple distinct logical changes, split into separate
-   atomic commits.
-4. Compose commit message(s) in conventional commit format.
-5. Commit using a HEREDOC so multi-line bodies format correctly.
-6. Run `git status` after each commit to confirm it landed.
+1. Inspect `git status --short`, the staged and unstaged diffs, relevant
+   untracked files, and recent commit subjects. Use the user request,
+   conversation context, repository instructions, and diffs to identify the
+   intended change and any paths that must be skipped.
+2. Keep skipped paths out of every commit. Preserve their working-tree
+   contents; if a skipped path is already staged, unstage it. Record each path
+   and the reason it was skipped for the final report. Do not invent exclusions
+   when the context is ambiguous.
+3. Decide whether the intended change needs one commit or several. Split
+   unrelated concerns or changes that are independently useful or reversible.
+4. For each commit, stage only its paths or hunks using explicit pathspecs.
+   Never use `git add .` or `git add -A`. Review `git diff --staged` before
+   committing to confirm it contains no skipped or unrelated changes.
+5. Commit with a conventional message, then inspect `git status --short` to
+   verify the result before continuing.
+6. Report the commits created, any remaining changes, and every skipped path
+   with its reason.
 
 ## Commit Message Format
 
-`<type>(<scope>): <description>` - scope is optional.
+Use `<type>(<scope>): <summary>`, with the scope omitted when it adds no useful
+context.
 
-Types: feat, fix, docs, style, refactor, perf, test, ci, chore
+Follow the repository's observed types and scopes. When it has no clear
+convention, use an appropriate common type: `feat`, `fix`, `docs`, `style`,
+`refactor`, `perf`, `test`, `build`, `ci`, or `chore`.
 
-Scope: If the current branch encodes a task/issue ID such as `1234-add-auth`,
-use it: `feat(1234): add auth service`. Otherwise match the repo's observed
-convention from recent `git log`, often a short word like `tests`, `plan`, or
-`ci`, or omit the scope entirely.
+Write the summary in imperative mood and keep the first line under 72
+characters. Add a short body only when the motivation or non-obvious context
+would help a reviewer; do not merely restate the diff.
 
-## Commit Command
+## Safeguards
 
-Always pass the message via HEREDOC:
-
-```sh
-git commit -m "$(cat <<'EOF'
-type(scope): short description
-
-Optional 1-2 sentence body explaining why, not what.
-EOF
-)"
-```
-
-## Rules
-
-- Present tense, imperative mood: "add feature", not "added feature".
-- First line under 72 characters.
-- Focus on why, not what.
-- Do not add Codex or any AI assistant as co-author.
-- Each commit covers one logical concern only.
-- Never bypass hooks with `--no-verify`, `--no-gpg-sign`, or similar flags. If
-  a pre-commit hook fails, the commit did not happen; fix the underlying issue,
-  re-stage, and create a new commit. Do not `--amend` to recover from a hook
-  failure.
-- Do not push to the remote unless explicitly asked.
-
-## When to Split
-
-Split when the diff contains unrelated concerns, mixed change types such as
-feature plus fix plus refactor, or changes that would be clearer reviewed
-separately.
+- Do not bypass hooks or signing requirements. If a commit command fails,
+  verify whether `HEAD` changed before retrying, then review and re-stage the
+  intended changes as needed.
+- Do not add an AI assistant as a co-author.
+- Do not push unless the user explicitly asks.
