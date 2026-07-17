@@ -1,127 +1,109 @@
-# Core Principles of Development
+# Development Preferences
 
-## 1. Think Before Coding
+These are personal defaults, not a mandate to rewrite existing code.
+Repository-level instructions, public API compatibility, established
+conventions, and configured formatters take precedence.
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+## C# Style
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- Prefer clear value transformations. Use LINQ and lambdas when they are easier
+  to read than straightforward control flow and are not materially less
+  efficient.
+- Keep each method focused on one responsibility and one level of abstraction.
+  Extract low-level mechanics when they obscure the method's main operation.
+- Use `var` when the type is obvious.
+- For new internal APIs, do not add the `Async` suffix to asynchronous methods.
+  Preserve an existing repository or public API naming convention.
+- Use `ConfigureAwait(false)` only in reusable class libraries where caller
+  context should not be captured. It is normally unnecessary in ASP.NET Core
+  applications and worker services.
+- Read current time through an injected `TimeProvider`, not
+  `DateTime.UtcNow` or `DateTimeOffset.UtcNow`. Pass the resulting value into
+  pure domain logic. In tests that need time control, use `FakeTimeProvider`
+  from `Microsoft.Extensions.TimeProvider.Testing`.
+- Prefer one primary top-level type per file. Nested types may remain with their
+  owner when they are discriminated-union cases or moving them would require
+  making the owner `partial`.
 
-## 2. Simplicity First
+## Architecture and Errors
 
-**Minimum code that solves the problem. Nothing speculative.**
+- For code with meaningful business rules, prefer a functional core and
+  imperative shell: deterministic, side-effect-free domain operations
+  surrounded by thin use-case coordination and I/O adapters. Use pure static
+  functions where natural.
+- Keep side effects and dependency wiring at system boundaries. Do not share
+  mutable state across otherwise independent operations.
+- Model expected domain outcomes, such as validation failures, missing values,
+  and business-rule rejections, with the repository's established result or
+  discriminated-union convention. Do not introduce a new result abstraction
+  solely to comply with this preference.
+- Use exceptions for programming errors and unexpected infrastructure failures.
+  Translate or report them at the appropriate application boundary.
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+## Complexity and API Design
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+- Follow repository formatting for line length; otherwise aim for approximately
+  80 columns. Treat 24 lines and cyclomatic complexity of 7 per method as review
+  signals, not targets to satisfy mechanically.
+- When a method has too many parameters, locals, or dependencies, split it by
+  cohesive behavior. Introduce a parameter object only when the grouped values
+  form a meaningful concept.
+- Normalize only documented, harmless input variations at a boundary; reject
+  ambiguous input. Parse into domain types that enforce their invariants, and
+  avoid separate `IsValid` checks when invalid states can be unrepresentable.
+- Use the X-out test as a heuristic for important domain APIs: mentally replace
+  a method name with `X`. If that exposes excessive reliance on primitive or
+  overly generic types, consider improving the API shape. Method names may
+  still carry essential domain meaning.
+- Write range comparisons in number-line order: `2 < x && x <= 5`.
+- Avoid calling overridable members from base-class algorithms; doing so creates
+  an implicit Template Method extension point. Prefer private or non-overridable
+  helpers unless the extension point is intentional and documented.
 
-## 3. Surgical Changes
+## Testing
 
-**Touch only what you must. Clean up only your own mess.**
+- Prefer fakes to mocks; use mocks when a fake would be impractical.
+- Follow Arrange-Act-Assert without comments that merely label those sections.
+- Keep one behavior, and therefore one primary reason to fail, per test.
+- For new behavior and bug fixes, observe the relevant test fail before the
+  implementation when practical. Deliberately mutate working code only when
+  test sensitivity is uncertain, and revert the mutation immediately.
 
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
+## Diagnostics
 
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
+- Log side effects and boundary outcomes; do not add logging to the pure core.
+- Keep analyzer suppressions narrow and give each a concrete justification.
 
-The test: Every changed line should trace directly to the user's request.
+## .NET Tooling
 
-## 4. Goal-Driven Execution
+When these `mise` tasks are available:
 
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
-# Code Style (C# / .NET)
-- Prefer functional constructs: LINQ, lambdas, returning values over assignments
-- Every method: single responsibility, single abstraction level
-- Use `var` when type is obvious
-- No `Async` suffix on async methods
-- `ConfigureAwait(false)` only in true class libraries, not in ASP.NET Core apps or worker services (no `SynchronizationContext`)
-- Favor composition over inheritance
-- Never call `DateTime.UtcNow` / `DateTimeOffset.UtcNow` directly; inject `TimeProvider` and call `provider.GetUtcNow()`.
-- Use `FakeTimeProvider` (from `Microsoft.Extensions.TimeProvider.Testing`) in tests when time control is required.
-- One top-level type declaration per file: class, record, struct, enum, interface, or delegate.
-  Exceptions:
-  - Discriminated unions declared as abstract record or abstract class with nested record/class inheritors.
-  - Cases where extracting a nested class would require marking the parent class `partial`.
-
-# Architecture: Functional Core / Imperative Shell
-- Business logic in pure static idempotent functions: no dependencies, no mutation, no I/O. Take inputs, return outputs.
-- A single orchestrating method (impure shell) handles all side effects (HTTP, file I/O, database) and wires results through the pure functions.
-- Do not pass mutable state through multiple methods that each mutate it independently.
-- Keep wiring and dependency usage in one place — the orchestrator.
-- Pure functions are trivially testable with plain assertions, no mocks needed.
-
-# Error Handling
-- Use exceptions for truly exceptional conditions (infrastructure failures, programming errors)
-- Use Result<T> / discriminated unions for expected failure paths (validation, not-found, business rules)
-- Surface errors at the shell layer; pure functions return failure values, not throw
-
-# Code Complexity Limits
-- Methods: stay within ~80 chars x ~24 lines (80/24 rule)
-- Cyclomatic complexity ≤ 7 per method
-- Limit variables per method (locals + params + fields); consider Parameter Object if too many
-- No more than 7 things happening in a single piece of code
-
-# Design Principles
-- Parse, don't validate: convert DTOs to domain objects, don't use IsValid booleans
-- Objects must guarantee they are never in invalid state (protection of invariants)
-- Postel's Law: accept input liberally, return values conservatively
-- Hierarchy of communication: types > method names > comments > tests > commits > docs
-- X-out names: if replacing a method name with "X" loses no info, the types are doing their job
-- Numeric comparisons in number-line order: `2 < x && x <= 5` (ascending left to right)
-- No self-use in concrete composites: a composite instance method operates on private state, not by invoking its class's other public methods. Self-calls create an implicit Template Method contract that couples subclasses and wrapping decorators to the internal call chain; acceptable only when the extension point is intentional and documented.
-
-# Testing
-- Prefer fake implementations over mocks (use mocks when fakes aren't practical)
-- No "Arrange" / "Act" / "Assert" comments — just follow AAA pattern
-- Always verify a new test fails first: temporarily break SUT, confirm failure, then revert
-- One behavior per test method
-- Devil's advocate: deliberately break SUT to discover missing test cases
-
-# Refactoring & Change
-- Vertical slices: implement minimal end-to-end functionality per change
-- Justify exceptions: when breaking a rule, document why (e.g., `[SuppressMessage("Usage", "CA2234", Justification = "URL is a literal, not a variable")]`)
-- Log only impure actions; pure functions can be re-executed to reproduce state
-
-# Tooling
 - Build: `mise run dotnet:build`
-- Test (smoke, preferred): `mise run dotnet:test:smoke`
-- Test (full unit, no integration): `mise run dotnet:test` — use only when broader scope is needed
-- Test (all including integration): `mise run dotnet:test:full`
-- Do not chain tiers: `smoke` ⊂ `test` ⊂ `test:full`, so running a narrower tier before a broader one is pure duplication.
-- Do not prepend a test tier with `dotnet:build` — each `dotnet:test*` task has a build baked in via `depends`.
-- Exception: when NuGet packages change, restore first with `mise run dotnet:restore` (or `mise run dotnet:build`, which also restores) — `dotnet:test` and `dotnet:test:smoke` depend on `build:fast` (`--no-restore`) and will not pick up new packages otherwise.
-- Single test: `dotnet test --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
-- After changing test code, do NOT use `--no-build` (new code won't be compiled)
-- Minimize console output; avoid `--verbosity detailed` unless investigating
+- Smoke tests (default): `mise run dotnet:test:smoke`
+- Unit tests, excluding integration tests: `mise run dotnet:test`
+- All tests, including integration tests: `mise run dotnet:test:full`
+- Choose the narrowest adequate test tier. If a broader tier is already needed,
+  do not run a narrower tier first. The test tasks build selected projects
+  internally, so do not run a separate build first.
+- After changing NuGet dependencies, run `mise run dotnet:build` before the
+  smoke or unit tier because those tiers use a no-restore build. Use
+  `mise run dotnet:restore` only when the lock file already matches the project
+  dependencies; the restore task runs in locked mode.
+- Run one test with:
+  `dotnet test <project> --filter FullyQualifiedName~Pattern --verbosity minimal --consoleLoggerParameters:ErrorsOnly`
+  Do not add `--no-build` after changing production or test code.
 
-# Dotfiles (chezmoi)
-- Many dotfiles are chezmoi-managed. Source repo: `~/.local/share/chezmoi` (remote: `github.com/tarurar/dotfiles`). Commonly managed paths: `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/`, and top-level dotfiles in `$HOME`.
-- Before editing a file under any such path, run `chezmoi source-path <file>` to check. If it resolves inside `~/.local/share/chezmoi`, the file is managed — editing the deployed copy will be overwritten on the next `chezmoi apply`.
-- Workflow: edit the source path → `chezmoi apply <deployed-path>` → verify target matches (`diff`) → commit in `~/.local/share/chezmoi` and push.
-- `*.tmpl` files expand chezmoi variables. The shared `agent-instructions` template at `~/.local/share/chezmoi/.chezmoitemplates/agent-instructions` is included by all agent instruction files (Claude, Codex, Gemini, OpenCode) — edits there propagate to every agent.
+## Dotfiles Managed by chezmoi
+
+- Paths such as `~/.claude`, `~/.codex`, `~/.gemini`, `~/.config`, and
+  top-level dotfiles in `$HOME` may be deployed copies. Before editing one, run
+  `chezmoi source-path <file>`. If it resolves to a managed source, edit that
+  source rather than the deployed copy.
+- Applying, committing, and pushing are separate actions. Apply only targets
+  whose live configuration is in scope, then verify the rendered output. Do not
+  commit or push without an explicit request.
+- `.chezmoitemplates/agent-instructions` is a named template, not a deployed
+  file. After editing it, apply
+  `~/.config/ai-instructions/INSTRUCTIONS.md` and any agent-specific generated
+  instruction files. Codex, Gemini, and Command Code read the shared file
+  through symlinks and need no separate apply.
