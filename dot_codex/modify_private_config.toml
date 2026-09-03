@@ -36,6 +36,7 @@ query='
   $mcp_servers = $root.mcp_servers;
   $sandbox_workspace_write = $root.sandbox_workspace_write;
   $memories = $root.memories;
+  $tui = $root.tui;
 
   $root = {
     $root...,
@@ -63,6 +64,17 @@ query='
       $memories...,
       "use_memories": false,
       "generate_memories": false
+    },
+    "tui": {
+      $tui...,
+      "status_line": [
+        "model-with-reasoning",
+        "project-name",
+        "git-branch",
+        "weekly-limit",
+        "context-used",
+        "branch-changes"
+      ]
     },
     "mcp_servers": {
       $mcp_servers...,
