@@ -71,8 +71,8 @@ query='
         "model-with-reasoning",
         "project-name",
         "git-branch",
-        "weekly-limit",
         "context-used",
+        "weekly-limit",
         "branch-changes"
       ]
     },
