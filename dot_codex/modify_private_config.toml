@@ -40,8 +40,8 @@ query='
 
   $root = {
     $root...,
-    "model": "gpt-5.5",
-    "model_reasoning_effort": "high",
+    "model": "gpt-5.6-sol",
+    "model_reasoning_effort": "max",
     "personality": "pragmatic",
     "service_tier": "fast",
     "approvals_reviewer": "auto_review",
