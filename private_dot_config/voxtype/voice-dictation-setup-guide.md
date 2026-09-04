@@ -1,6 +1,8 @@
-# Voice Dictation Setup on Ubuntu 24.04 with Wayland
+# Voice Dictation Setup on Wayland
 
-A comprehensive guide to setting up offline voice dictation using Voxtype and faster-whisper on Ubuntu 24.04 with GNOME/Wayland.
+A comprehensive guide to the current Arch Linux, Hyprland, and Waybar setup for
+offline voice dictation using Voxtype and faster-whisper. Ubuntu/GNOME notes are
+retained where installation or compositor behavior differs.
 
 ## Overview
 
@@ -14,11 +16,12 @@ This guide documents the complete setup of a push-to-talk voice dictation system
 
 | Component | Value |
 |-----------|-------|
-| OS | Ubuntu 24.04.3 LTS |
-| Desktop | GNOME on Wayland |
+| OS | Arch Linux |
+| Desktop | Hyprland 0.56.2 with Waybar 0.15.0 |
 | Audio | PipeWire |
-| GPU | AMD Radeon (integrated) |
-| Kernel | 6.17.8 |
+| GPU | AMD Radeon 890M (integrated) |
+| Kernel | 7.2.2-arch1-1 |
+| Voxtype | 1.0.1 (`voxtype-bin` 1.0.1-1) |
 
 ## Why Not soupawhisper?
 
@@ -36,13 +39,24 @@ For Wayland, we chose [Voxtype](https://github.com/peteonrails/voxtype) - a Rust
 
 ### Step 1: Install Wayland Dependencies
 
+On Arch Linux:
+
+```bash
+sudo pacman -S --needed wtype wl-clipboard ydotool
+```
+
+On Ubuntu 24.04:
+
 ```bash
 sudo apt update
 sudo apt install -y wtype wl-clipboard
 ```
 
-- **wtype** - Wayland text input (installed as dependency, but doesn't work on GNOME — see Issue 2)
-- **wl-clipboard** - Wayland clipboard (wl-copy/wl-paste)
+- **wtype** - Wayland text input. It does not work on GNOME (Issue 2), and the
+  Voxtype service deliberately hides it on Hyprland (Issue 11).
+- **wl-clipboard** - Wayland clipboard (`wl-copy`/`wl-paste`).
+- **ydotool** - Kernel-level input used for the paste shortcut. Arch currently
+  provides the required 1.0.4 release directly.
 
 ### Step 2: Add User to Input Group
 
@@ -66,15 +80,24 @@ sudo udevadm trigger
 
 ### Step 4: Install Voxtype
 
-Download and install the .deb package:
+The current stable release is 1.0.1. On Arch Linux, install the prebuilt AUR
+package. The explicit `aur/` prefix avoids a same-named package shadowing the
+AUR package on systems that add another repository:
+
+```bash
+yay -S aur/voxtype-bin
+```
+
+On Ubuntu 24.04, download and install the release package:
 
 ```bash
 cd /tmp
-wget https://github.com/peteonrails/voxtype/releases/download/v0.7.5/voxtype_0.7.5-1_amd64.deb
-sudo apt install ./voxtype_0.7.5-1_amd64.deb
+wget https://github.com/peteonrails/voxtype/releases/download/v1.0.1/voxtype_1.0.1-1_amd64.deb
+sudo apt install ./voxtype_1.0.1-1_amd64.deb
 ```
 
-The package includes CPU, Vulkan, and ONNX backend binaries under `/usr/lib/voxtype/`. The `/usr/bin/voxtype` wrapper selects the active backend.
+The package includes CPU, Vulkan, and ONNX backend binaries under
+`/usr/lib/voxtype/`. The `/usr/bin/voxtype` wrapper selects the active backend.
 
 ### Step 5: Download Whisper Model
 
@@ -84,9 +107,14 @@ Run interactive model selection:
 voxtype setup model
 ```
 
-Select **large-v3-turbo** (1.6 GB) - the multilingual model recommended for GPU acceleration. Do NOT select models ending in `.en` as they only support English.
+Select **large-v3-turbo** (1.6 GB), the multilingual model used by this GPU
+setup. Do not select a model ending in `.en`; those models support only
+English.
 
-**Note on alternative engines**: Voxtype v0.6.0+ supports ONNX engines (SenseVoice, Paraformer, Moonshine, etc.), but these focus on CJK languages. For Russian + English auto-detect, Whisper `large-v3-turbo` remains the best choice.
+**Note on alternative engines**: Voxtype supports ONNX engines such as
+SenseVoice, Paraformer, and Moonshine, but these focus on other language and
+latency tradeoffs. This setup keeps Whisper `large-v3-turbo` for Russian and
+English auto-detection.
 
 ### Step 6: Enable GPU Acceleration
 
@@ -98,7 +126,9 @@ This auto-detects the best GPU backend. On the Framework AMD setup it selects Vu
 
 ### Step 7: Install ydotool v1.0.4
 
-The Ubuntu repository has an outdated version (0.1.8) that doesn't work reliably. Install v1.0.4 from GitHub:
+On Arch, Step 1 installs ydotool 1.0.4 from the official repository, including
+`/usr/bin/ydotoold`. The following manual installation is only for Ubuntu
+24.04, whose repository package is too old for this setup:
 
 ```bash
 cd /tmp
@@ -110,7 +140,14 @@ sudo mv ydotoold-release-ubuntu-latest /usr/local/bin/ydotoold
 sudo chmod +x /usr/local/bin/ydotool /usr/local/bin/ydotoold
 ```
 
-**Why ydotool is still needed**: Voxtype's output driver fallback chain is `wtype → eitype → dotool → ydotool → clipboard`. On GNOME Wayland, wtype doesn't work (Issue 2). The native alternative `eitype` (using libei protocol) can replace ydotool but requires separate installation (`cargo install eitype`). Until eitype is installed, ydotool handles the Ctrl+V keystroke for paste mode.
+**Why ydotool is still needed**: In Voxtype 1.0.1, paste mode tries
+`wtype → eitype → ydotool` for the paste shortcut. On GNOME Wayland, `wtype`
+does not work (Issue 2). On Hyprland it works, but its temporary virtual
+keyboard breaks Waybar's dynamic language indicator (Issue 11). The managed
+Voxtype service therefore hides only `/usr/bin/wtype`, allowing paste mode to
+fall through to the persistent `ydotoold` device. The native GNOME alternative
+`eitype` remains available after a separate installation
+(`cargo install eitype`).
 
 ### Step 8: Create ydotoold Systemd Service
 
@@ -126,6 +163,9 @@ After `chezmoi apply`, enable and start it:
 systemctl --user daemon-reload
 systemctl --user enable --now ydotoold
 ```
+
+The managed Arch unit starts `/usr/bin/ydotoold`. If using the manual Ubuntu
+installation from Step 7, change `ExecStart` to `/usr/local/bin/ydotoold`.
 
 ### Step 9: Configure Voxtype
 
@@ -168,7 +208,15 @@ on_recording_stop = false
 on_transcription = true
 ```
 
-Optional 0.7 features such as `voxtype configure`, OSD, alternate engines, and `[output.post_process]` grammar cleanup are intentionally left disabled in this setup.
+Do not add `driver_order = ["ydotool", "clipboard"]` as a workaround for
+Issue 11. Voxtype 1.0.1 parses that setting, but paste mode does not consult it
+when choosing the backend that sends `paste_keys`; the paste implementation has
+its own fixed `wtype → eitype → ydotool` sequence. The service-level restriction
+in Step 10 is what prevents `wtype` from being selected.
+
+Optional features such as the OSD, alternate engines, and
+`[output.post_process]` grammar cleanup are intentionally left disabled in this
+setup.
 
 ### Step 10: Enable Voxtype Auto-Start
 
@@ -178,7 +226,21 @@ The service file is managed by chezmoi at:
 ~/.config/systemd/user/voxtype.service
 ```
 
-It points to `/usr/bin/voxtype -q daemon`, so the service uses the package wrapper and the backend selected by `voxtype setup gpu`. After `chezmoi apply`, enable and start it:
+It points to `/usr/bin/voxtype -q daemon`, so the service uses the package
+wrapper and the backend selected by `voxtype setup gpu`. On the Arch/Hyprland
+host, it also contains:
+
+```ini
+InaccessiblePaths=/usr/bin/wtype
+```
+
+This systemd restriction hides `wtype` only inside the Voxtype service. The
+binary stays installed and available to every other application. Since paste
+mode can no longer detect or execute it, Voxtype falls through to `ydotool`,
+whose long-lived daemon does not repeatedly add and remove keyboards from
+Hyprland.
+
+After `chezmoi apply`, reload the user manager and enable the services:
 
 ```bash
 systemctl --user daemon-reload
@@ -223,7 +285,8 @@ NuPhy keyboard.
 
 **Cause**: Closing terminal doesn't apply group changes - only the login session has the old groups.
 
-**Solution**: Full logout from GNOME desktop (or reboot), then log back in.
+**Solution**: Fully log out of the desktop session (or reboot), then log back
+in.
 
 ### Issue 2: wtype Doesn't Work on GNOME
 
@@ -245,9 +308,13 @@ NuPhy keyboard.
 
 **Symptom**: `Exit code 203/EXEC` when starting ydotoold service.
 
-**Cause**: Service file pointed to `/usr/bin/ydotoold` but the new binary is in `/usr/local/bin/`.
+**Cause**: The service uses a path from a different installation method. The
+Arch package installs `/usr/bin/ydotoold`; the manual Ubuntu installation in
+Step 7 installs `/usr/local/bin/ydotoold`.
 
-**Solution**: Update service file to use correct path `/usr/local/bin/ydotoold`.
+**Solution**: Run `command -v ydotoold` and use the returned absolute path in
+the service. The checked-in unit targets the current Arch package and therefore
+uses `/usr/bin/ydotoold`.
 
 ### Issue 5: /dev/uinput Permission Denied
 
@@ -359,9 +426,92 @@ AltGr key to `rightmeta` with systemd hwdb. Diagnostics showed AltGr on
 `/dev/input/event2` emits scan code `b8` as `KEY_RIGHTALT`, so the managed hwdb
 rule maps `KEYBOARD_KEY_b8=rightmeta` for the Framework internal keyboard only.
 
+### Issue 11: Waybar Language Indicator Disappears After Transcription
+
+**Applies to**: Arch Linux with Hyprland and Waybar. Reproduced with Voxtype
+1.0.1, Hyprland 0.56.2, and Waybar 0.15.0.
+
+**Symptom**: If `EN` or `RU` is visible before dictation, it disappears when
+transcription completes. If the indicator is already missing, it briefly
+appears at completion and immediately disappears again. Switching the physical
+keyboard layout restores it until the next transcription.
+
+**Cause**: Paste mode copies the transcription with `wl-copy` and then sends
+`Ctrl+Shift+V`. Its keystroke backend selection is hardcoded to try `wtype`
+first, independently of `[output].driver_order`. On Hyprland, each `wtype`
+process registers a temporary virtual keyboard. Its layout event briefly gives
+Waybar a value to display, but the device has already disappeared when Waybar
+resolves it, so the unpinned `hyprland/language` module clears its label.
+
+The behavior can be reproduced without VoxType or any typed text:
+
+```bash
+wtype ''
+```
+
+**Solution**: Keep Waybar unpinned so it can follow both the NuPhy and the
+laptop keyboard. Hide `wtype` only from the Voxtype systemd service and let its
+paste implementation fall through to the already persistent `ydotoold` device:
+
+```ini
+[Service]
+InaccessiblePaths=/usr/bin/wtype
+ExecStart=/usr/bin/voxtype -q daemon
+```
+
+Apply and verify the workaround without rebooting:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now ydotoold.service
+systemctl --user restart voxtype.service waybar.service
+systemctl --user show voxtype.service -p InaccessiblePaths
+```
+
+Expected output:
+
+```text
+InaccessiblePaths=/usr/bin/wtype
+```
+
+The global command `wtype` remains available; only the Voxtype service sees it
+as inaccessible. A real transcription test retained the language label before
+and at three checkpoints up to one second after returning to `idle`, with no
+`wtype` layout event.
+
+**Rejected workarounds**:
+
+- `keyboard-name` in Waybar prevents the label from following the other
+  physical keyboard when switching between docked and laptop-only use.
+- `min-length` only reserves visual width and does not prevent Waybar from
+  clearing the label state.
+- `[output].driver_order` affects the general output chain but is ignored by
+  the paste shortcut selection in Voxtype 1.0.1.
+- A full reboot is unnecessary; reloading systemd and restarting Voxtype and
+  Waybar is sufficient.
+
 ## Upgrading Voxtype
 
-### From v0.6.4 to v0.7.5
+As of September 4, 2026, 1.0.1 is the latest stable GitHub release and is also
+the version installed on the current Arch host. Update it and restart the
+daemon with:
+
+```bash
+yay -S aur/voxtype-bin
+sudo voxtype setup gpu --enable
+systemctl --user restart voxtype.service
+voxtype --version
+```
+
+For Debian/Ubuntu, download the 1.0.1 `.deb` shown in Step 4 and install it with
+`apt`. The package uses the `/usr/bin/voxtype` wrapper to select the configured
+backend variant.
+
+The Waybar workaround remains required in 1.0.1. It is also still required by
+the current `dev` branch at the time of writing: its paste implementation still
+selects the shortcut backend with a fixed `wtype → eitype → ydotool` sequence.
+
+### Historical migration from v0.6.4 to v0.7.5
 
 1. Stop the service: `systemctl --user stop voxtype`
 2. Download and install: `sudo apt install ./voxtype_0.7.5-1_amd64.deb`
@@ -376,11 +526,11 @@ rule maps `KEYBOARD_KEY_b8=rightmeta` for the Framework internal keyboard only.
 
 | Component | Version/Setting |
 |-----------|-----------------|
-| Voxtype | 0.7.5 (.deb package, wrapper-selected Vulkan backend) |
+| Voxtype | 1.0.1 (`voxtype-bin` 1.0.1-1, wrapper-selected Vulkan backend) |
 | Whisper model | large-v3-turbo (1.6 GB) |
 | ydotool | 1.0.4 |
 | Hotkey | Right Cmd / laptop AltGr via hwdb remap (toggle mode) |
-| Output mode | paste |
+| Output mode | paste; wtype hidden inside service so shortcut uses ydotoold |
 | Language | auto-detect |
 | GPU | Vulkan enabled (AMD Radeon 890M) |
 | Auto-start | chezmoi-managed systemd user services |
@@ -404,6 +554,9 @@ systemctl --user restart voxtype
 
 # Check ydotoold status
 systemctl --user status ydotoold
+
+# Check the service-local wtype restriction
+systemctl --user show voxtype.service -p InaccessiblePaths
 
 # Run voxtype with verbose logging (for debugging)
 systemctl --user stop voxtype
@@ -440,11 +593,27 @@ sudo evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd
 ## References
 
 - [Voxtype](https://voxtype.io/) - Official website
-- [Voxtype GitHub](https://github.com/peteonrails/voxtype) - Source code and releases
-- [ydotool GitHub](https://github.com/ReimuNotMoe/ydotool) - Wayland-compatible input automation
-- [soupawhisper](https://github.com/ksred/soupawhisper) - Original X11 reference project
-- [faster-whisper](https://github.com/SYSTRAN/faster-whisper) - Optimized Whisper implementation
+- [Voxtype GitHub](https://github.com/peteonrails/voxtype) - Source code and
+  releases
+- [Voxtype 1.0.1 release](https://github.com/peteonrails/voxtype/releases/tag/v1.0.1) -
+  Current stable release and Arch upgrade command
+- [Voxtype installation guide](https://github.com/peteonrails/voxtype/blob/dev/docs/INSTALL.md) -
+  Current package names and distro instructions
+- [Voxtype 1.0.1 paste implementation](https://github.com/peteonrails/voxtype/blob/v1.0.1/src/output/paste.rs) -
+  Released hardcoded paste shortcut backend sequence
+- [Voxtype development paste implementation](https://github.com/peteonrails/voxtype/blob/dev/src/output/paste.rs) -
+  Sequence still present after the latest stable release
+- [Voxtype issue #306](https://github.com/peteonrails/voxtype/issues/306) -
+  Analysis of paste mode ignoring `driver_order`
+- [ydotool GitHub](https://github.com/ReimuNotMoe/ydotool) -
+  Wayland-compatible input automation
+- [soupawhisper](https://github.com/ksred/soupawhisper) - Original X11
+  reference project
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper) - Optimized
+  Whisper implementation
 
 ---
 
-*Last updated: June 9, 2026 (updated Voxtype setup to 0.7.5 wrapper-selected backend)*
+*Last updated: September 4, 2026 (updated the documented deployment to Voxtype
+1.0.1 on Arch/Hyprland and isolated wtype from paste mode to preserve Waybar's
+dynamic language indicator)*

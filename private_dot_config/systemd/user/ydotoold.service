@@ -3,7 +3,8 @@ Description=ydotool daemon for virtual input
 Documentation=man:ydotool(1)
 
 [Service]
-ExecStart=/usr/local/bin/ydotoold
+# Arch's ydotool package installs the daemon here.
+ExecStart=/usr/bin/ydotoold
 Restart=on-failure
 RestartSec=3
 

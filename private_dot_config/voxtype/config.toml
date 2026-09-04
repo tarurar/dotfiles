@@ -73,7 +73,9 @@ mode = "paste"
 # Keystroke used by paste mode after copying text to the clipboard
 paste_keys = "ctrl+shift+v"
 
-# Fall back to clipboard if typing fails
+# Do not use driver_order to skip wtype here: Voxtype 1.0.1 ignores it when
+# choosing the paste shortcut backend. The systemd service hides wtype instead.
+# This fallback only applies to type mode; keep the default for ad-hoc overrides.
 fallback_to_clipboard = true
 
 # Delay between typed characters in milliseconds

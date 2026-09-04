@@ -6,6 +6,10 @@ After=graphical-session.target pipewire.service pipewire-pulse.service
 
 [Service]
 Type=simple
+# Voxtype 1.0.1 paste mode hardcodes wtype before ydotool and ignores
+# output.driver_order for the paste shortcut. Hide wtype only from this service
+# so its transient virtual keyboard cannot clear Waybar's language indicator.
+InaccessiblePaths=/usr/bin/wtype
 ExecStart=/usr/bin/voxtype -q daemon
 Restart=on-failure
 RestartSec=5

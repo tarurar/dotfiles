@@ -28,7 +28,14 @@ See [docs/display-switch-setup.md](docs/display-switch-setup.md) for full docume
 
 ### Voxtype Voice Dictation
 
-Offline voice dictation with Voxtype, faster-whisper, ydotoold, and a NuPhy dongle reconnect workaround.
+Offline voice dictation with Voxtype, faster-whisper, ydotoold, a
+Hyprland/Waybar-safe paste workaround, and a NuPhy dongle reconnect workaround.
+
+**Install or update the stable Arch package:**
+
+```bash
+yay -S aur/voxtype-bin
+```
 
 **Enable Voxtype GPU acceleration after package install/upgrade:**
 
@@ -42,6 +49,10 @@ sudo voxtype setup gpu --enable
 systemctl --user daemon-reload
 systemctl --user enable --now ydotoold.service voxtype.service
 ```
+
+The managed Voxtype unit hides `/usr/bin/wtype` only from the daemon. This
+forces its paste shortcut through the persistent `ydotoold` device and prevents
+the transient keyboard event that clears Waybar's language indicator.
 
 **Install the NuPhy udev rule:**
 
@@ -64,4 +75,5 @@ See [Voxtype setup guide](private_dot_config/voxtype/voice-dictation-setup-guide
 ## Documentation
 
 - [Display Switch Setup](docs/display-switch-setup.md) - Automatic VS Code window zoom switching on GNOME Wayland
-- [Voxtype Setup](private_dot_config/voxtype/voice-dictation-setup-guide.md) - Offline voice dictation on GNOME Wayland
+- [Voxtype Setup](private_dot_config/voxtype/voice-dictation-setup-guide.md) -
+  Offline voice dictation on Arch/Hyprland, with Ubuntu/GNOME notes
