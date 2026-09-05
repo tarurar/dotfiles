@@ -15,8 +15,10 @@ dictation-mode voxtype
 dictation-mode recover
 ```
 
-Use only the switch to launch the dictation apps. Keep Spokenly's own login
-autostart disabled. The package desktop launcher and direct execution bypass
+Use only the switch to launch the dictation apps. The service passes native
+`--autostart` so login and switch activation run Spokenly in the background
+without opening its main window. Keep Spokenly's own login autostart disabled.
+The package desktop launcher and direct execution bypass
 the trial operating rule. Close any reported unmanaged process before switching.
 
 Spokenly receives private XDG config, data, cache, and state directories under
