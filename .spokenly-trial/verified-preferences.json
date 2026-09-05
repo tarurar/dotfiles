@@ -1,0 +1,8 @@
+{
+  "selectedDictationModelID": "parakeet-tdt-0.6b-v3",
+  "localOnlyMode": true,
+  "enableSendWithReturnKey": false,
+  "autoCopyToClipboard": false,
+  "textTypingMode": "SmartPaste",
+  "modeShortcutKeys": "rcmd"
+}

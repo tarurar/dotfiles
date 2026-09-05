@@ -70,3 +70,30 @@ operations. If a deployed file changes, removal refuses to overwrite that
 change. If a transaction is corrupt, preserve it for inspection; the command
 does not guess its previous selection. The rehearsed baseline remains the
 manual recovery authority.
+
+## Verified Linux input setup
+
+Use local Parakeet V3, Local Only Mode, Smart Paste, and the `rcmd` mode
+shortcut. Framework AltGr is already mapped to Right Meta; NuPhy Right Cmd
+uses the same key. The UI recorder does not capture these keys reliably.
+The global `mainShortcutDefaultKeys` value is not the active mode binding:
+that binding lives in `modes.v2.envelope.items[].value.shortcutWindows.keys`.
+
+The Spokenly service hides `/usr/bin/wtype` to use ydotool. The Hyprland rule
+in `hypr/spokenly-trial.lua` prevents only the Recording overlay from taking
+focus. Without it, Spokenly sends a valid Ctrl+V to its own overlay instead
+of the editor. The settings window remains focusable.
+
+Deployment additionally appends the exact guarded block in
+`hypr/bootstrap.lua` to the existing Hyprland Lua config. This small include
+is the documented exception to additive-only deployment. Its text and path
+are recorded in the deployment manifest. Removal strips that exact block,
+preserves subsequent unrelated edits, and refuses an altered block. The
+rule is disabled immediately on removal; its declaration also disappears
+on the next config reload. Do not restore the whole config backup over later
+user changes.
+
+Successful verification so far: English insertion in VS Code with the focus
+rule, both-keyboard activation, and correct English/Russian recognition.
+Post-restart external insertion and remaining trial coverage require the
+human checks tracked in the migration runbook.

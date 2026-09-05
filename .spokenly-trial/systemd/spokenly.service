@@ -13,6 +13,8 @@ Environment=XDG_CACHE_HOME=%h/.local/state/spokenly-migration/spokenly/cache
 Environment=XDG_STATE_HOME=%h/.local/state/spokenly-migration/spokenly/state
 ExecStartPre=/usr/bin/mkdir -p %h/.local/state/spokenly-migration/spokenly/config %h/.local/state/spokenly-migration/spokenly/data %h/.local/state/spokenly-migration/spokenly/cache %h/.local/state/spokenly-migration/spokenly/state
 ExecStart=/usr/bin/spokenly
+# Use the verified ydotool paste path on this Hyprland laptop.
+InaccessiblePaths=-/usr/bin/wtype
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=15

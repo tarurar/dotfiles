@@ -22,7 +22,21 @@ FILES = (
     ('systemd/dictation-switch@.service', UNIT_DIR / 'dictation-switch@.service', 0o644),
     ('systemd/90-spokenly-trial.conf',
      UNIT_DIR / 'voxtype.service.d/90-spokenly-trial.conf', 0o644),
+    ('hypr/spokenly-trial.lua', HOME_DIR / '.config/hypr/spokenly-trial.lua', 0o644),
 )
+
+
+def config_block(path, block, install):
+    if path.is_symlink():
+        raise RuntimeError('refusing symlink config: ' + str(path))
+    text = path.read_text()
+    marker = '-- BEGIN spokenly-trial focus rule'
+    if marker in text and (text.count(marker) != 1 or text.count(block) != 1):
+        raise RuntimeError('trial include changed; inspect before editing: ' + str(path))
+    if install and block not in text:
+        path.write_text(text + block)
+    elif not install and block in text:
+        path.write_text(text.replace(block, '', 1))
 
 
 def digest(path):
@@ -71,6 +85,10 @@ def create_manifest(state):
                     switch_state=str(TRIAL / 'dictation-mode'),
                     state_inverse='retain until final cleanup, then remove recorded state directory',
                     enable_inverse='systemctl --user disable spokenly.service')
+    manifest['config_blocks'] = [dict(
+        path=str(HOME_DIR / '.config/hypr/hyprland.lua'),
+        text='\n' + (SOURCE / 'hypr/bootstrap.lua').read_text(),
+        inverse='remove only this exact include block, preserving other edits')]
     state.write('switch-deployment.json', json.dumps(manifest, indent=2) + '\n')
     return manifest
 
@@ -102,6 +120,8 @@ def install():
                 stream.flush()
                 os.fsync(stream.fileno())
         destination.chmod(item['mode'])
+    for block in manifest.get('config_blocks', []):
+        config_block(Path(block['path']), block['text'], True)
     state = switch.State(switch.STATE_ROOT)
     state.initialize()
     with state.lock(nonblocking=True):
@@ -139,6 +159,12 @@ def remove():
         try:
             switch.Manager().stop_all()
             switch.systemctl('disable', 'spokenly.service')
+            for block in manifest.get('config_blocks', []):
+                config_block(Path(block['path']), block['text'], False)
+            subprocess.run(['hyprctl', 'eval',
+                            'if spokenly_trial_overlay_rule then '
+                            'spokenly_trial_overlay_rule:set_enabled(false) end'],
+                           check=False, capture_output=True)
             for item in reversed(manifest['files']):
                 Path(item['destination']).unlink()
             for directory in sorted(manifest['directories'], key=len, reverse=True):
