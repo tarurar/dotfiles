@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Temporary Spokenly EINTR workaround; ask the guarded switch to restart on wake."""
+import subprocess
+
+
+class ResumeHandler:
+    def __init__(self, schedule, cancel, request):
+        self.schedule = schedule
+        self.cancel = cancel
+        self.request = request
+        self.pending = None
+
+    def prepare_for_sleep(self, sleeping):
+        if self.pending is not None:
+            self.cancel(self.pending)
+            self.pending = None
+        if not sleeping:
+            self.pending = self.schedule(2000, self.resume)
+
+    def resume(self):
+        self.pending = None
+        self.request()
+        return False
+
+
+def request_restart():
+    try:
+        subprocess.run(
+            ['systemctl', '--user', 'start', '--no-block',
+             'dictation-switch@resume-spokenly.service'],
+            check=True, timeout=10)
+        print('Wake: queued guarded Spokenly restart.', flush=True)
+    except (OSError, subprocess.SubprocessError) as error:
+        print('Wake: could not queue guarded restart: ' + str(error), flush=True)
+
+
+def main():
+    import dbus
+    from dbus.mainloop.glib import DBusGMainLoop
+    from gi.repository import GLib
+
+    DBusGMainLoop(set_as_default=True)
+    bus = dbus.SystemBus()
+    # A disconnected bus exits the process; systemd reconnects via Restart=on-failure.
+    bus.set_exit_on_disconnect(True)
+    handler = ResumeHandler(GLib.timeout_add, GLib.source_remove, request_restart)
+    bus.add_signal_receiver(
+        handler.prepare_for_sleep,
+        signal_name='PrepareForSleep',
+        dbus_interface='org.freedesktop.login1.Manager',
+        bus_name='org.freedesktop.login1',
+        path='/org/freedesktop/login1')
+    print('Listening for login1 wake notifications.', flush=True)
+    GLib.MainLoop().run()
+
+
+if __name__ == '__main__':
+    main()

@@ -106,7 +106,7 @@ class State:
                 or not re.fullmatch(r'[0-9a-f]{32}', value.get('invocation', ''))
                 or value.get('unit') not in {
                     f'dictation-switch@{action}.service'
-                    for action in (*APPS, 'recover')
+                    for action in (*APPS, 'recover', 'resume-spokenly')
                 }):
             raise SwitchError('invalid transaction; preserve it for repair')
         return value
@@ -318,6 +318,8 @@ class Controller:
                         else self.store.selection())
             if previous is None:
                 raise SwitchError('no stable selection; restore the recorded baseline')
+            if target == 'resume-spokenly' and previous != 'spokenly':
+                return
             snapshot = self.manager.snapshot()
             if snapshot['unmanaged']:
                 raise SwitchError('unmanaged dictation process: close it before switching')
@@ -327,7 +329,7 @@ class Controller:
                     return
                 except SwitchError:
                     pass
-            destination = previous if target == 'recover' else target
+            destination = previous if target in ('recover', 'resume-spokenly') else target
             journal = dict(version=1, previous=previous, target=destination,
                            admitted=destination, phase='stopping', unit=self.unit,
                            invocation=self.invocation)
@@ -402,7 +404,7 @@ def main(arguments):
         return 0 if admitted(store, manager, arguments[1]) else 1
     if len(arguments) == 2 and arguments[0] in ('_run', '_cleanup'):
         target = arguments[1]
-        if target not in (*APPS, 'recover'):
+        if target not in (*APPS, 'recover', 'resume-spokenly'):
             raise SwitchError('invalid switch target')
         invocation = os.environ.get('INVOCATION_ID', '')
         if not re.fullmatch(r'[0-9a-f]{32}', invocation):
@@ -414,8 +416,8 @@ def main(arguments):
         else:
             controller.cleanup()
         return 0
-    if len(arguments) != 1 or arguments[0] not in (*APPS, 'status', 'recover'):
-        print('Usage: dictation-mode spokenly|voxtype|status|recover', file=sys.stderr)
+    if len(arguments) != 1 or arguments[0] not in (*APPS, 'status', 'recover', 'resume-spokenly'):
+        print('Usage: dictation-mode spokenly|voxtype|status|recover|resume-spokenly', file=sys.stderr)
         return 2
     if arguments[0] == 'status':
         return status(store, manager)

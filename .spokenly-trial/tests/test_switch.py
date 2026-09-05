@@ -77,6 +77,42 @@ class SwitchTests(unittest.TestCase):
         self.controller.run('voxtype')
         self.assertEqual([], self.manager.events)
 
+    def test_resume_preserves_voxtype_without_service_changes(self):
+        self.controller.run('resume-spokenly')
+        self.assertEqual([], self.manager.events)
+        self.assertEqual('voxtype', self.store.selection())
+
+    def test_resume_restarts_selected_spokenly_even_when_process_is_healthy(self):
+        self.store.select('spokenly')
+        self.manager.running = {'spokenly'}
+        self.controller.unit = 'dictation-switch@resume-spokenly.service'
+        self.controller.run('resume-spokenly')
+        self.assertEqual(['stop', 'start:spokenly'], self.manager.events)
+        self.assertEqual('spokenly', self.store.selection())
+        self.assertIsNone(self.store.journal())
+
+    def test_resume_does_not_recover_an_interrupted_switch(self):
+        self.manager.interrupt = 'spokenly'
+        with self.assertRaises(KeyboardInterrupt):
+            self.controller.run('spokenly')
+        self.controller.cleanup()
+        events = list(self.manager.events)
+        with self.assertRaises(switch.SwitchError):
+            self.controller.run('resume-spokenly')
+        self.assertEqual(events, self.manager.events)
+
+    def test_interrupted_resume_retains_spokenly_as_recovery_target(self):
+        self.store.select('spokenly')
+        self.manager.running = {'spokenly'}
+        self.controller.unit = 'dictation-switch@resume-spokenly.service'
+        self.manager.interrupt = 'spokenly'
+        with self.assertRaises(KeyboardInterrupt):
+            self.controller.run('resume-spokenly')
+        self.controller.cleanup()
+        self.assertEqual('spokenly', self.store.journal()['previous'])
+        self.assertIsNone(self.store.selection())
+        self.assertEqual(set(), self.manager.running)
+
     def test_switch_stops_previous_before_admitting_target(self):
         self.controller.run('spokenly')
         self.assertEqual(['stop', 'start:spokenly'], self.manager.events)

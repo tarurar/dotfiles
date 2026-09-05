@@ -44,3 +44,37 @@ class ConfigIncludeTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             deploy.config_block(link, BLOCK, True)
         self.assertEqual(self.path.read_text(), 'original\n')
+
+
+class ResumeInventoryTests(unittest.TestCase):
+    def test_fresh_manifest_records_resume_files_and_removal(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unit_dir = root / 'units'
+            resume_link = unit_dir / 'graphical-session.target.wants/spokenly-resume.service'
+            files = tuple((src, root / 'files' / Path(src).name, mode)
+                          for src, _, mode in deploy.FILES)
+            state = deploy.module().State(root / 'state')
+            state.initialize()
+            with patch.multiple(deploy, FILES=files, UNIT_DIR=unit_dir,
+                                ENABLE_LINK=root / 'spokenly-link',
+                                RESUME_LINK=resume_link):
+                manifest = deploy.create_manifest(state)
+            self.assertEqual(
+                {'spokenly-resume', 'spokenly-resume.service'},
+                {Path(item['source']).name for item in manifest['files']
+                 if Path(item['source']).name.startswith('spokenly-resume')})
+            self.assertEqual('systemctl --user disable --now spokenly-resume.service',
+                             manifest['auxiliary_units'][0]['inverse'])
+
+    def test_existing_resume_enable_link_is_not_adopted(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            link = root / 'resume-link'
+            link.symlink_to(root / 'missing-target')
+            with patch.multiple(deploy, RESUME_LINK=link,
+                                ENABLE_LINK=root / 'spokenly-link'):
+                with self.assertRaisesRegex(RuntimeError, 'preexisting enable link'):
+                    deploy.create_manifest(None)

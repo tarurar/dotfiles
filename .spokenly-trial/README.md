@@ -100,3 +100,57 @@ Russian, Framework and NuPhy keyboards, and T3 Code and VS Code: recognition
 and automatic insertion work. NuPhy reconnect followed by dictation passed,
 and Voxtype remained inactive. The setup is trial-ready. Clipboard retention
 is off; the user accepts clipboard history capturing Smart Paste temporarily.
+
+## Temporary wake workaround
+
+Spokenly 0.3.20 abandons its evdev listener on EINTR after suspend. This was
+also reproduced by briefly stopping and continuing the main process. The
+application bug has been reported upstream; restarting is a temporary
+workaround, not an internal fix.
+
+`spokenly-resume.service` runs for the graphical session and listens for
+login1 `PrepareForSleep(false)` using Python dbus and PyGObject (both must be
+installed). Two seconds after wake it queues
+`dictation-switch@resume-spokenly.service`. The existing supervisor checks
+selection under its lock: Voxtype is a no-op, unfinished transactions are
+refused, and selected Spokenly is restarted through the normal transaction.
+Concurrent switch requests can cause the resume request to be refused; it
+never overrides a user's selection or automatically recovers a transaction.
+A repeated notification replaces the timer; another sleep cancels it.
+
+The watcher stays independent of the app service so restarting Spokenly
+cannot terminate the watcher. Native `--autostart` keeps the app hidden.
+Restarting does not retain an in-progress recording. The watcher reads no
+key events and performs no device polling.
+
+Fresh `deploy install` records and enables the watcher. Existing deployments
+are not automatically upgraded by `install`; this laptop was upgraded with
+hash checks and a private backup of the old control file and manifest under
+`runtime-inventory/resume-upgrade-2026-09-05/`. The manifest records the new
+files and enable link. `deploy remove` stops and disables the watcher before
+removing the recorded files, after Voxtype has been selected.
+
+Disable just the workaround:
+
+```sh
+systemctl --user disable --now spokenly-resume.service
+```
+
+Re-enable with `systemctl --user enable --now spokenly-resume.service`.
+Inspect operational logs with:
+
+```sh
+journalctl --user -u spokenly-resume.service -u dictation-switch@resume-spokenly.service
+```
+
+All 30 source tests and installed unit verification pass. A simulated wake
+through the actual callback preserved Voxtype's PID when selected, and
+restarted only Spokenly when selected (30 input handles, zero mapped windows).
+A real sleep/wake check also passed on 2026-09-05: wake at 23:08:41 UTC+03,
+watcher request at 23:08:44, successful restart at 23:08:46, followed by
+user-confirmed dictation and 30 input handles with only Spokenly running.
+This verifies one actual wake. Once an upstream fix
+passes both the stop/continue reproduction and real sleep/wake with this
+watcher disabled, remove the workaround and update the deployment inventory.
+Detailed evidence is in the migration repository's
+`docs/diagnostics/spokenly-resume-2026-09-05.md`.
