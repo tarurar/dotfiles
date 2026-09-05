@@ -1,0 +1,4 @@
+#!/bin/sh
+# Restrict the paste adapter to Spokenly and its child commands.
+export PATH="$HOME/.local/lib/spokenly-trial/bin:$PATH"
+exec /usr/bin/spokenly "$@"

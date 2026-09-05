@@ -154,3 +154,37 @@ passes both the stop/continue reproduction and real sleep/wake with this
 watcher disabled, remove the workaround and update the deployment inventory.
 Detailed evidence is in the migration repository's
 `docs/diagnostics/spokenly-resume-2026-09-05.md`.
+
+## Ghostty paste adaptation
+
+`bin/spokenly-trial-launch` prepends a private adapter directory to Spokenly's
+inherited PATH and execs the app with native `--autostart`. The service uses
+this launcher. `bin/spokenly-ydotool` is deployed as
+`~/.local/lib/spokenly-trial/bin/ydotool`; ordinary commands and Voxtype still
+resolve the system ydotool.
+
+Only the known `key 29:1 47:1 47:0 29:0` request is adapted. The helper checks
+Hyprland's focused window class; `com.mitchellh.ghostty` gets Ctrl+Shift+V,
+other classes get Ctrl+V. Focus-query errors retain Ctrl+V. Other arguments
+pass through without querying focus. The absolute `/usr/bin/ydotool` runs
+with the resulting arguments. No clipboard contents or terminal contents
+are read, and physical keybindings remain unchanged. Focus can still change
+between the query and injection. Optional stderr route markers may be
+captured or discarded by Spokenly.
+
+All 36 tests pass. Runtime inspection verified the private command path,
+zero mapped Spokenly windows, and matching deployment hashes. The user
+confirmed successful insertion after the requested Ghostty shell and Codex
+tests. Claude Code, Pi, GUI-editor, both-layout, and manual image-paste
+regression checks remain to be confirmed. Kimi is excluded for now.
+
+Both new files, the updated service hash, and created directories are in the
+deployment inventory. Prior service and manifest copies are retained under
+`runtime-inventory/ghostty-paste-upgrade-2026-09-05/`. To remove only this
+adaptation, select Voxtype, restore source/deployed ExecStart to
+`/usr/bin/spokenly --autostart`, update the service hash, remove the adapter
+and launcher with their inventory entries, reload systemd, and reselect
+Spokenly. Remove only empty recorded directories. The resume watcher is
+independent and can remain enabled. Full `deploy remove` includes these
+files. See the migration repository's
+`docs/diagnostics/spokenly-ghostty-paste-2026-09-05.md` for details.

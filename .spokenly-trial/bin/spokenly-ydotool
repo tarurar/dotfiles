@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+"""Adapt Spokenly's generated Ctrl+V to Ghostty's terminal paste binding."""
+import json
+import os
+import subprocess
+import sys
+
+
+CTRL_V = ['key', '29:1', '47:1', '47:0', '29:0']
+TERMINAL_PASTE = ['key', '29:1', '42:1', '47:1', '47:0', '42:0', '29:0']
+
+
+def focused_class():
+    try:
+        result = subprocess.run(
+            ['/usr/bin/hyprctl', '-j', 'activewindow'],
+            capture_output=True, text=True, check=True, timeout=0.5)
+        window = json.loads(result.stdout)
+        value = window.get('class') if isinstance(window, dict) else None
+        return value if isinstance(value, str) else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+def main(arguments):
+    if arguments == CTRL_V:
+        window_class = focused_class()
+        if window_class == 'com.mitchellh.ghostty':
+            arguments = TERMINAL_PASTE
+            route = 'ghostty'
+        else:
+            route = 'default' if window_class else 'unknown-focus'
+        print('spokenly-paste: route=' + route, file=sys.stderr, flush=True)
+    os.execv('/usr/bin/ydotool', ['/usr/bin/ydotool', *arguments])
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
