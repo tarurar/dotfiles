@@ -93,7 +93,8 @@ rule is disabled immediately on removal; its declaration also disappears
 on the next config reload. Do not restore the whole config backup over later
 user changes.
 
-Successful verification so far: English insertion in VS Code with the focus
-rule, both-keyboard activation, and correct English/Russian recognition.
-Post-restart external insertion and remaining trial coverage require the
-human checks tracked in the migration runbook.
+After a clean restart, the user verified every combination of English and
+Russian, Framework and NuPhy keyboards, and T3 Code and VS Code: recognition
+and automatic insertion work. NuPhy reconnect followed by dictation passed,
+and Voxtype remained inactive. The setup is trial-ready. Clipboard retention
+is off; the user accepts clipboard history capturing Smart Paste temporarily.
