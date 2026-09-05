@@ -1,0 +1,437 @@
+#!/usr/bin/env python3
+"""Select one dictation app through supervised, recoverable user services."""
+
+import contextlib
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+import time
+
+
+APPS = ('voxtype', 'spokenly')
+PHASES = ('stopping', 'starting', 'verifying', 'rollback-stopping',
+          'rollback-starting', 'rollback-verifying', 'degraded')
+START_PHASES = ('starting', 'verifying', 'rollback-starting',
+                'rollback-verifying')
+STATE_ROOT = Path.home() / '.local/state/spokenly-migration/dictation-mode'
+
+
+class SwitchError(Exception):
+    pass
+
+
+class State:
+    def __init__(self, root):
+        self.root = root
+
+    def initialize(self):
+        self.root.mkdir(mode=0o700, parents=True, exist_ok=True)
+        self.check()
+
+    def check(self):
+        info = self.root.lstat()
+        if (self.root.is_symlink() or not self.root.is_dir()
+                or info.st_uid != os.getuid() or info.st_mode & 0o077):
+            raise SwitchError('switch state must be a private owned directory')
+
+    def sync(self):
+        fd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+    def write(self, name, value):
+        self.check()
+        fd, temporary = tempfile.mkstemp(prefix='.pending-', dir=self.root)
+        try:
+            with os.fdopen(fd, 'w') as stream:
+                stream.write(value)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, self.root / name)
+            self.sync()
+        finally:
+            Path(temporary).unlink(missing_ok=True)
+
+    def selection(self):
+        self.check()
+        selected = []
+        for app in APPS:
+            marker = self.root / (app + '-allowed')
+            if marker.is_symlink():
+                raise SwitchError('permission marker must not be a symlink')
+            if marker.exists():
+                if not marker.is_file():
+                    raise SwitchError('permission marker must be a file')
+                selected.append(app)
+        if len(selected) > 1:
+            raise SwitchError('both permission markers exist')
+        return selected[0] if selected else None
+
+    def suppress(self):
+        for app in APPS:
+            (self.root / (app + '-allowed')).unlink(missing_ok=True)
+        self.sync()
+
+    def select(self, app):
+        if app not in APPS:
+            raise SwitchError('unknown dictation app')
+        self.suppress()
+        self.write(app + '-allowed', '')
+
+    def journal(self):
+        path = self.root / 'transaction.json'
+        if path.is_symlink():
+            raise SwitchError('transaction must not be a symlink')
+        try:
+            value = json.loads(path.read_text())
+        except FileNotFoundError:
+            return None
+        except (ValueError, OSError) as error:
+            raise SwitchError('unreadable transaction; preserve it for repair') from error
+        if (not isinstance(value, dict)
+                or any(not isinstance(value.get(key), str) for key in
+                       ('previous', 'target', 'admitted', 'phase', 'invocation', 'unit'))
+                or value.get('version') != 1
+                or value.get('previous') not in APPS
+                or value.get('target') not in APPS
+                or value.get('admitted') not in APPS
+                or value.get('phase') not in PHASES
+                or not re.fullmatch(r'[0-9a-f]{32}', value.get('invocation', ''))
+                or value.get('unit') not in {
+                    f'dictation-switch@{action}.service'
+                    for action in (*APPS, 'recover')
+                }):
+            raise SwitchError('invalid transaction; preserve it for repair')
+        return value
+
+    def record(self, journal):
+        self.write('transaction.json', json.dumps(journal, indent=2) + '\n')
+
+    def commit(self):
+        (self.root / 'transaction.json').unlink()
+        self.sync()
+
+    @contextlib.contextmanager
+    def lock(self, nonblocking=False):
+        self.check()
+        fd = os.open(self.root / 'lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW,
+                     0o600)
+        with os.fdopen(fd, 'w') as stream:
+            try:
+                flags = fcntl.LOCK_EX | (fcntl.LOCK_NB if nonblocking else 0)
+                fcntl.flock(stream, flags)
+            except BlockingIOError as error:
+                raise SwitchError('a dictation switch is already running') from error
+            yield
+
+
+def systemctl(*arguments, check=True, timeout=25):
+    result = subprocess.run(['/usr/bin/systemctl', '--user', *arguments],
+                            capture_output=True, text=True, timeout=timeout)
+    if check and result.returncode:
+        raise SwitchError(result.stderr.strip() or 'systemctl failed')
+    return result
+
+
+def properties(unit):
+    fields = ('LoadState', 'ActiveState', 'SubState', 'MainPID', 'ControlGroup',
+              'InvocationID')
+    result = systemctl('show', unit, *('-p' + field for field in fields))
+    return dict(line.split('=', 1) for line in result.stdout.splitlines()
+                if '=' in line)
+
+
+def dictation_app(name, arguments):
+    names = (name.lower(), Path(arguments[0]).name.lower() if arguments else '')
+    if any(name.startswith('spokenly') for name in names):
+        return 'spokenly'
+    if any(name.startswith('voxtype') for name in names):
+        command = next((arg for arg in arguments[1:] if not arg.startswith('-')), '')
+        if command not in ('status', 'info'):
+            return 'voxtype'
+    return None
+
+
+def processes():
+    found = []
+    for directory in Path('/proc').glob('[0-9]*'):
+        try:
+            if directory.stat().st_uid != os.getuid():
+                continue
+            name = (directory / 'comm').read_text().strip()
+            arguments = (directory / 'cmdline').read_bytes().decode(
+                errors='replace').rstrip('\0').split('\0')
+            app = dictation_app(name, arguments)
+            if app:
+                group = next((line[3:] for line in
+                              (directory / 'cgroup').read_text().splitlines()
+                              if line.startswith('0::')), '')
+                found.append((int(directory.name), app, group))
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        except PermissionError as error:
+            raise SwitchError('cannot inspect an owned process') from error
+    return found
+
+
+class Manager:
+    def can_start(self, app):
+        if processes():
+            return False
+        other = next(name for name in APPS if name != app)
+        unit = properties(other + '.service')
+        return unit.get('ActiveState') in ('inactive', 'failed')
+
+    def owner_alive(self, journal):
+        owner = properties(journal['unit'])
+        return (owner.get('InvocationID') == journal['invocation']
+                and owner.get('ActiveState') == 'activating'
+                and int(owner.get('MainPID', '0')) > 0)
+
+    def snapshot(self):
+        units = {app: properties(app + '.service') for app in APPS}
+        found = processes()
+        running, unmanaged, errors = set(), set(), []
+        for pid, app, group in found:
+            expected = units[app].get('ControlGroup', '')
+            if not expected or not (group == expected or group.startswith(expected + '/')):
+                unmanaged.add(f'{app}:{pid}')
+        for app, unit in units.items():
+            if unit.get('LoadState') != 'loaded':
+                errors.append(app + ' service is not loaded')
+            if unit.get('ActiveState') == 'active':
+                main_pid = int(unit.get('MainPID', '0'))
+                if any(pid == main_pid and name == app for pid, name, _ in found):
+                    running.add(app)
+                else:
+                    errors.append(app + ' service does not own its app process')
+            elif unit.get('ActiveState') not in ('inactive', 'failed'):
+                errors.append(app + ' service is ' + unit.get('ActiveState', 'unknown'))
+        output = systemctl('list-jobs', '--no-legend', '--plain', '--no-pager').stdout
+        jobs = []
+        for line in output.splitlines():
+            fields = line.split()
+            if len(fields) != 4 or not fields[0].isdigit():
+                raise SwitchError('unrecognized systemd job output')
+            jobs.append(dict(zip(('id', 'unit', 'type', 'state'), fields)))
+        conflicts = [job for job in jobs if job.get('unit') in
+                     {app + '.service' for app in APPS}]
+        return {'running': running, 'unmanaged': unmanaged, 'jobs': conflicts,
+                'errors': errors, 'processes': found, 'units': units}
+
+    def stop_all(self):
+        systemctl('stop', *(app + '.service' for app in APPS))
+        state = self.snapshot()
+        if (state['running'] or state['unmanaged'] or state['jobs']
+                or state['errors'] or state['processes']):
+            raise SwitchError('apps or conflicting jobs remain after stopping')
+
+    def start(self, app):
+        systemctl('reset-failed', app + '.service', check=False)
+        systemctl('start', app + '.service')
+
+    def verify(self, app):
+        # This checks process ownership, not microphone or transcription quality.
+        deadline = time.monotonic() + 8
+        healthy_since = None
+        while time.monotonic() < deadline:
+            state = self.snapshot()
+            if (state['running'] != {app} or state['unmanaged'] or state['jobs']
+                    or state['errors'] or any(name != app for _, name, _ in state['processes'])):
+                if healthy_since is not None or state['unmanaged']:
+                    raise SwitchError('target is not healthy and exclusive')
+            else:
+                if healthy_since is None:
+                    healthy_since = time.monotonic()
+                if time.monotonic() - healthy_since >= 1:
+                    return
+            time.sleep(0.1)
+        raise SwitchError('target did not become healthy and exclusive within 8 seconds')
+
+
+def admitted(store, manager, app):
+    try:
+        if app not in APPS or store.selection() != app:
+            return False
+        if not manager.can_start(app):
+            return False
+        journal = store.journal()
+        if journal is None:
+            return True
+        return (journal['admitted'] == app and journal['phase'] in START_PHASES
+                and manager.owner_alive(journal))
+    except (SwitchError, OSError, ValueError, TypeError):
+        return False
+
+
+class Controller:
+    def __init__(self, store, manager, unit, invocation):
+        self.store = store
+        self.manager = manager
+        self.unit = unit
+        self.invocation = invocation
+
+    def phase(self, journal, phase, app):
+        journal.update(phase=phase, admitted=app)
+        self.store.record(journal)
+
+    def activate(self, journal, app, rollback=False):
+        prefix = 'rollback-' if rollback else ''
+        self.phase(journal, prefix + 'stopping', app)
+        self.store.suppress()
+        self.manager.stop_all()
+        self.store.select(app)
+        self.phase(journal, prefix + 'starting', app)
+        self.manager.start(app)
+        self.phase(journal, prefix + 'verifying', app)
+        self.manager.verify(app)
+        self.store.commit()
+
+    def degrade(self, journal):
+        try:
+            self.phase(journal, 'degraded', journal['previous'])
+        finally:
+            try:
+                self.store.suppress()
+            finally:
+                self.manager.stop_all()
+
+    def run(self, target):
+        with self.store.lock(nonblocking=True):
+            previous_journal = self.store.journal()
+            if previous_journal and target != 'recover':
+                raise SwitchError('unfinished transaction: run dictation-mode recover')
+            if target == 'recover' and not previous_journal:
+                selected = self.store.selection()
+                if selected:
+                    self.manager.verify(selected)
+                    return
+                raise SwitchError('no previous selection is available for recovery')
+            previous = (previous_journal['previous'] if previous_journal
+                        else self.store.selection())
+            if previous is None:
+                raise SwitchError('no stable selection; restore the recorded baseline')
+            snapshot = self.manager.snapshot()
+            if snapshot['unmanaged']:
+                raise SwitchError('unmanaged dictation process: close it before switching')
+            if target == previous and not previous_journal:
+                try:
+                    self.manager.verify(target)
+                    return
+                except SwitchError:
+                    pass
+            destination = previous if target == 'recover' else target
+            journal = dict(version=1, previous=previous, target=destination,
+                           admitted=destination, phase='stopping', unit=self.unit,
+                           invocation=self.invocation)
+            self.store.record(journal)
+            try:
+                self.activate(journal, destination)
+            except Exception as failure:
+                if target == 'recover':
+                    self.degrade(journal)
+                    raise SwitchError('recovery failed; both apps remain suppressed') from failure
+                try:
+                    self.activate(journal, previous, rollback=True)
+                except Exception as rollback_failure:
+                    self.degrade(journal)
+                    raise SwitchError('startup and rollback failed; run dictation-mode recover') from rollback_failure
+                raise SwitchError('target startup failed; previous app restored') from failure
+
+    def cleanup(self):
+        with self.store.lock():
+            try:
+                journal = self.store.journal()
+            except (SwitchError, OSError):
+                try:
+                    self.store.suppress()
+                finally:
+                    self.manager.stop_all()
+                raise
+            if journal and (journal['invocation'] == self.invocation
+                            or not self.manager.owner_alive(journal)):
+                self.degrade(journal)
+
+
+def status(store, manager):
+    try:
+        with store.lock(nonblocking=True):
+            selected = store.selection()
+            journal = store.journal()
+            state = manager.snapshot()
+            if journal:
+                label = 'transitioning' if manager.owner_alive(journal) else 'degraded'
+            elif selected and state['running'] == {selected} and not (
+                    state['unmanaged'] or state['jobs'] or state['errors']):
+                label = selected
+            else:
+                label = 'degraded'
+            print('State: ' + label)
+            print('Selected app: ' + (selected or 'none'))
+            print('Running apps: ' + (', '.join(sorted(state['running'])) or 'none'))
+            if journal:
+                print('Recovery app: ' + journal['previous'])
+                print('Transaction phase: ' + journal['phase'])
+            if state['unmanaged']:
+                print('Unmanaged processes: ' + ', '.join(sorted(state['unmanaged'])))
+            for error in state['errors']:
+                print('Check: ' + error)
+            if state['jobs']:
+                print('Pending app jobs: ' + str(len(state['jobs'])))
+            if label in ('degraded', 'transitioning'):
+                print('Recovery command: dictation-mode recover')
+            return 0 if label in APPS else 1
+    except SwitchError as error:
+        if 'already running' in str(error):
+            print('State: transitioning')
+        else:
+            print('State: invalid (' + str(error) + ')')
+        return 1
+
+
+def main(arguments):
+    store, manager = State(STATE_ROOT), Manager()
+    if len(arguments) == 2 and arguments[0] == '_admit':
+        return 0 if admitted(store, manager, arguments[1]) else 1
+    if len(arguments) == 2 and arguments[0] in ('_run', '_cleanup'):
+        target = arguments[1]
+        if target not in (*APPS, 'recover'):
+            raise SwitchError('invalid switch target')
+        invocation = os.environ.get('INVOCATION_ID', '')
+        if not re.fullmatch(r'[0-9a-f]{32}', invocation):
+            raise SwitchError('internal operation requires systemd supervision')
+        controller = Controller(store, manager,
+                                f'dictation-switch@{target}.service', invocation)
+        if arguments[0] == '_run':
+            controller.run(target)
+        else:
+            controller.cleanup()
+        return 0
+    if len(arguments) != 1 or arguments[0] not in (*APPS, 'status', 'recover'):
+        print('Usage: dictation-mode spokenly|voxtype|status|recover', file=sys.stderr)
+        return 2
+    if arguments[0] == 'status':
+        return status(store, manager)
+    store.check()
+    unit = f'dictation-switch@{arguments[0]}.service'
+    result = systemctl('start', unit, check=False, timeout=135)
+    if result.returncode:
+        print(result.stderr.strip(), file=sys.stderr)
+        print(f'Inspect: journalctl --user -u {unit} -n 25', file=sys.stderr)
+    health = status(store, manager)
+    return 1 if result.returncode else health
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except (SwitchError, OSError, ValueError, subprocess.SubprocessError) as error:
+        print('dictation-mode: ' + str(error), file=sys.stderr)
+        sys.exit(1)

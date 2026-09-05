@@ -1,0 +1,23 @@
+[Unit]
+Description=Spokenly isolated dictation trial
+PartOf=graphical-session.target
+After=graphical-session.target pipewire.service pipewire-pulse.service
+ConditionPathExists=%h/.local/state/spokenly-migration/dictation-mode/spokenly-allowed
+
+[Service]
+Type=exec
+ExecCondition=%h/.local/bin/dictation-mode _admit spokenly
+Environment=XDG_CONFIG_HOME=%h/.local/state/spokenly-migration/spokenly/config
+Environment=XDG_DATA_HOME=%h/.local/state/spokenly-migration/spokenly/data
+Environment=XDG_CACHE_HOME=%h/.local/state/spokenly-migration/spokenly/cache
+Environment=XDG_STATE_HOME=%h/.local/state/spokenly-migration/spokenly/state
+ExecStartPre=/usr/bin/mkdir -p %h/.local/state/spokenly-migration/spokenly/config %h/.local/state/spokenly-migration/spokenly/data %h/.local/state/spokenly-migration/spokenly/cache %h/.local/state/spokenly-migration/spokenly/state
+ExecStart=/usr/bin/spokenly
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+UMask=0077
+
+[Install]
+WantedBy=graphical-session.target

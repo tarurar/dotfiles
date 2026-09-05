@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+"""Deploy explicit trial file copies, or remove only the recorded copies."""
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+
+SOURCE = Path(__file__).resolve().parent
+HOME_DIR = Path.home()
+TRIAL = HOME_DIR / '.local/state/spokenly-migration'
+MANIFEST = TRIAL / 'switch-deployment.json'
+UNIT_DIR = HOME_DIR / '.config/systemd/user'
+ENABLE_LINK = UNIT_DIR / 'graphical-session.target.wants/spokenly.service'
+FILES = (
+    ('bin/dictation-mode', HOME_DIR / '.local/bin/dictation-mode', 0o755),
+    ('systemd/spokenly.service', UNIT_DIR / 'spokenly.service', 0o644),
+    ('systemd/dictation-switch@.service', UNIT_DIR / 'dictation-switch@.service', 0o644),
+    ('systemd/90-spokenly-trial.conf',
+     UNIT_DIR / 'voxtype.service.d/90-spokenly-trial.conf', 0o644),
+)
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def module():
+    loader = importlib.machinery.SourceFileLoader('dictation_mode', str(SOURCE / 'bin/dictation-mode'))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    result = importlib.util.module_from_spec(spec)
+    loader.exec_module(result)
+    return result
+
+
+def check_artifacts(manifest, require_present):
+    for item in manifest['files']:
+        path = Path(item['destination'])
+        if path.is_symlink():
+            raise RuntimeError('refusing symlink destination: ' + str(path))
+        if path.exists():
+            if digest(path) != item['sha256']:
+                raise RuntimeError('installed file changed; review before overwriting: ' + str(path))
+        elif require_present:
+            raise RuntimeError('installed file is missing: ' + str(path))
+
+
+def create_manifest(state):
+    if ENABLE_LINK.exists() or ENABLE_LINK.is_symlink():
+        raise RuntimeError('refusing preexisting enable link: ' + str(ENABLE_LINK))
+    files = []
+    directories = set()
+    for relative, destination, mode in FILES:
+        if destination.exists() or destination.is_symlink():
+            raise RuntimeError('refusing preexisting destination: ' + str(destination))
+        parent = destination.parent
+        while not parent.exists():
+            directories.add(str(parent))
+            parent = parent.parent
+        files.append(dict(source=str(SOURCE / relative), destination=str(destination),
+                          mode=mode, sha256=digest(SOURCE / relative), inverse='unlink'))
+    manifest = dict(version=1, source=str(SOURCE), files=files,
+                    directories=sorted(directories), phase='prepared',
+                    enabled_unit='spokenly.service',
+                    enable_link=str(ENABLE_LINK),
+                    enable_target=str(UNIT_DIR / 'spokenly.service'),
+                    switch_state=str(TRIAL / 'dictation-mode'),
+                    state_inverse='retain until final cleanup, then remove recorded state directory',
+                    enable_inverse='systemctl --user disable spokenly.service')
+    state.write('switch-deployment.json', json.dumps(manifest, indent=2) + '\n')
+    return manifest
+
+
+def install():
+    switch = module()
+    journal_state = switch.State(TRIAL)
+    journal_state.check()
+    if MANIFEST.exists():
+        manifest = json.loads(MANIFEST.read_text())
+        if manifest['phase'] == 'removed':
+            raise RuntimeError('previous deployment removed; review inventory before reinstalling')
+        check_artifacts(manifest, require_present=False)
+        if manifest['phase'] == 'installed':
+            check_artifacts(manifest, require_present=True)
+            print('Recorded trial files are already installed.')
+            return
+    else:
+        manifest = create_manifest(journal_state)
+    for item in manifest['files']:
+        src, destination = Path(item['source']), Path(item['destination'])
+        if digest(src) != item['sha256']:
+            raise RuntimeError('source differs from prepared deployment: ' + str(src))
+        destination.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+        if not destination.exists():
+            fd = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, item['mode'])
+            with os.fdopen(fd, 'wb') as stream:
+                stream.write(src.read_bytes())
+                stream.flush()
+                os.fsync(stream.fileno())
+        destination.chmod(item['mode'])
+    state = switch.State(switch.STATE_ROOT)
+    state.initialize()
+    with state.lock(nonblocking=True):
+        if state.journal() is not None:
+            raise RuntimeError('unfinished switch transaction: recover before deployment')
+        selected = state.selection()
+        if selected is None:
+            # Initial deployment preserves the already rehearsed Voxtype choice.
+            if any(app != 'voxtype' for _, app, _ in switch.processes()):
+                raise RuntimeError('close Spokenly before initializing the switch')
+            state.select('voxtype')
+        switch.systemctl('daemon-reload')
+        switch.systemctl('enable', 'spokenly.service')
+        switch.Manager().verify(state.selection())
+    manifest['phase'] = 'installed'
+    journal_state.write('switch-deployment.json', json.dumps(manifest, indent=2) + '\n')
+    print('Installed explicit trial copies; Voxtype selection is preserved.')
+
+
+def remove():
+    switch = module()
+    manifest = json.loads(MANIFEST.read_text())
+    if manifest['phase'] == 'removed':
+        print('Trial service files are already removed.')
+        return
+    check_artifacts(manifest, require_present=True)
+    if ENABLE_LINK.is_symlink() and ENABLE_LINK.resolve() != UNIT_DIR / 'spokenly.service':
+        raise RuntimeError('Spokenly enable link changed; inspect it before removal')
+    state = switch.State(switch.STATE_ROOT)
+    with state.lock(nonblocking=True):
+        if state.journal() is not None or state.selection() != 'voxtype':
+            raise RuntimeError('restore Voxtype with dictation-mode before removing trial controls')
+        switch.Manager().verify('voxtype')
+        state.suppress()
+        try:
+            switch.Manager().stop_all()
+            switch.systemctl('disable', 'spokenly.service')
+            for item in reversed(manifest['files']):
+                Path(item['destination']).unlink()
+            for directory in sorted(manifest['directories'], key=len, reverse=True):
+                try:
+                    Path(directory).rmdir()
+                except OSError:
+                    pass  # Preserve any concurrent additions.
+            switch.systemctl('daemon-reload')
+        finally:
+            state.select('voxtype')
+            switch.systemctl('start', 'voxtype.service')
+    manifest['phase'] = 'removed'
+    switch.State(TRIAL).write('switch-deployment.json', json.dumps(manifest, indent=2) + '\n')
+    print('Removed recorded trial controls and started original Voxtype service.')
+    print('Spokenly package, trial sources, and private evidence are retained.')
+
+
+if __name__ == '__main__':
+    try:
+        if sys.argv[1:] == ['install']:
+            install()
+        elif sys.argv[1:] == ['remove']:
+            remove()
+        else:
+            raise RuntimeError('usage: deploy install|remove')
+    except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
+        print('deployment: ' + str(error), file=sys.stderr)
+        sys.exit(1)
