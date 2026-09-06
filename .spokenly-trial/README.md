@@ -188,3 +188,26 @@ Spokenly. Remove only empty recorded directories. The resume watcher is
 independent and can remain enabled. Full `deploy remove` includes these
 files. See the migration repository's
 `docs/diagnostics/spokenly-ghostty-paste-2026-09-05.md` for details.
+
+## Overlay placement with the lid closed
+
+On 2026-09-06, dictation worked after reboot but its recording overlay was
+invisible. The internal display was disabled. Hyprland mapped the 284x232
+window on the external 2560x1440 monitor at (1298, 1635), below the screen.
+This was a placement failure, not another lost hotkey listener.
+
+The existing `hypr/spokenly-trial.lua` no-focus rule now also sets
+`move = { "(monitor_w-window_w)/2", "monitor_h-window_h-40" }`. It places
+only the Recording overlay at bottom center of its assigned monitor, with
+40 logical pixels of bottom margin. The user confirmed visibility; two
+appearances were measured at the expected (1138, 1168). The app was not
+restarted. Why the app chose the original coordinates remains unverified.
+
+Source and installed copies match the updated manifest. The saved file was
+loaded successfully through Hyprland; startup uses the existing include.
+Prior rule and manifest are backed up under
+`runtime-inventory/overlay-placement-2026-09-06/`. To undo only placement,
+remove the move property and its comment, retain no_focus, update the
+manifest hash, and reload the rule. Subsequent reboot and other display
+arrangements remain untested. See the migration repository's
+`docs/diagnostics/spokenly-overlay-placement-2026-09-06.md`.
