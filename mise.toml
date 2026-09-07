@@ -16,8 +16,6 @@ DOTNET_CLI_UI_LANGUAGE = "en"  # Skip locale detection
 MSBuildEnableWorkloadResolver = "false"  # Skip workload resolution if not needed
 DOTNET_MaxDegreeOfParallelism = "24"
 XUNIT_MAXPARALLEL = "24"
-# Route dotnet through rtk when installed for compact output; fall back to plain dotnet.
-RTK_DOTNET = '''{{ exec(command='command -v rtk >/dev/null 2>&1 && printf "rtk dotnet" || printf dotnet', cache_key='rtk_dotnet', cache_duration='1h') }}'''
 
 [tasks."dotnet:restore"]
 description = "Restore NuGet packages with optimizations"
@@ -27,7 +25,7 @@ run = '''
 set -e
 TARGET_FILE=$(mise run find-dotnet-target)
 
-$RTK_DOTNET restore "${TARGET_FILE}" \
+dotnet restore "${TARGET_FILE}" \
     --use-lock-file \
     --locked-mode \
     -maxcpucount:12 \
@@ -46,7 +44,7 @@ if [ "${CODEX_SANDBOX_NETWORK_DISABLED:-}" = "1" ]; then
     MAX_CPU_COUNT=1
 fi
 
-$RTK_DOTNET build "${TARGET_FILE}" \
+dotnet build "${TARGET_FILE}" \
     /property:Configuration=Debug \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
@@ -66,7 +64,7 @@ run = '''
 set -e
 TARGET_FILE=$(mise run find-dotnet-target)
 
-$RTK_DOTNET build "${TARGET_FILE}" \
+dotnet build "${TARGET_FILE}" \
     /property:Configuration=Debug \
     /property:IsLocalBuild=true \
     --nologo \
@@ -85,7 +83,7 @@ run = '''
 set -e
 TARGET_FILE=$(mise run find-dotnet-target)
 
-$RTK_DOTNET build "${TARGET_FILE}" \
+dotnet build "${TARGET_FILE}" \
     /property:Configuration=Debug \
     /property:GenerateFullPaths=true \
     /consoleloggerparameters:NoSummary \
@@ -223,7 +221,7 @@ fi
 build_fast() {
     local TARGET=$1
 
-    $RTK_DOTNET build "$TARGET" \
+    dotnet build "$TARGET" \
         /property:Configuration=Debug \
         /property:IsLocalBuild=true \
         --nologo \
@@ -237,7 +235,7 @@ build_fast() {
 build_full() {
     local TARGET=$1
 
-    $RTK_DOTNET build "$TARGET" \
+    dotnet build "$TARGET" \
         /property:Configuration=Debug \
         /property:GenerateFullPaths=true \
         /consoleloggerparameters:NoSummary \
@@ -260,7 +258,7 @@ list_solution_projects() {
     local SOLUTION_DIR
 
     SOLUTION_DIR=$(dirname "$SOLUTION")
-    $RTK_DOTNET sln "$SOLUTION" list \
+    dotnet sln "$SOLUTION" list \
         | sed '1,2d' \
         | while IFS= read -r PROJECT; do
             if [ -z "$PROJECT" ]; then
