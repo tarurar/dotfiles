@@ -23,6 +23,12 @@ switch. It starts in the background; use the tray icon for settings. Direct
 execution of /usr/bin/spokenly still bypasses the trial operating rule.
 Close any reported unmanaged process before switching.
 
+The service blocks `/etc/machine-id` with
+`InaccessiblePaths=/etc/machine-id`. Keep this restriction in normal deployment
+after the trial, including an AppImage cutover, and route normal app launches
+through that service. This blocks direct file access, not previously cached
+identifiers or every other source of machine identity.
+
 Spokenly receives private XDG config, data, cache, and state directories under
 `~/.local/state/spokenly-migration/spokenly/`. This keeps app settings and model
 downloads separate from the normal desktop directories. Runtime inspection
