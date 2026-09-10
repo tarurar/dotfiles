@@ -19,6 +19,7 @@ ENABLE_LINK = UNIT_DIR / 'graphical-session.target.wants/spokenly.service'
 RESUME_UNIT = 'spokenly-resume.service'
 RESUME_LINK = UNIT_DIR / 'graphical-session.target.wants' / RESUME_UNIT
 FILES = (
+    ('applications/Spokenly.desktop', HOME_DIR / '.local/share/applications/Spokenly.desktop', 0o644),
     ('bin/spokenly-ydotool', HOME_DIR / '.local/lib/spokenly-trial/bin/ydotool', 0o755),
     ('bin/spokenly-trial-launch', HOME_DIR / '.local/bin/spokenly-trial-launch', 0o755),
     ('bin/spokenly-resume', HOME_DIR / '.local/bin/spokenly-resume', 0o755),

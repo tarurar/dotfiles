@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Spokenly
+Comment=Start Spokenly with the isolated trial profile (settings in tray)
+Exec=/home/tarurar/.local/bin/dictation-mode spokenly
+Icon=spokenly
+StartupWMClass=spokenly
+Terminal=false
+StartupNotify=false
+Categories=Utility;

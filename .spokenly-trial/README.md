@@ -18,8 +18,10 @@ dictation-mode recover
 Use only the switch to launch the dictation apps. The service passes native
 `--autostart` so login and switch activation run Spokenly in the background
 without opening its main window. Keep Spokenly's own login autostart disabled.
-The package desktop launcher and direct execution bypass
-the trial operating rule. Close any reported unmanaged process before switching.
+The per-user Spokenly desktop entry selects/starts the trial through the
+switch. It starts in the background; use the tray icon for settings. Direct
+execution of /usr/bin/spokenly still bypasses the trial operating rule.
+Close any reported unmanaged process before switching.
 
 Spokenly receives private XDG config, data, cache, and state directories under
 `~/.local/state/spokenly-migration/spokenly/`. This keeps app settings and model
@@ -211,3 +213,20 @@ remove the move property and its comment, retain no_focus, update the
 manifest hash, and reload the rule. Subsequent reboot and other display
 arrangements remain untested. See the migration repository's
 `docs/diagnostics/spokenly-overlay-placement-2026-09-06.md`.
+
+
+## Desktop launcher profile
+
+The package launcher used `Exec=spokenly`, which opened the ordinary profile
+after the user quit the trial app. A user override with the same desktop ID,
+`applications/Spokenly.desktop`, now invokes the guarded `dictation-mode
+spokenly` command at its absolute path for this laptop. The original trial
+mode shortcut remained rcmd; no settings were lost or rewritten.
+
+The override is recorded in the deployment manifest and removed by the
+normal inverse. Desktop validation and GIO resolution passed. A real
+stop-and-reopen through the desktop ID started only the service-owned app
+with the trial XDG data directory. This covers the reported app-launcher
+route; direct binary execution and in-app updates are not redirected.
+See the migration repository's
+`docs/diagnostics/spokenly-launcher-profile-2026-09-10.md`.
